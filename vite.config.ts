@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
@@ -19,20 +18,14 @@ export default defineConfig({
       '@capacitor-community/barcode-scanner'
     ]
   },
-  build: {
-    rollupOptions: {
-      input: {
-        main: 'index.html',
-        waitlist: 'waitlist.html'
-      }
-    }
-  },
   server: {
     host: true,
     port: 3000,
     strictPort: true,
     hmr: {
-      clientPort: 443 // This is needed for HMR to work in some environments
-    }
+      clientPort: 443
+    },
+    // Add this to enable SPA fallback:
+    historyApiFallback: true,
   }
 });
