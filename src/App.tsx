@@ -38,7 +38,7 @@ function App() {
         <ConnectionErrorBanner />
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Waitlist />} />
+          <Route path="/" element={<Home />} />
           <Route path="/waitlist" element={<Waitlist />} />
           <Route path="/share/:code" element={<PublicProfile />} />
           <Route path="/terms" element={<TermsConditions />} />
@@ -96,7 +96,7 @@ function App() {
           </Route>
 
           {/* Catch all - redirect to waitlist */}
-          <Route path="*" element={<Navigate to="/waitlist" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </SessionGuard>
     </AuthProvider>
