@@ -803,7 +803,6 @@ export function Waitlist() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   onClick={scrollToWaitlistForm}
-                  onClick={scrollToWaitlistForm}
                   className="w-full sm:w-auto px-8 py-4 bg-white text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full hover:bg-gray-100 font-bold text-lg shadow-lg border-2 border-white"
                 >
                   Join the Mobile App Waitlist
