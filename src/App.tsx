@@ -52,7 +52,14 @@ function App() {
           
           {/* Production Channel Routes */}
           <Route path="/app" element={<Layout />}>
-            <Route index element={<Home />} />
+  <Route
+    index
+    element={
+      <ProtectedRoute>
+        <Home />
+      </ProtectedRoute>
+    }
+  />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="onboarding" element={<Onboarding />} />

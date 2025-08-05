@@ -6,32 +6,28 @@ import { supabase } from '../../lib/supabase';
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, refreshUser } = useAuth();
   const location = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [session, setSession] = useState<any>(null);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkSession = async () => {
       try {
-        // Direct check with Supabase
         const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
-        
-        // If we have a session but no user data, refresh the user
+        setSession(session);
+
         if (session && !user) {
           await refreshUser();
         }
       } catch (error) {
-        console.error('Error checking authentication:', error);
-        setIsAuthenticated(false);
+        console.error('Error checking session:', error);
       } finally {
         setCheckingAuth(false);
       }
     };
 
-    checkAuth();
+    checkSession();
   }, [user, refreshUser]);
 
-  // Show loading state while checking auth
   if (loading || checkingAuth) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -40,20 +36,22 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Redirect to waitlist if not authenticated
-  if (!user && !isAuthenticated) {
-    // Store the attempted URL for redirect after login
-    localStorage.setItem('redirectUrl', location.pathname);
-    
-    // Redirect to waitlist
-    return <Navigate to="/waitlist" state={{ from: location }} replace />;
+  // If user is not logged in and trying to access any route other than /waitlist, redirect to /waitlist
+  const isAuthenticated = !!user || !!session;
+
+  if (!isAuthenticated && location.pathname !== '/waitlist') {
+    return <Navigate to="/waitlist" replace />;
   }
 
-  // Redirect to onboarding if not completed
+  // If user is logged in but onboarding not complete, redirect to onboarding (except when already there)
   if (user && !user.onboardingComplete && location.pathname !== '/app/onboarding') {
     return <Navigate to="/app/onboarding" replace />;
   }
 
-  // Render protected content
+  // If user is authenticated and on /waitlist, redirect to home or dashboard (optional)
+  if (isAuthenticated && location.pathname === '/waitlist') {
+    return <Navigate to="/" replace />;
+  }
+
   return <>{children}</>;
 }
