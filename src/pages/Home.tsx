@@ -272,39 +272,6 @@ export function Home() {
   // Determine if we should show authenticated UI
   const showAuthenticatedUI = user || isAuthenticated;
 
-  if (!showAuthenticatedUI) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] text-center px-4">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-          Connect & Share <br className="hidden sm:inline" />
-          <span className="text-indigo-600">Instantly</span>
-        </h1>
-        <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mb-8">
-          Join our growing community of professionals building meaningful connections.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4">
-          <button
-            onClick={() => navigate('/app/register')}
-            className="px-8 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 font-medium"
-          >
-            Get Started
-          </button>
-          <button
-            onClick={() => navigate('/app/login')}
-            className="px-8 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 font-medium"
-          >
-            Sign In
-          </button>
-        </div>
-        <img
-          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
-          alt="Team collaboration"
-          className="mt-12 rounded-xl shadow-xl max-w-4xl w-full"
-        />
-      </div>
-    );
-  }
-
   // Group follow-ups by due date
   const today = new Date();
   today.setHours(0, 0, 0, 0);
