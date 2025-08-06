@@ -272,6 +272,12 @@ export function Home() {
   // Determine if we should show authenticated UI
   const showAuthenticatedUI = user || isAuthenticated;
 
+  // If not authenticated, redirect to waitlist
+  if (!showAuthenticatedUI) {
+    navigate('/');
+    return null;
+  }
+
   // Group follow-ups by due date
   const today = new Date();
   today.setHours(0, 0, 0, 0);

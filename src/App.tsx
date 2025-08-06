@@ -38,7 +38,7 @@ function App() {
         <ConnectionErrorBanner />
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Waitlist />} />
           <Route path="/waitlist" element={<Waitlist />} />
           <Route path="/share/:code" element={<PublicProfile />} />
           <Route path="/terms" element={<TermsConditions />} />
@@ -52,14 +52,11 @@ function App() {
           
           {/* Production Channel Routes */}
           <Route path="/app" element={<Layout />}>
-  <Route
-    index
-    element={
-      <ProtectedRoute>
-        <Home />
-      </ProtectedRoute>
-    }
-  />
+            <Route index element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            } />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="onboarding" element={<Onboarding />} />

@@ -230,8 +230,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // Redirect to home if on public path
-      if (isPublicPath && !location.pathname.startsWith('/share') && !location.pathname.startsWith('/verify') && !location.pathname.startsWith('/confirm') && !location.pathname.startsWith('/confirmed') && !location.pathname.startsWith('/demo')) {
+      // Only redirect to app if user is on login/register pages after successful auth
+      if (location.pathname === '/app/login' || location.pathname === '/app/register') {
         navigate('/app');
         return;
       }
