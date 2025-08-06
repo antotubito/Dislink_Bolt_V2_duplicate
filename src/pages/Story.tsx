@@ -68,7 +68,7 @@ export function Story() {
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-gray-900">Our Story</h1>
               <Link
-                to="/waitlist"
+                to="/"
                 className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
