@@ -13,93 +13,71 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loginStep, setLoginStep] = useState<string>('');
   const [error, setError] = useState<string | null | React.ReactNode>(null);
   const [resetSent, setResetSent] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
-    // Check environment configuration on component mount
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    console.log('🔍 Login Page Environment Check:', {
-      allEnvVars: Object.keys(import.meta.env),
-      viteEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
-      supabaseEnvVars: Object.keys(import.meta.env).filter(key => key.includes('SUPABASE')),
-      supabaseUrl: {
-        exists: !!supabaseUrl,
-        length: supabaseUrl?.length || 0,
-        preview: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING'
-      },
-      supabaseKey: {
-        exists: !!supabaseAnonKey,
-        length: supabaseAnonKey?.length || 0,
-        preview: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 10)}...` : 'MISSING'
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error checking session:', error);
+          return;
+        }
+        
+        if (session?.user) {
+          // Check if user has completed onboarding
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('onboarding_complete')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (profileError) {
+            console.error('Error fetching profile:', profileError);
+            return;
+          }
+            
+          if (profile?.onboarding_complete) {
+            navigate('/app');
+          } else {
+            navigate('/app/onboarding');
+          }
+        }
+      } catch (err) {
+        console.error('Session check error:', err);
       }
-    });
-    
-    const debugData = {
-      environment: import.meta.env.MODE,
-      supabaseConfigured: !!(supabaseUrl && supabaseAnonKey),
-      urlAvailable: !!supabaseUrl,
-      keyAvailable: !!supabaseAnonKey,
-      urlLength: supabaseUrl?.length || 0,
-      keyLength: supabaseAnonKey?.length || 0,
-      connectionStatus,
-      timestamp: new Date().toISOString(),
-      allViteEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
     };
-    
-    setDebugInfo(debugData);
-    logger.info('🔍 Login component mounted with debug info:', debugData);
-    
-    // Don't do any redirects on login page - let the auth flow handle it naturally
-    // This prevents conflicts with ProtectedRoute logic
-  }, [navigate, connectionStatus]);
+    checkSession();
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Immediate client-side validation
+    // Validate input
     if (!email.trim() || !password.trim()) {
       setError('Please enter both email and password');
       return;
     }
 
-    // Basic email format validation
+    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
+    if (!emailRegex.test(email)) {
       setError('Please enter a valid email address');
       return;
     }
 
-    // Basic password length check
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      return;
-    }
-
     setLoading(true);
-    setLoginStep('Verifying credentials...');
 
     try {
       // Check connection status first
       if (connectionStatus === 'disconnected') {
         setError('You appear to be offline. Please check your internet connection and try again.');
         setLoading(false);
-        setLoginStep('');
-        return;
-      }
-      
-      // Check if Supabase is configured
-      if (debugInfo && !debugInfo.supabaseConfigured) {
-        setError('Application is not properly configured. Please contact support.');
-        setLoading(false);
-        setLoginStep('');
         return;
       }
       
@@ -107,93 +85,55 @@ export function Login() {
       logger.info('Attempting login with email', { 
         email,
         emailLength: email.length,
-        passwordLength: password.length,
-        debugInfo
+        passwordLength: password.length
       });
       
-      setLoginStep('Authenticating...');
-      
-      // Call login function directly - no need for timeout on invalid credentials
       const result = await login({ email, password });
       
-      logger.info('Login result received:', { success: result.success, requiresOnboarding: result.requiresOnboarding });
-      
-      // Handle immediate errors (invalid credentials, etc.)
-      if (!result.success) {
-        if (result.emailConfirmationRequired) {
-          logger.info('Email confirmation required');
-          setShowEmailConfirmation(true);
-          localStorage.setItem('confirmEmail', email);
-          return;
-        }
+      if (result.success) {
+        logger.info('Login successful, refreshing user data');
+        await refreshUser();
         
-        if (result.emailNotFound) {
-          logger.warn('Email not found during login attempt');
-          setError(
-            <div className="text-sm">
-              No account found with this email.{' '}
-              <Link to="/app/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
-                Create an account
-              </Link>
-              {' '}or try a different email.
-            </div>
-          );
-          return;
-        }
+        // Check for redirect URL
+        const redirectUrl = localStorage.getItem('redirectUrl');
         
-        if (result.error) {
-          logger.error('Login error from result:', result.error);
-          setError(result.error);
-          return;
+        if (redirectUrl) {
+          localStorage.removeItem('redirectUrl');
+          navigate(redirectUrl);
+        } else if (result.requiresOnboarding) {
+          // Explicitly redirect to onboarding if required
+          navigate('/app/onboarding');
+        } else {
+          // Otherwise go to main app
+          navigate('/app');
         }
-        
-        // Fallback error
-        setError('Login failed. Please try again.');
-        return;
-      }
-      
-      // Only proceed with loading user data if login was successful
-      logger.info('Login successful, refreshing user data');
-      setLoginStep('Loading your profile...');
-      
-      // Add timeout only to refreshUser, not the initial authentication
-      const refreshTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('User data refresh timeout')), 60000)
-      );
-      
-      logger.info('Starting user data refresh...');
-      await Promise.race([
-        refreshUser(true), // Force refresh even on public paths
-        refreshTimeout
-      ]);
-      
-      logger.info('User data refresh completed, navigating...');
-      setLoginStep('Redirecting...');
-      
-      // Check for redirect URL
-      const redirectUrl = localStorage.getItem('redirectUrl');
-      
-      if (redirectUrl) {
-        localStorage.removeItem('redirectUrl');
-        logger.info('Redirecting to stored URL:', redirectUrl);
-        navigate(redirectUrl);
-      } else if (result.requiresOnboarding) {
-        // Explicitly redirect to onboarding if required
-        logger.info('Redirecting to onboarding');
-        navigate('/app/onboarding');
-      } else {
-        // Otherwise go to main app
-        logger.info('Redirecting to main app');
-        navigate('/app');
+      } else if (result.emailConfirmationRequired) {
+        logger.info('Email confirmation required');
+        setShowEmailConfirmation(true);
+        localStorage.setItem('confirmEmail', email);
+      } else if (result.emailNotFound) {
+        logger.warn('Email not found during login attempt');
+        setError(
+          <div className="text-sm">
+            No account found with this email.{' '}
+            <Link to="/app/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
+              Create an account
+            </Link>
+            {' '}or try a different email.
+          </div>
+        );
+      } else if (result.error) {
+        logger.error('Login error from result:', result.error);
+        setError(result.error);
       }
     } catch (err) {
       logger.error('Login error:', err);
       
       if (err instanceof Error) {
-        if (err.message.includes('timeout') || err.message.includes('refresh timeout')) {
-          setError('Login is taking longer than expected. This might be due to a slow connection. Please try again.');
-        } else if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
+        if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
           setError('Network error. Please check your internet connection and try again.');
+        } else if (err.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password');
         } else {
           setError(err.message);
         }
@@ -202,7 +142,6 @@ export function Login() {
       }
     } finally {
       setLoading(false);
-      setLoginStep('');
     }
   };
 
@@ -354,34 +293,6 @@ export function Login() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      {/* Debug Panel - Only show in development */}
-      {import.meta.env.DEV && debugInfo && (
-        <div className="w-full max-w-md mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 className="text-sm font-semibold text-yellow-800 mb-2">🔧 Debug Info</h3>
-          <div className="text-xs text-yellow-700 space-y-1">
-            <div>Environment: {debugInfo.environment}</div>
-            <div>Supabase Configured: {debugInfo.supabaseConfigured ? '✅' : '❌'}</div>
-            <div>URL Available: {debugInfo.urlAvailable ? '✅' : '❌'} ({debugInfo.urlLength} chars)</div>
-            <div>Key Available: {debugInfo.keyAvailable ? '✅' : '❌'} ({debugInfo.keyLength} chars)</div>
-            <div>Connection: {debugInfo.connectionStatus}</div>
-            <div>VITE Env Vars: {debugInfo.allViteEnvVars?.length || 0}</div>
-            {debugInfo.allViteEnvVars && debugInfo.allViteEnvVars.length > 0 && (
-              <div className="ml-2 text-xs text-yellow-600">
-                {debugInfo.allViteEnvVars.map((key: string) => (
-                  <div key={key}>• {key}</div>
-                ))}
-              </div>
-            )}
-            {!debugInfo.supabaseConfigured && (
-              <div className="mt-2 p-2 bg-red-100 rounded text-red-800 text-xs">
-                ⚠️ Missing Supabase credentials! Login will not work.
-                <br />Check your .env file for VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       <div className="text-center mb-8">
         <div className="mx-auto w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
           <Sparkles className="h-10 w-10 text-indigo-600" />
@@ -475,26 +386,25 @@ export function Login() {
             {loading ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                {loginStep || 'Signing in...'}
+                Signing in...
               </div>
             ) : (
               'Sign In'
             )}
           </button>
-
-          {loading && loginStep && (
-            <div className="mt-2 text-center">
-              <div className="text-sm text-gray-600">
-                {loginStep === 'Loading your profile...' && (
-                  <div className="flex items-center justify-center">
-                    <Timer className="h-4 w-4 mr-1" />
-                    This may take a moment on slower connections
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
         </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account yet?{' '}
+            <Link
+              to="/app/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Create one now
+            </Link>
+          </p>
+        </div>
 
         <div className="mt-6 text-center">
           <Link

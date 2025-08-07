@@ -11,7 +11,7 @@ interface AuthContextType {
   error: string | null;
   isOwner: boolean;
   isTestingChannel: boolean;
-  refreshUser: (forceRefresh?: boolean) => Promise<void>;
+  refreshUser: () => Promise<void>;
   reconnectSupabase: () => Promise<boolean>;
   connectionStatus: 'connected' | 'disconnected' | 'connecting';
 }
@@ -118,207 +118,134 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const refreshUser = async (forceRefresh: boolean = false) => {
+  const refreshUser = async () => {
     try {
-      logger.info('Refreshing user data', { forceRefresh, currentPath: location.pathname });
-      
-      setLoading(true);
-      setError(null);
+      // Skip auth check for public paths
+      const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
+      if (isPublicPath) {
+        console.log('🎯 Public path in refreshUser, skipping auth check');
+        setLoading(false);
+        setSessionChecked(true);
+        return;
+      }
 
-      // Get session first - this is fastest
+      logger.info('Refreshing user data');
+      
+      // Check if we have a valid session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        logger.error('Session error during refresh:', sessionError);
-        setError(sessionError.message);
-        setUser(null);
-        setLoading(false);
-        setSessionChecked(true);
-        return;
+        const handled = await handleAuthError(sessionError);
+        if (handled) return;
+        throw sessionError;
       }
-
-      if (!session) {
-        logger.info('No session found during refresh');
-        setUser(null);
-        setLoading(false);
-        setSessionChecked(true);
-        return;
-      }
-
-      logger.info('Session found, fetching profile data');
       
-      // Fetch profile data with timeout protection
-      const profilePromise = supabase
+      if (!session) {
+        logger.debug('No active session');
+        setUser(null);
+        setLoading(false);
+        // Initialize user preferences with null user ID
+        await initUserPreferences(null);
+        return;
+      }
+
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();
 
-      // Add timeout to profile fetch
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 15000)
-      );
-
-      try {
-        const { data: profile, error: profileError } = await Promise.race([
-          profilePromise,
-          timeoutPromise
-        ]) as any;
-
-        if (profileError) {
-          if (profileError.message === 'Profile fetch timeout') {
-            logger.warn('Profile fetch timed out, creating minimal user object');
-            // Create minimal user object from session data
-            const minimalUser: User = {
-              id: session.user.id,
-              email: session.user.email || '',
-              firstName: session.user.user_metadata?.first_name || '',
-              lastName: session.user.user_metadata?.last_name || '',
-              name: session.user.user_metadata?.name || session.user.email || '',
-              company: '',
-              jobTitle: '',
-              industry: undefined,
-              profileImage: '',
-              coverImage: '',
-              bio: {},
-              interests: [],
-              socialLinks: {},
-              onboardingComplete: false, // Default to incomplete
-              registrationComplete: true,
-              registrationStatus: 'active',
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              twoFactorEnabled: false,
-              publicProfile: {
-                enabled: true,
-                defaultSharedLinks: {},
-                allowedFields: {
-                  email: false,
-                  phone: false,
-                  company: true,
-                  jobTitle: true,
-                  bio: true,
-                  interests: true,
-                  location: true
-                }
-              }
-            };
-            
-            setUser(minimalUser);
-            setLoading(false);
-            setSessionChecked(true);
-            return;
-          }
-          
-          logger.error('Profile error during refresh:', profileError);
-          setError(profileError.message);
-          setUser(null);
+      if (profileError) {
+        // Check if it's a connection error
+        if (profileError.message?.includes('Failed to fetch')) {
+          setConnectionStatus('disconnected');
+          setError('Connection to Supabase lost. Please check your internet connection.');
           setLoading(false);
-          setSessionChecked(true);
           return;
         }
-
-        if (!profile) {
-          logger.warn('No profile found for user');
-          setUser(null);
-          setLoading(false);
-          setSessionChecked(true);
-          return;
-        }
-
-        // Create user object from profile
-        const userData: User = {
-          id: profile.id,
-          email: profile.email,
-          firstName: profile.first_name,
-          middleName: profile.middle_name,
-          lastName: profile.last_name,
-          name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
-          company: profile.company,
-          jobTitle: profile.job_title,
-          industry: profile.industry,
-          profileImage: profile.profile_image,
-          coverImage: profile.cover_image,
-          bio: profile.bio,
-          interests: profile.interests,
-          socialLinks: profile.social_links || {},
-          onboardingComplete: profile.onboarding_complete,
-          registrationComplete: profile.registration_complete,
-          registrationStatus: profile.registration_status,
-          registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
-          createdAt: new Date(profile.created_at),
-          updatedAt: new Date(profile.updated_at),
-          twoFactorEnabled: false,
-          publicProfile: profile.public_profile || {
-            enabled: true,
-            defaultSharedLinks: {},
-            allowedFields: {
-              email: false,
-              phone: false,
-              company: true,
-              jobTitle: true,
-              bio: true,
-              interests: true,
-              location: true
-            }
-          }
-        };
-
-        setUser(userData);
-        logger.info('User data updated successfully');
-
-        // Initialize user preferences in background (non-blocking)
-        initUserPreferences(userData).catch(error => {
-          logger.warn('Failed to initialize user preferences:', error);
-        });
-
-      } catch (timeoutError) {
-        logger.error('Profile fetch failed with timeout:', timeoutError);
-        // Continue with minimal user data rather than failing completely
-        const minimalUser: User = {
-          id: session.user.id,
-          email: session.user.email || '',
-          firstName: session.user.user_metadata?.first_name || '',
-          lastName: session.user.user_metadata?.last_name || '',
-          name: session.user.user_metadata?.name || session.user.email || '',
-          company: '',
-          jobTitle: '',
-          industry: undefined,
-          profileImage: '',
-          coverImage: '',
-          bio: {},
-          interests: [],
-          socialLinks: {},
-          onboardingComplete: false,
-          registrationComplete: true,
-          registrationStatus: 'active',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          twoFactorEnabled: false,
-          publicProfile: {
-            enabled: true,
-            defaultSharedLinks: {},
-            allowedFields: {
-              email: false,
-              phone: false,
-              company: true,
-              jobTitle: true,
-              bio: true,
-              interests: true,
-              location: true
-            }
-          }
-        };
         
-        setUser(minimalUser);
+        logger.error('Profile error:', profileError);
+        throw profileError;
       }
 
-      setLoading(false);
-      setSessionChecked(true);
+      if (!profile) {
+        setUser(null);
+        setLoading(false);
+        // Initialize user preferences with null user ID
+        await initUserPreferences(null);
+        return;
+      }
+
+      // Set user data
+      const userData: User = {
+        id: profile.id,
+        email: profile.email,
+        firstName: profile.first_name,
+        middleName: profile.middle_name,
+        lastName: profile.last_name,
+        name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
+        company: profile.company,
+        jobTitle: profile.job_title,
+        industry: profile.industry,
+        profileImage: profile.profile_image,
+        coverImage: profile.cover_image,
+        bio: profile.bio,
+        interests: profile.interests,
+        socialLinks: profile.social_links || {},
+        onboardingComplete: profile.onboarding_complete,
+        registrationComplete: profile.registration_complete,
+        registrationStatus: profile.registration_status,
+        registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
+        createdAt: new Date(profile.created_at),
+        updatedAt: new Date(profile.updated_at),
+        twoFactorEnabled: false,
+        publicProfile: profile.public_profile || {
+          enabled: true,
+          defaultSharedLinks: {},
+          allowedFields: {
+            email: false,
+            phone: false,
+            company: true,
+            jobTitle: true,
+            bio: true,
+            interests: true,
+            location: true
+          }
+        }
+      };
+      
+      setUser(userData);
+      setError(null);
+      setConnectionStatus('connected');
+      
+      // Initialize user preferences with user ID
+      await initUserPreferences(profile.id);
+
+      // Handle routing based on registration status
+      if (profile.registration_status === 'pending' && !location.pathname.startsWith('/app/register')) {
+        navigate('/app/register');
+        return;
+      }
+
+      if (!profile.onboarding_complete && !location.pathname.startsWith('/app/onboarding')) {
+        navigate('/app/onboarding');
+        return;
+      }
+
+      // Only redirect to app if user is on login/register pages after successful auth
+      if (location.pathname === '/app/login' || location.pathname === '/app/register') {
+        navigate('/app');
+        return;
+      }
     } catch (error) {
-      logger.error('Error fetching user data:', error);
-      setError(error instanceof Error ? error.message : 'Failed to load user data');
-      setUser(null);
+      const handled = await handleAuthError(error);
+      if (!handled) {
+        logger.error('Error getting current user:', error);
+        setUser(null);
+        setError('Failed to load user data');
+      }
+    } finally {
       setLoading(false);
       setSessionChecked(true);
     }
@@ -326,50 +253,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    let mounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        logger.info('🔄 Initializing auth state...');
-        
-        // Always check session on mount, regardless of path
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (!mounted) return;
-        
-        if (error) {
-          logger.error('Session error during initialization:', error);
-          setError(error.message);
-          setLoading(false);
-          setSessionChecked(true);
-          return;
-        }
-
-        if (session) {
-          logger.info('🔍 Session found during initialization, loading user data');
-          await refreshUser(true);
-        } else {
-          logger.info('🔍 No session found during initialization');
-          setUser(null);
-          setLoading(false);
-          setSessionChecked(true);
-        }
-      } catch (error) {
-        logger.error('Error during auth initialization:', error);
-        if (mounted) {
-          setError(error instanceof Error ? error.message : 'Authentication initialization failed');
-          setLoading(false);
-          setSessionChecked(true);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    return () => {
-      mounted = false;
-    };
-  }, []); // Only run once on mount
+    // Check if current path is public
+    const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
+    
+    if (isPublicPath) {
+      // For public paths, skip auth check entirely and render immediately
+      console.log('🎯 Public path detected in AuthProvider, skipping auth check');
+      setLoading(false);
+      setSessionChecked(true);
+      return;
+    }
+    
+    // Only check auth for protected paths
+    console.log('🎯 Protected path detected in AuthProvider, checking auth');
+    refreshUser();
+  }, [location.pathname]);
 
   // Subscribe to auth state changes
   useEffect(() => {
@@ -377,34 +275,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logger.info('Auth state changed:', event);
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        await refreshUser(true); // Force refresh to ensure user data is loaded
+        await refreshUser();
       } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         setUser(null);
         setError(null);
-        setLoading(false);
-        setSessionChecked(true);
         // Initialize user preferences with null user ID
-        initUserPreferences(null).catch(error => {
-          logger.error('Error clearing user preferences:', error);
-        });
-        
-        // Only redirect to login if user was on a protected route
-        if (location.pathname.startsWith('/app') && !publicPaths.some(path => location.pathname.startsWith(path))) {
-          navigate('/app/login');
-        }
-        // For public paths, let them stay where they are
+        await initUserPreferences(null);
+        navigate('/app/login');
       }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [location.pathname, navigate, refreshUser]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ 
       user, 
-      loading, 
+      loading: loading && !sessionChecked, 
       error, 
       isOwner, 
       isTestingChannel,

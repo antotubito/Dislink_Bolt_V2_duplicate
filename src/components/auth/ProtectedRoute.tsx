@@ -1,13 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { supabase } from '../../lib/supabase';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading, refreshUser } = useAuth();
   const location = useLocation();
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [session, setSession] = useState<any>(null);
 
-  // Show loading spinner while auth is being determined
-  if (loading) {
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+
+        if (session && !user) {
+          await refreshUser();
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setCheckingAuth(false);
+      }
+    };
+
+    checkSession();
+  }, [user, refreshUser]);
+
+  if (loading || checkingAuth) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -15,28 +36,18 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Check if user is authenticated
+  const isAuthenticated = !!user || !!session;
+
   // If user is not authenticated, redirect to login
-  if (!user) {
-    // Store the current path to redirect back after login
-    if (location.pathname !== '/app/login') {
-      localStorage.setItem('redirectUrl', location.pathname);
-    }
+  if (!isAuthenticated) {
     return <Navigate to="/app/login" replace />;
   }
 
-  // Special handling for onboarding page
-  const isOnboardingPage = location.pathname === '/app/onboarding';
-  
-  // If user is on onboarding page and already completed onboarding, redirect to app
-  if (isOnboardingPage && user.onboardingComplete) {
-    return <Navigate to="/app" replace />;
-  }
-
-  // If user hasn't completed onboarding and is NOT on onboarding page, redirect to onboarding
-  if (!user.onboardingComplete && !isOnboardingPage) {
+  // If user is logged in but onboarding not complete, redirect to onboarding (except when already there)
+  if (user && !user.onboardingComplete && location.pathname !== '/app/onboarding') {
     return <Navigate to="/app/onboarding" replace />;
   }
 
-  // User is authenticated and on the correct page
   return <>{children}</>;
 }

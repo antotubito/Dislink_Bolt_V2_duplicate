@@ -60,25 +60,36 @@ export function Onboarding() {
   const totalSteps = STEPS.length;
 
   useEffect(() => {
-    // Removed saved progress loading for security reasons
-    // All onboarding data is now entered fresh each time
+    async function checkAccess() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          navigate('/app/login');
+          return;
+        }
+
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('onboarding_complete')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile?.onboarding_complete) {
+          navigate('/app');
+        }
+      } catch (error) {
+        console.error('Error checking onboarding access:', error);
+        navigate('/app/login');
+      }
+    }
+
+    checkAccess();
   }, []);
 
   useEffect(() => {
-    // Pre-fill form with user data
-    if (user) {
-      setFormData(prev => ({
-        ...prev,
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
-        email: user.email || '',
-        jobTitle: user.jobTitle || '',
-        company: user.company || '',
-        profileImage: user.profileImage || '',
-        bio: user.bio || {}
-      }));
-    }
-  }, [user]);
+    // Removed saved progress loading for security reasons
+    // Progress is now cleared when user exits onboarding
+  }, []);
 
   useEffect(() => {
     if (step !== 'complete') {
@@ -103,15 +114,11 @@ export function Onboarding() {
     setError(null);
 
     try {
-      console.log('🎯 Starting onboarding completion...');
-      
       // Get current session to ensure we have the user ID
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('No active session');
       }
-      
-      console.log('📝 Updating profile with onboarding completion...');
 
       await updateProfile({
         firstName: formData.firstName,
@@ -130,23 +137,11 @@ export function Onboarding() {
         onboardingCompletedAt: new Date()
       });
 
-      console.log('✅ Profile updated successfully');
-
-      // Refresh user state to reflect onboarding completion
-      console.log('🔄 Refreshing user state after profile update...');
-      await refreshUser();
-      
-      console.log('👤 User state after refresh:', { 
-        id: user?.id, 
-        onboardingComplete: user?.onboardingComplete 
-      });
-
       localStorage.removeItem('onboarding_progress');
 
-      console.log('🎉 Moving to complete step...');
       setStep('complete');
     } catch (err) {
-      console.error('❌ Onboarding completion error:', err);
+      console.error('Onboarding completion error:', err);
       setError(err instanceof Error ? err.message : 'Failed to complete onboarding');
     } finally {
       setLoading(false);
@@ -155,14 +150,11 @@ export function Onboarding() {
 
   const handleFinish = async () => {
     try {
-      console.log('🎯 Starting handleFinish...');
-      
-      // Simple navigation to app - ProtectedRoute will handle the rest
-      console.log('🚀 Navigating to /app...');
-      navigate('/app', { replace: true });
+      await refreshUser();
+      navigate('/app');
     } catch (error) {
-      console.error('❌ Error completing onboarding:', error);
-      setError(error instanceof Error ? error.message : 'Failed to complete onboarding');
+      console.error('Error completing onboarding:', error);
+      setError('Failed to complete onboarding');
     }
   };
 
@@ -262,12 +254,7 @@ export function Onboarding() {
               <span className="text-sm font-medium text-gray-700">Your Name</span>
             </div>
             <p className="text-gray-900 font-medium">
-              {formData.firstName && formData.lastName 
-                ? `${formData.firstName} ${formData.lastName}`
-                : user?.firstName && user?.lastName
-                ? `${user.firstName} ${user.lastName}`
-                : 'Loading your name...'
-              }
+              {formData.firstName} {formData.lastName}
             </p>
           </div>
           
@@ -276,9 +263,7 @@ export function Onboarding() {
               <Mail className="h-4 w-4 text-gray-500" />
               <span className="text-sm font-medium text-gray-700">Your Email</span>
             </div>
-            <p className="text-gray-900 font-medium">
-              {formData.email || user?.email || 'Loading your email...'}
-            </p>
+            <p className="text-gray-900 font-medium">{formData.email}</p>
           </div>
         </div>
 

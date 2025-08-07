@@ -23,10 +23,10 @@ export function Waitlist() {
   console.log('🎯 Waitlist component rendering...');
   
   const navigate = useNavigate();
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [showTesterModal, setShowTesterModal] = useState(false);
-  const [testPassword, setTestPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [activeTestimonial, setActiveTestimonial] = useState<number>(0);
+  const [testerEmail, setTesterEmail] = useState('');
+  const [testerPasscode, setTesterPasscode] = useState('');
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,22 +55,19 @@ export function Waitlist() {
     navigate('/app/login');
   };
 
-  const handleTestAccess = () => {
-    setShowTesterModal(true);
-    setPasswordError('');
-    setTestPassword('');
+  const handleRegister = () => {
+    navigate('/app/register');
   };
 
-  const handleTestAccessSubmit = (e: React.FormEvent) => {
+  const handleTesterAccess = () => {
+    setShowTesterModal(true);
+  };
+
+  const handleTesterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError('');
-    
-    if (testPassword === 'ALLTOGETHER') {
-      setShowTesterModal(false);
-      navigate('/app/register');
-    } else {
-      setPasswordError('Incorrect password. Please try again.');
-    }
+    // In a real implementation, this would validate the tester credentials
+    console.log('Tester login attempt:', { email: testerEmail, passcode: testerPasscode });
+    navigate('/app/login');
   };
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
@@ -198,10 +195,10 @@ export function Waitlist() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleTestAccess}
+                onClick={handleRegister}
                 className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
               >
-                Test Access
+                Register
               </motion.button>
             </div>
           </div>
@@ -823,7 +820,7 @@ export function Waitlist() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={handleTestAccess}
+                  onClick={handleTesterAccess}
                   className="w-full sm:w-auto px-8 py-4 border-2 border-white rounded-full hover:bg-white/10 font-medium text-lg"
                 >
                   Tester Access
@@ -858,44 +855,47 @@ export function Waitlist() {
                 <div className="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
                   <Lock className="h-8 w-8 text-indigo-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Test Access</h3>
-                <p className="text-gray-600 mb-6">
-                  Enter the access code to proceed to registration. This area is for authorized testers only.
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Tester Access</h3>
+                <p className="text-gray-600">
+                  This area is for testers only. Your feedback helps shape the future of Dislink.
                 </p>
               </div>
               
-              <form onSubmit={handleTestAccessSubmit} className="space-y-4">
+              <form onSubmit={handleTesterSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="testerPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="testerEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="testerEmail"
+                    required
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200 hover:border-indigo-300"
+                    value={testerEmail}
+                    onChange={(e) => setTesterEmail(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="testerPasscode" className="block text-sm font-medium text-gray-700 mb-1">
                     Access Code
                   </label>
                   <input
                     type="password"
-                    id="testerPassword"
+                    id="testerPasscode"
                     required
                     className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200 hover:border-indigo-300"
-                    value={testPassword}
-                    onChange={(e) => setTestPassword(e.target.value)}
+                    value={testerPasscode}
+                    onChange={(e) => setTesterPasscode(e.target.value)}
                   />
                 </div>
-                
-                {passwordError && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-3 flex items-center text-sm text-red-600 bg-red-50 p-2 rounded-lg"
-                  >
-                    <div className="h-4 w-4 mr-2 text-red-500">⚠</div>
-                    {passwordError}
-                  </motion.div>
-                )}
                 
                 <div className="pt-4">
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                    className="w-full px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md"
                   >
-                    Get Access
+                    Access Testing Environment
                   </button>
                 </div>
               </form>

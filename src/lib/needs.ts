@@ -1,136 +1,183 @@
 import { logger } from './logger';
 import type { Need, NeedReply } from '../types/need';
+import { ANTONIO_TUBITO } from './contacts';
 import { formatDistanceToNow } from 'date-fns';
-import { supabase } from './supabase';
 
-// Dynamic needs functions that use Supabase
+// Mock data for needs
+const MOCK_NEEDS: Need[] = [
+  {
+    id: '1',
+    userId: 'user-1',
+    userName: 'Sarah Johnson',
+    userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    category: 'socialize',
+    categoryLabel: 'Socialize',
+    message: 'Anyone up for coffee this afternoon in downtown?',
+    tags: ['coffee', 'chat'],
+    visibility: 'open', // Open visibility
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
+    isSatisfied: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
+  },
+  {
+    id: '2',
+    userId: 'user-2',
+    userName: 'Michael Chen',
+    userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    category: 'events',
+    categoryLabel: 'Events',
+    message: 'Got an extra ticket for tonight\'s concert at Madison Square Garden!',
+    tags: ['concert', 'music'],
+    visibility: 'private', // Private visibility
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // Expires in 48 hours
+    isSatisfied: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
+  },
+  {
+    id: '3',
+    userId: 'user-3',
+    userName: 'Emma Rodriguez',
+    userImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    category: 'learning',
+    categoryLabel: 'Learning',
+    message: 'Starting a Spanish study group - beginners welcome! Meeting this weekend.',
+    tags: ['language', 'study'],
+    visibility: 'open', // Open visibility
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
+    isSatisfied: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5) // 5 hours ago
+  },
+  {
+    id: '4',
+    userId: 'user-4',
+    userName: 'David Kim',
+    userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+    category: 'active',
+    categoryLabel: 'Active',
+    message: 'Looking for a tennis partner for Sunday morning at Central Park courts.',
+    tags: ['sports', 'tennis'],
+    visibility: 'private', // Private visibility
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // Expires in 48 hours
+    isSatisfied: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8) // 8 hours ago
+  },
+  {
+    id: '5',
+    userId: ANTONIO_TUBITO.id,
+    userName: ANTONIO_TUBITO.name,
+    userImage: ANTONIO_TUBITO.profileImage,
+    category: 'food',
+    categoryLabel: 'Food',
+    message: 'Trying that new Italian restaurant downtown tonight. Anyone want to join?',
+    tags: ['dining', 'italian'],
+    visibility: 'open', // Open visibility
+    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
+    isSatisfied: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1) // 1 hour ago
+  }
+];
+
+// Mock data for replies
+const MOCK_REPLIES: Record<string, NeedReply[]> = {
+  '1': [
+    {
+      id: 'reply-1-1',
+      needId: '1',
+      userId: 'user-2',
+      userName: 'Michael Chen',
+      userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      message: 'I\'m free after 3pm. Which coffee shop were you thinking?',
+      createdAt: new Date(Date.now() - 1000 * 60 * 20) // 20 minutes ago
+    },
+    {
+      id: 'reply-1-2',
+      needId: '1',
+      userId: 'user-3',
+      userName: 'Emma Rodriguez',
+      userImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      message: 'I\'d love to join! I know a great place on Main Street.',
+      createdAt: new Date(Date.now() - 1000 * 60 * 15) // 15 minutes ago
+    }
+  ],
+  '2': [
+    {
+      id: 'reply-2-1',
+      needId: '2',
+      userId: 'user-4',
+      userName: 'David Kim',
+      userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      message: 'Who\'s playing? I might be interested!',
+      createdAt: new Date(Date.now() - 1000 * 60 * 60) // 1 hour ago
+    }
+  ],
+  '5': [
+    {
+      id: 'reply-5-1',
+      needId: '5',
+      userId: 'user-1',
+      userName: 'Sarah Johnson',
+      userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      message: 'I\'ve been wanting to try that place! What time are you going?',
+      createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
+    }
+  ]
+};
+
+/**
+ * List all needs
+ */
 export async function listNeeds(): Promise<Need[]> {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return [];
-
-    const { data: needs, error } = await supabase
-      .from('daily_needs')
-      .select(`
-        id,
-        user_id,
-        category,
-        message,
-        tags,
-        visibility,
-        expires_at,
-        is_satisfied,
-        created_at,
-        profiles (
-          first_name,
-          last_name,
-          profile_image
-        )
-      `)
-      .eq('expires_at', null) // Only get active needs
-      .or(`visibility.eq.open,user_id.eq.${session.user.id}`) // Open visibility or user's own needs
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      logger.error('Error fetching needs:', error);
-      return [];
-    }
-
-    return needs.map(need => ({
-      id: need.id,
-      userId: need.user_id,
-      userName: `${need.profiles.first_name} ${need.profiles.last_name}`,
-      userImage: need.profiles.profile_image,
-      category: need.category,
-      categoryLabel: getCategoryLabel(need.category),
-      message: need.message,
-      tags: need.tags || [],
-      visibility: need.visibility,
-      expiresAt: need.expires_at ? new Date(need.expires_at) : new Date(Date.now() + 24 * 60 * 60 * 1000), // Default 24h
-      isSatisfied: need.is_satisfied,
-      createdAt: new Date(need.created_at)
-    }));
+    // In a real implementation, this would fetch needs from the database
+    // Filter out expired and satisfied needs
+    const now = new Date();
+    return MOCK_NEEDS.filter(need => {
+      // Keep needs that are not satisfied and not expired
+      return !need.isSatisfied && (!need.expiresAt || new Date(need.expiresAt) > now);
+    });
   } catch (error) {
-    logger.error('Error in listNeeds:', error);
+    logger.error('Error listing needs:', error);
     return [];
   }
 }
 
-export async function createNeed(needData: {
-  category: string;
-  message: string;
-  tags?: string[];
-  visibility: 'open' | 'private';
-  expiresAt?: Date;
-}): Promise<Need> {
+/**
+ * Create a new need
+ */
+export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'createdAt'>): Promise<Need> {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) throw new Error('No active session');
-
-    const { data: need, error } = await supabase
-      .from('daily_needs')
-      .insert({
-        user_id: session.user.id,
-        category: needData.category,
-        message: needData.message,
-        tags: needData.tags || [],
-        visibility: needData.visibility,
-        expires_at: needData.expiresAt?.toISOString(),
-        is_satisfied: false
-      })
-      .select(`
-        id,
-        user_id,
-        category,
-        message,
-        tags,
-        visibility,
-        expires_at,
-        is_satisfied,
-        created_at,
-        profiles (
-          first_name,
-          last_name,
-          profile_image
-        )
-      `)
-      .single();
-
-    if (error) {
-      logger.error('Error creating need:', error);
-      throw error;
+    // In a real implementation, this would create a need in the database
+    
+    // Set default expiration if not provided (24 hours)
+    if (!needData.expiresAt) {
+      const expiresAt = new Date();
+      expiresAt.setHours(expiresAt.getHours() + 24);
+      needData.expiresAt = expiresAt;
     }
-
-    return {
-      id: need.id,
-      userId: need.user_id,
-      userName: `${need.profiles.first_name} ${need.profiles.last_name}`,
-      userImage: need.profiles.profile_image,
-      category: need.category,
-      categoryLabel: getCategoryLabel(need.category),
-      message: need.message,
-      tags: need.tags || [],
-      visibility: need.visibility,
-      expiresAt: need.expires_at ? new Date(need.expires_at) : new Date(Date.now() + 24 * 60 * 60 * 1000),
-      isSatisfied: need.is_satisfied,
-      createdAt: new Date(need.created_at)
+    
+    // Set default isSatisfied if not provided
+    if (needData.isSatisfied === undefined) {
+      needData.isSatisfied = false;
+    }
+    
+    // For now, create a mock need
+    const newNeed: Need = {
+      id: `need-${Date.now()}`,
+      userId: ANTONIO_TUBITO.id,
+      userName: ANTONIO_TUBITO.name,
+      userImage: ANTONIO_TUBITO.profileImage,
+      ...needData,
+      createdAt: new Date()
     };
+
+    // Add to mock data
+    MOCK_NEEDS.unshift(newNeed);
+
+    return newNeed;
   } catch (error) {
-    logger.error('Error in createNeed:', error);
+    logger.error('Error creating need:', error);
     throw error;
   }
-}
-
-function getCategoryLabel(category: string): string {
-  const categoryLabels: Record<string, string> = {
-    'socialize': 'Socialize',
-    'events': 'Events',
-    'work-career': 'Work & Career',
-    'help': 'Help',
-    'travel': 'Travel',
-    'hobbies': 'Hobbies'
-  };
-  return categoryLabels[category] || 'Other';
 }
 
 /**
