@@ -298,12 +298,24 @@ export async function login(credentials: LoginCredentials): Promise<{
 
         console.log('👤 Fetching user profile from database...');
         
-        // Get user profile
-        const { data: profile } = await supabase
+        // Get user profile with minimal data for login check
+        const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('onboarding_complete, registration_status')
           .eq('id', userData.session.user.id)
           .single();
+
+        if (profileError) {
+          console.error('❌ Profile fetch error:', profileError);
+          // Don't fail login if profile fetch fails - user can still access the app
+          logger.warn('Profile fetch failed during login, continuing anyway:', profileError);
+          
+          console.log('🎉 Login flow completed successfully (no profile data)');
+          return { 
+            success: true,
+            requiresOnboarding: true // Default to requiring onboarding if we can't check
+          };
+        }
 
         console.log('📊 Profile fetch result:', {
           hasProfile: !!profile,

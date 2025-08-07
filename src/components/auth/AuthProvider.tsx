@@ -122,126 +122,203 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       logger.info('Refreshing user data', { forceRefresh, currentPath: location.pathname });
       
-      // Check if we have a valid session
+      setLoading(true);
+      setError(null);
+
+      // Get session first - this is fastest
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
-        const handled = await handleAuthError(sessionError);
-        if (handled) return;
-        throw sessionError;
-      }
-      
-      if (!session) {
-        logger.debug('No active session');
+        logger.error('Session error during refresh:', sessionError);
+        setError(sessionError.message);
         setUser(null);
         setLoading(false);
         setSessionChecked(true);
-        // Initialize user preferences with null user ID (non-blocking)
-        initUserPreferences(null).catch(error => {
-          logger.error('Error clearing user preferences:', error);
-        });
         return;
       }
 
-      // Get user profile
-      const { data: profile, error: profileError } = await supabase
+      if (!session) {
+        logger.info('No session found during refresh');
+        setUser(null);
+        setLoading(false);
+        setSessionChecked(true);
+        return;
+      }
+
+      logger.info('Session found, fetching profile data');
+      
+      // Fetch profile data with timeout protection
+      const profilePromise = supabase
         .from('profiles')
         .select('*')
         .eq('id', session.user.id)
         .single();
 
-      if (profileError) {
-        // Check if it's a connection error
-        if (profileError.message?.includes('Failed to fetch')) {
-          setConnectionStatus('disconnected');
-          setError('Connection to Supabase lost. Please check your internet connection.');
+      // Add timeout to profile fetch
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 15000)
+      );
+
+      try {
+        const { data: profile, error: profileError } = await Promise.race([
+          profilePromise,
+          timeoutPromise
+        ]) as any;
+
+        if (profileError) {
+          if (profileError.message === 'Profile fetch timeout') {
+            logger.warn('Profile fetch timed out, creating minimal user object');
+            // Create minimal user object from session data
+            const minimalUser: User = {
+              id: session.user.id,
+              email: session.user.email || '',
+              firstName: session.user.user_metadata?.first_name || '',
+              lastName: session.user.user_metadata?.last_name || '',
+              name: session.user.user_metadata?.name || session.user.email || '',
+              company: '',
+              jobTitle: '',
+              industry: undefined,
+              profileImage: '',
+              coverImage: '',
+              bio: {},
+              interests: [],
+              socialLinks: {},
+              onboardingComplete: false, // Default to incomplete
+              registrationComplete: true,
+              registrationStatus: 'active',
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              twoFactorEnabled: false,
+              publicProfile: {
+                enabled: true,
+                defaultSharedLinks: {},
+                allowedFields: {
+                  email: false,
+                  phone: false,
+                  company: true,
+                  jobTitle: true,
+                  bio: true,
+                  interests: true,
+                  location: true
+                }
+              }
+            };
+            
+            setUser(minimalUser);
+            setLoading(false);
+            setSessionChecked(true);
+            return;
+          }
+          
+          logger.error('Profile error during refresh:', profileError);
+          setError(profileError.message);
+          setUser(null);
           setLoading(false);
           setSessionChecked(true);
           return;
         }
-        
-        logger.error('Profile error:', profileError);
-        throw profileError;
-      }
 
-      if (!profile) {
-        setUser(null);
-        setLoading(false);
-        setSessionChecked(true);
-        // Initialize user preferences with null user ID (non-blocking)
-        initUserPreferences(null).catch(error => {
-          logger.error('Error clearing user preferences:', error);
-        });
-        return;
-      }
-
-      // Set user data
-      const userData: User = {
-        id: profile.id,
-        email: profile.email,
-        firstName: profile.first_name,
-        middleName: profile.middle_name,
-        lastName: profile.last_name,
-        name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
-        company: profile.company,
-        jobTitle: profile.job_title,
-        industry: profile.industry,
-        profileImage: profile.profile_image,
-        coverImage: profile.cover_image,
-        bio: profile.bio,
-        interests: profile.interests,
-        socialLinks: profile.social_links || {},
-        onboardingComplete: profile.onboarding_complete,
-        registrationComplete: profile.registration_complete,
-        registrationStatus: profile.registration_status,
-        registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
-        createdAt: new Date(profile.created_at),
-        updatedAt: new Date(profile.updated_at),
-        twoFactorEnabled: false,
-        publicProfile: profile.public_profile || {
-          enabled: true,
-          defaultSharedLinks: {},
-          allowedFields: {
-            email: false,
-            phone: false,
-            company: true,
-            jobTitle: true,
-            bio: true,
-            interests: true,
-            location: true
-          }
+        if (!profile) {
+          logger.warn('No profile found for user');
+          setUser(null);
+          setLoading(false);
+          setSessionChecked(true);
+          return;
         }
-      };
-      
-      setUser(userData);
-      setError(null);
-      setConnectionStatus('connected');
+
+        // Create user object from profile
+        const userData: User = {
+          id: profile.id,
+          email: profile.email,
+          firstName: profile.first_name,
+          middleName: profile.middle_name,
+          lastName: profile.last_name,
+          name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
+          company: profile.company,
+          jobTitle: profile.job_title,
+          industry: profile.industry,
+          profileImage: profile.profile_image,
+          coverImage: profile.cover_image,
+          bio: profile.bio,
+          interests: profile.interests,
+          socialLinks: profile.social_links || {},
+          onboardingComplete: profile.onboarding_complete,
+          registrationComplete: profile.registration_complete,
+          registrationStatus: profile.registration_status,
+          registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
+          createdAt: new Date(profile.created_at),
+          updatedAt: new Date(profile.updated_at),
+          twoFactorEnabled: false,
+          publicProfile: profile.public_profile || {
+            enabled: true,
+            defaultSharedLinks: {},
+            allowedFields: {
+              email: false,
+              phone: false,
+              company: true,
+              jobTitle: true,
+              bio: true,
+              interests: true,
+              location: true
+            }
+          }
+        };
+
+        setUser(userData);
+        logger.info('User data updated successfully');
+
+        // Initialize user preferences in background (non-blocking)
+        initUserPreferences(userData).catch(error => {
+          logger.warn('Failed to initialize user preferences:', error);
+        });
+
+      } catch (timeoutError) {
+        logger.error('Profile fetch failed with timeout:', timeoutError);
+        // Continue with minimal user data rather than failing completely
+        const minimalUser: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          firstName: session.user.user_metadata?.first_name || '',
+          lastName: session.user.user_metadata?.last_name || '',
+          name: session.user.user_metadata?.name || session.user.email || '',
+          company: '',
+          jobTitle: '',
+          industry: undefined,
+          profileImage: '',
+          coverImage: '',
+          bio: {},
+          interests: [],
+          socialLinks: {},
+          onboardingComplete: false,
+          registrationComplete: true,
+          registrationStatus: 'active',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          twoFactorEnabled: false,
+          publicProfile: {
+            enabled: true,
+            defaultSharedLinks: {},
+            allowedFields: {
+              email: false,
+              phone: false,
+              company: true,
+              jobTitle: true,
+              bio: true,
+              interests: true,
+              location: true
+            }
+          }
+        };
+        
+        setUser(minimalUser);
+      }
+
       setLoading(false);
       setSessionChecked(true);
-      
-      // Initialize user preferences with the user's ID (non-blocking)
-      initUserPreferences(userData.id).catch(error => {
-        logger.error('Error initializing user preferences:', error);
-      });
-      
-      logger.info('User data loaded successfully', { 
-        userId: userData.id, 
-        onboardingComplete: userData.onboardingComplete 
-      });
     } catch (error) {
       logger.error('Error fetching user data:', error);
-      
-      // Check if it's an auth error (invalid session)
-      if (error?.message?.includes('JWT') || error?.message?.includes('unauthorized')) {
-        setUser(null);
-        // Initialize user preferences with null user ID
-        initUserPreferences(null).catch(error => {
-          logger.error('Error clearing user preferences:', error);
-        });
-      } else {
-        setError(error instanceof Error ? error.message : 'Failed to load user data');
-      }
-      
+      setError(error instanceof Error ? error.message : 'Failed to load user data');
+      setUser(null);
       setLoading(false);
       setSessionChecked(true);
     }

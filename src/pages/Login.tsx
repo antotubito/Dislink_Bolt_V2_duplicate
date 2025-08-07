@@ -13,6 +13,7 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loginStep, setLoginStep] = useState<string>('');
   const [error, setError] = useState<string | null | React.ReactNode>(null);
   const [resetSent, setResetSent] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -77,12 +78,14 @@ export function Login() {
     }
 
     setLoading(true);
+    setLoginStep('Verifying credentials...');
 
     try {
       // Check connection status first
       if (connectionStatus === 'disconnected') {
         setError('You appear to be offline. Please check your internet connection and try again.');
         setLoading(false);
+        setLoginStep('');
         return;
       }
       
@@ -90,6 +93,7 @@ export function Login() {
       if (debugInfo && !debugInfo.supabaseConfigured) {
         setError('Application is not properly configured. Please contact support.');
         setLoading(false);
+        setLoginStep('');
         return;
       }
       
@@ -101,9 +105,11 @@ export function Login() {
         debugInfo
       });
       
+      setLoginStep('Authenticating...');
+      
       // Add timeout to prevent hanging
       const loginTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Login timeout - please try again')), 60000) // Increased to 60 seconds
+        setTimeout(() => reject(new Error('Login timeout - please try again')), 90000) // Increased to 90 seconds
       );
       
       const result = await Promise.race([
@@ -115,10 +121,11 @@ export function Login() {
       
       if (result.success) {
         logger.info('Login successful, refreshing user data');
+        setLoginStep('Loading your profile...');
         
         // Add timeout to refreshUser as well
         const refreshTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('User data refresh timeout')), 30000) // Increased to 30 seconds
+          setTimeout(() => reject(new Error('User data refresh timeout')), 60000) // Increased to 60 seconds
         );
         
         logger.info('Starting user data refresh...');
@@ -128,6 +135,7 @@ export function Login() {
         ]);
         
         logger.info('User data refresh completed, navigating...');
+        setLoginStep('Redirecting...');
         
         // Check for redirect URL
         const redirectUrl = localStorage.getItem('redirectUrl');
@@ -169,7 +177,7 @@ export function Login() {
       
       if (err instanceof Error) {
         if (err.message.includes('timeout')) {
-          setError('Login is taking too long. Please check your internet connection and try again.');
+          setError('Login is taking longer than expected. This might be due to a slow connection. Please try again.');
         } else if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
           setError('Network error. Please check your internet connection and try again.');
         } else if (err.message.includes('Invalid login credentials')) {
@@ -182,6 +190,7 @@ export function Login() {
       }
     } finally {
       setLoading(false);
+      setLoginStep('');
     }
   };
 
@@ -454,12 +463,25 @@ export function Login() {
             {loading ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                Signing in...
+                {loginStep || 'Signing in...'}
               </div>
             ) : (
               'Sign In'
             )}
           </button>
+
+          {loading && loginStep && (
+            <div className="mt-2 text-center">
+              <div className="text-sm text-gray-600">
+                {loginStep === 'Loading your profile...' && (
+                  <div className="flex items-center justify-center">
+                    <Timer className="h-4 w-4 mr-1" />
+                    This may take a moment on slower connections
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </form>
 
         <div className="mt-6 text-center">
