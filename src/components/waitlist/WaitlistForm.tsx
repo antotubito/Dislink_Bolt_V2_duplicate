@@ -48,7 +48,7 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
   // Simulate recent joins
   useEffect(() => {
     const names = ['Sarah', 'John', 'Maria', 'Alex', 'Emma', 'David', 'Lisa', 'Mike', 'Anna', 'James'];
-    const roles = ['Product Designer', 'Software Engineer', 'Marketing Lead', 'Startup Founder', 'Community Manager', 'UX Researcher', 'Business Developer', 'Product Manager', 'Content Creator', 'Data Scientist'];
+    const roles = ['Product Designer', 'Software Engineer', 'Marketing Lead', 'Startup Founder', 'Community Manager', 'UX Researcher', 'Business Developer', 'Product Manager', 'Content Creator', 'Data Scientist', 'Student', 'Entrepreneur', 'Freelancer', 'Creative Professional', 'Service Provider'];
     const locations = ['San Francisco', 'London', 'Berlin', 'New York', 'Toronto', 'Amsterdam', 'Singapore', 'Sydney', 'Paris', 'Tokyo'];
     
     const interval = setInterval(() => {

@@ -37,7 +37,7 @@ export function PrivacyPolicy() {
             <p>We collect information that you provide directly to us, including:</p>
             <ul>
               <li>Name and contact information</li>
-              <li>Professional details (job title, company)</li>
+              <li>Personal and professional details (job title, company, interests)</li>
               <li>Profile information and preferences</li>
               <li>Social media handles and links</li>
               <li>Connection history and meeting notes</li>

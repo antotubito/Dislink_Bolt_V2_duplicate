@@ -20,7 +20,7 @@ import { Footer } from '../components/Footer';
 import { WaitlistForm } from '../components/waitlist/WaitlistForm';
 
 export function Waitlist() {
-  console.log('Waitlist component rendering...');
+  console.log('🎯 Waitlist component rendering...');
   
   const navigate = useNavigate();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -32,8 +32,11 @@ export function Waitlist() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  console.log('🎯 Waitlist component state initialized');
+
   // Function to scroll to waitlist form
   const scrollToWaitlistForm = () => {
+    console.log('🎯 Scroll to waitlist form called');
     const waitlistSection = document.getElementById('waitlist-form');
     if (waitlistSection) {
       waitlistSection.scrollIntoView({ 
@@ -134,12 +137,12 @@ export function Waitlist() {
 
   const testimonials = [
     {
-      quote: "Dislink has completely transformed how I manage my professional network. I never forget important details about connections anymore.",
+      quote: "Dislink has completely transformed how I manage my relationships. I never forget important details about connections anymore.",
       author: "A.M., Marketing Professional",
       company: "Tech Innovations Inc."
     },
     {
-      quote: "The ability to categorize contacts into relationship circles has been a game-changer for prioritizing my networking efforts.",
+      quote: "The ability to categorize contacts into relationship circles has been a game-changer for prioritizing my relationship building efforts.",
       author: "J.D., Startup Founder",
       company: "Growth Ventures"
     },
@@ -176,7 +179,7 @@ export function Waitlist() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => window.open('/story', '_blank')}
+                onClick={() => navigate('/story')}
                 className="text-gray-600 hover:text-gray-900 font-medium text-sm"
               >
                 Our Story
@@ -382,7 +385,7 @@ export function Waitlist() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                Dislink helps you follow up, stay in touch, and grow your professional relationships effortlessly.
+                Dislink helps you follow up, stay in touch, and grow your meaningful relationships effortlessly.
               </motion.p>
             </div>
 
@@ -414,7 +417,7 @@ export function Waitlist() {
             >
               <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">How It Works</h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto px-4">
-                Dislink makes networking simple, meaningful, and effective with these powerful features
+                Dislink makes relationship building simple, meaningful, and effective with these powerful features
               </p>
             </motion.div>
           </div>
@@ -528,7 +531,7 @@ export function Waitlist() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, 10, 0] }}
-                  transition={{ repeat: Infinity, duration: 4, delay: 1 }}
+                  transition={{ delay: 1, repeat: Infinity, duration: 4 }}
                 >
                   <MapPin className="h-8 w-8 text-red-500" />
                 </motion.div>
@@ -539,7 +542,7 @@ export function Waitlist() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, -8, 0] }}
-                  transition={{ repeat: Infinity, duration: 3.5, delay: 0.5 }}
+                  transition={{ delay: 0.5, repeat: Infinity, duration: 3.5 }}
                 >
                   <Bell className="h-8 w-8 text-amber-500" />
                 </motion.div>
@@ -562,7 +565,7 @@ export function Waitlist() {
                   While we finalize the mobile version, join the waitlist and shape the future of Dislink.
                 </h3>
                 <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                  Our mobile app is designed to make networking effortless. Scan QR codes to connect, track meeting locations automatically, and never forget important details about your connections.
+                  Our mobile app is designed to make relationship building effortless. Scan QR codes to connect, track meeting locations automatically, and never forget important details about your connections.
                 </p>
                 <div className="space-y-5 mb-8">
                   {[
@@ -626,7 +629,7 @@ export function Waitlist() {
             >
               <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">What Our Early Testers Say</h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto px-4">
-                Hear from professionals who are already transforming their networking experience
+                Hear from people who are already transforming their relationship building experience
               </p>
             </motion.div>
           </div>
@@ -802,7 +805,7 @@ export function Waitlist() {
                   Ready to Transform Your Network? ✨
                 </h2>
                 <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-                  Join thousands of professionals building meaningful connections that last. Never let an important relationship slip away again!
+                  Join thousands of people building meaningful connections that last. Never let an important relationship slip away again!
                 </p>
               </motion.div>
               

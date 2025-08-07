@@ -48,8 +48,8 @@ function DeclineConfirmation({ isOpen, onClose, onConfirm, contactName }: Declin
     `${contactName} might cry digital tears if you decline. Still want to do this? 😢`,
     `Warning: Declining ${contactName} may result in one less holiday card this year. Continue?`,
     `${contactName} was probably just going to send you cat memes anyway. Decline anyway?`,
-    `Plot twist: ${contactName} is secretly a networking guru. Sure you want to miss out?`,
-    `Your networking score will drop by 5 points if you decline ${contactName}. Just kidding! Or are we?`,
+    `Plot twist: ${contactName} is secretly a relationship building guru. Sure you want to miss out?`,
+    `Your relationship building score will drop by 5 points if you decline ${contactName}. Just kidding! Or are we?`,
     `${contactName} might be your future boss. No pressure or anything! Still declining?`,
     `Are you certain you want to send ${contactName} to the shadow realm of declined connections?`
   ];

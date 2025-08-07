@@ -108,7 +108,7 @@ export function PublicProfile() {
           bio: {
             location: 'Lisbon, Portugal',
             from: 'Milan, Italy',
-            about: 'Passionate entrepreneur dedicated to revolutionizing how professionals build and maintain meaningful connections. Founded Dislink to solve the problem of forgotten relationships and missed opportunities.'
+            about: 'Passionate entrepreneur dedicated to revolutionizing how people build and maintain meaningful connections. Founded Dislink to solve the problem of forgotten relationships and missed opportunities.',
           },
           interests: ['Networking', 'Technology', 'Entrepreneurship', 'Product Design', 'AI', 'Travel'],
           socialLinks: {
@@ -396,7 +396,7 @@ export function PublicProfile() {
                 <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                   Dislink
                 </span>
-                <p className="text-xs text-gray-500">Professional Networking</p>
+                <p className="text-xs text-gray-500">Relationship Building</p>
               </div>
             </div>
             {scanLocation && (
@@ -462,7 +462,7 @@ export function PublicProfile() {
                 Connect with {profile.name}
               </h2>
               <p className="text-lg opacity-90 mb-6">
-                Start tracking your professional relationship from this very moment
+                Start tracking your meaningful relationships from this very moment
               </p>
               
               {/* Quick stats */}
@@ -900,7 +900,7 @@ export function PublicProfile() {
               Download Dislink
             </h2>
             <p className="text-lg opacity-90 max-w-2xl mx-auto">
-              Build meaningful professional relationships with smart networking tools
+              Build meaningful relationships with smart connection tools
             </p>
           </div>
 
@@ -924,7 +924,7 @@ export function PublicProfile() {
               {
                 icon: Users,
                 title: 'Relationship Categories',
-                description: 'Organize and categorize your professional relationships'
+                description: 'Organize and categorize your relationships'
               }
             ].map((feature, index) => (
               <div key={index} className="flex items-start space-x-4">

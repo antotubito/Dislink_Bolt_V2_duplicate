@@ -95,7 +95,7 @@ const BASE_CATEGORIES = [
     label: 'Profession',
     icon: Briefcase,
     color: 'text-indigo-600',
-    description: 'Search by professional background',
+    description: 'Search by work and personal background',
     getSubcategories: (contacts: Contact[] = []) => {
       const jobTitles = new Set<string>();
       const companies = new Set<string>();
@@ -127,7 +127,7 @@ const BASE_CATEGORIES = [
     description: 'Find contacts by shared interests',
     getSubcategories: (contacts: Contact[] = []) => {
       const hobbies = new Set<string>();
-      const professional = new Set<string>();
+      const workCareer = new Set<string>();
       const causes = new Set<string>();
 
       contacts.forEach(contact => {
@@ -136,7 +136,7 @@ const BASE_CATEGORIES = [
           if (['Photography', 'Travel', 'Music', 'Sports', 'Art'].includes(interest)) {
             hobbies.add(interest);
           } else if (['AI', 'Design', 'Marketing', 'Development', 'Business'].includes(interest)) {
-            professional.add(interest);
+            workCareer.add(interest);
           } else if (['Education', 'Environment', 'Health', 'Social Impact'].includes(interest)) {
             causes.add(interest);
           }
@@ -145,7 +145,7 @@ const BASE_CATEGORIES = [
 
       return [
         { id: 'hobbies', label: 'Hobbies', items: Array.from(hobbies) },
-        { id: 'professional', label: 'Professional', items: Array.from(professional) },
+        { id: 'professional', label: 'Work & Career', items: Array.from(workCareer) },
         { id: 'causes', label: 'Causes', items: Array.from(causes) }
       ];
     }

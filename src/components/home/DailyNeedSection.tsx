@@ -23,7 +23,7 @@ const NEED_CATEGORIES = [
   { id: 'travel', label: 'Travel', icon: Plane, color: '#EF4444', description: 'Trips, transportation, accommodations' },
   { id: 'creative', label: 'Creative', icon: Palette, color: '#EC4899', description: 'Art, design, photography' },
   { id: 'learning', label: 'Learning', icon: BookOpen, color: '#6366F1', description: 'Courses, mentorship, skills' },
-  { id: 'professional', label: 'Professional', icon: Briefcase, color: '#0EA5E9', description: 'Career advice, job opportunities' },
+  { id: 'work-career', label: 'Work & Career', icon: Briefcase, color: '#0EA5E9', description: 'Career advice, job opportunities, mentorship' },
   { id: 'ideas', label: 'Ideas', icon: Lightbulb, color: '#F59E0B', description: 'Brainstorming, feedback, validation' }
 ];
 
@@ -865,7 +865,7 @@ function getCategoryIcon(category: string) {
     case 'travel': return Plane;
     case 'creative': return Palette;
     case 'learning': return BookOpen;
-    case 'professional': return Briefcase;
+    case 'work-career': return Briefcase;
     case 'ideas': return Lightbulb;
     default: return Coffee;
   }
@@ -880,7 +880,7 @@ function getCategoryBadgeColor(category: string): string {
     case 'travel': return 'bg-red-100 text-red-800';
     case 'creative': return 'bg-pink-100 text-pink-800';
     case 'learning': return 'bg-indigo-100 text-indigo-800';
-    case 'professional': return 'bg-sky-100 text-sky-800';
+    case 'work-career': return 'bg-sky-100 text-sky-800';
     case 'ideas': return 'bg-amber-100 text-amber-800';
     default: return 'bg-gray-100 text-gray-800';
   }

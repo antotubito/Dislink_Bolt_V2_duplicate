@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const publicPaths = [
     '/',
     '/waitlist',
+    '/story',
     '/app/login',
     '/app/register',
     '/app/terms',
@@ -122,7 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Skip auth check for public paths
       const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
       if (isPublicPath) {
+        console.log('🎯 Public path in refreshUser, skipping auth check');
         setLoading(false);
+        setSessionChecked(true);
         return;
       }
 
@@ -250,6 +253,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
+    // Check if current path is public
+    const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
+    
+    if (isPublicPath) {
+      // For public paths, skip auth check entirely and render immediately
+      console.log('🎯 Public path detected in AuthProvider, skipping auth check');
+      setLoading(false);
+      setSessionChecked(true);
+      return;
+    }
+    
+    // Only check auth for protected paths
+    console.log('🎯 Protected path detected in AuthProvider, checking auth');
     refreshUser();
   }, [location.pathname]);
 

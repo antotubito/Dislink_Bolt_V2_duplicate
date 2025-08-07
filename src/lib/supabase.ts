@@ -35,50 +35,53 @@ export const supabase = createClient(supabaseUrl || '', supabaseAnonKey || '', {
   }
 });
 
-// Initialize connection
+// Initialize connection in background (non-blocking)
 export const initializeConnection = async (): Promise<void> => {
-  try {
-    // Check if credentials are available
-    if (!supabaseUrl || !supabaseAnonKey) {
-      logger.error('Missing Supabase credentials. Please check your .env file.');
-      return;
-    }
+  // Use setTimeout to ensure this runs after the initial render
+  setTimeout(async () => {
+    try {
+      // Check if credentials are available
+      if (!supabaseUrl || !supabaseAnonKey) {
+        logger.error('Missing Supabase credentials. Please check your .env file.');
+        return;
+      }
 
-    // Try to recover any existing session
-    const { data: { session }, error } = await supabase.auth.getSession();
-    
-    if (error) {
-      if (error.message?.includes('Invalid API key')) {
-        logger.error('Invalid Supabase API key. Please check your credentials.');
-      } else {
-        logger.error('Error getting session:', error);
-      }
-      return;
-    }
-    
-    if (session) {
-      logger.info('Existing session found');
+      // Try to recover any existing session
+      const { data: { session }, error } = await supabase.auth.getSession();
       
-      // Calculate time until session expires
-      const expiresAt = new Date(session.expires_at!).getTime();
-      const now = Date.now();
-      const timeUntilExpiry = expiresAt - now;
-      
-      // If session expires soon (within 5 minutes), refresh it
-      if (timeUntilExpiry < 5 * 60 * 1000) {
-        logger.info('Session expiring soon, refreshing');
-        const { error: refreshError } = await supabase.auth.refreshSession();
-        if (refreshError) {
-          logger.error('Error refreshing session:', refreshError);
+      if (error) {
+        if (error.message?.includes('Invalid API key')) {
+          logger.error('Invalid Supabase API key. Please check your credentials.');
+        } else {
+          logger.error('Error getting session:', error);
         }
+        return;
       }
-    } else {
-      logger.info('No session found');
+      
+      if (session) {
+        logger.info('Existing session found');
+        
+        // Calculate time until session expires
+        const expiresAt = new Date(session.expires_at!).getTime();
+        const now = Date.now();
+        const timeUntilExpiry = expiresAt - now;
+        
+        // If session expires soon (within 5 minutes), refresh it
+        if (timeUntilExpiry < 5 * 60 * 1000) {
+          logger.info('Session expiring soon, refreshing');
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            logger.error('Error refreshing session:', refreshError);
+          }
+        }
+      } else {
+        logger.info('No session found');
+      }
+    } catch (error) {
+      logger.error('Error initializing connection:', error);
+      // Don't throw the error, just log it
     }
-  } catch (error) {
-    logger.error('Error initializing connection:', error);
-    // Don't throw the error, just log it
-  }
+  }, 0);
 };
 
 // Export helper to check connection status
@@ -99,64 +102,37 @@ export const checkConnection = async (): Promise<boolean> => {
       }
       return false;
     }
-    return Boolean(data.session);
+    
+    return true;
   } catch (error) {
-    logger.error('Connection check failed:', error);
+    logger.error('Connection check error:', error);
     return false;
   }
 };
 
 // Retry connection with exponential backoff
 export const retryConnection = async (maxRetries = 3): Promise<boolean> => {
-  let retries = 0;
-  
-  // Check if credentials are available
-  if (!supabaseUrl || !supabaseAnonKey) {
-    logger.error('Cannot retry connection: Missing Supabase credentials');
-    return false;
-  }
-  
-  while (retries < maxRetries) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      logger.info(`Attempting to reconnect to Supabase (attempt ${retries + 1}/${maxRetries})`);
-      await initializeConnection();
-      const connected = await checkConnection();
-      
-      if (connected) {
-        logger.info('Successfully reconnected to Supabase');
+      const isConnected = await checkConnection();
+      if (isConnected) {
+        logger.info(`Connection successful on attempt ${attempt}`);
         return true;
       }
       
-      // Exponential backoff
-      const delay = Math.pow(2, retries) * 1000;
-      logger.info(`Connection attempt failed, retrying in ${delay}ms`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      retries++;
+      if (attempt < maxRetries) {
+        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff
+        logger.info(`Connection attempt ${attempt} failed, retrying in ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
     } catch (error) {
-      logger.error(`Reconnection attempt ${retries + 1} failed:`, error);
-      retries++;
-      
-      if (retries >= maxRetries) {
-        logger.error('Max retries reached, giving up');
+      logger.error(`Connection attempt ${attempt} failed:`, error);
+      if (attempt === maxRetries) {
         return false;
       }
-      
-      // Exponential backoff
-      const delay = Math.pow(2, retries) * 1000;
-      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
   
+  logger.error(`Connection failed after ${maxRetries} attempts`);
   return false;
 };
-
-// Initialize connection on load
-initializeConnection().then(() => {
-  if (!supabaseUrl || !supabaseAnonKey) {
-    logger.error('❌ Supabase initialization failed: Missing credentials in .env file');
-    return;
-  }
-  logger.info('✅ Supabase connection initialized');
-}).catch(error => {
-  logger.error('❌ Supabase connection initialization failed:', error);
-});

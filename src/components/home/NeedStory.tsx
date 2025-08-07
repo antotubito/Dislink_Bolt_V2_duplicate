@@ -37,7 +37,7 @@ export function NeedStory({ need, onClick }: NeedStoryProps) {
         return Palette;
       case 'learning':
         return BookOpen;
-      case 'professional':
+      case 'work-career':
         return Briefcase;
       case 'ideas':
         return Lightbulb;
@@ -63,7 +63,7 @@ export function NeedStory({ need, onClick }: NeedStoryProps) {
         return 'from-pink-500 to-pink-300';
       case 'learning':
         return 'from-indigo-500 to-indigo-300';
-      case 'professional':
+      case 'work-career':
         return 'from-sky-500 to-sky-300';
       case 'ideas':
         return 'from-amber-500 to-amber-300';

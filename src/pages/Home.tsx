@@ -479,7 +479,7 @@ export function Home() {
                       {activeFilter === 'tags' && (
                         <>
                           <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700">Conference</button>
-                          <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700">Networking</button>
+                          <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700">Relationship Building</button>
                           <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700">Client</button>
                         </>
                       )}

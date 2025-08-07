@@ -9,7 +9,7 @@ interface InterestsInputProps {
 
 // Predefined interest categories with suggestions
 const INTEREST_CATEGORIES = {
-  'Professional': [
+  'Work & Career': [
     'Software Development', 'Design', 'Marketing', 'Finance', 'Data Science',
     'Product Management', 'Entrepreneurship', 'Leadership', 'AI', 'Blockchain',
     'Cloud Computing', 'UX Research', 'Digital Marketing', 'Content Creation'

@@ -81,7 +81,7 @@ export function Story() {
           <div className="px-6 py-8 prose max-w-none">
             <p className="text-lg leading-relaxed text-gray-700">
               Dislink was born from a simple observation: in our increasingly connected world, 
-              meaningful relationships often get lost in the digital noise. We saw professionals 
+              meaningful relationships often get lost in the digital noise. We saw people
               and individuals struggling to maintain the connections they made at conferences, 
               meetups, social events, and through mutual friends. Important details about where 
               they met, shared interests, and common connections would fade with time.
@@ -120,14 +120,14 @@ export function Story() {
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
               And so, Dislink was born - a tool designed not just to connect people, but to help them 
               stay meaningfully connected. A platform that values the quality of connections over quantity, 
-              and that understands that the most valuable professional relationships are built on 
+              and that understands that the most valuable relationships are built on 
               authentic human connections.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              Today, we're proud to be helping thousands of professionals around the world build 
-              stronger, more meaningful networks. But we're just getting started. Our vision is to 
-              transform how people think about professional networking - from a transactional 
+              Today, we're proud to be helping thousands of people around the world build 
+              stronger, more meaningful connections. But we're just getting started. Our vision is to 
+              transform how people think about relationship building - from a transactional 
               activity to a meaningful practice that enriches both professional and personal lives.
             </p>
 

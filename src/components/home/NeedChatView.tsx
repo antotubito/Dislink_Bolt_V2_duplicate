@@ -78,7 +78,7 @@ export function NeedChatView({ need, onBack }: NeedChatViewProps) {
       case 'travel': return Plane;
       case 'creative': return Palette;
       case 'learning': return BookOpen;
-      case 'professional': return Briefcase;
+      case 'work-career': return Briefcase;
       case 'ideas': return Lightbulb;
       default: return Coffee;
     }
@@ -94,7 +94,7 @@ export function NeedChatView({ need, onBack }: NeedChatViewProps) {
       case 'travel': return 'bg-red-500 text-white';
       case 'creative': return 'bg-pink-500 text-white';
       case 'learning': return 'bg-indigo-500 text-white';
-      case 'professional': return 'bg-sky-500 text-white';
+      case 'work-career': return 'bg-sky-500 text-white';
       case 'ideas': return 'bg-amber-500 text-white';
       default: return 'bg-gray-500 text-white';
     }

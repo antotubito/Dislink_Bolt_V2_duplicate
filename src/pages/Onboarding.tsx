@@ -313,7 +313,7 @@ export function Onboarding() {
   const renderWorkStep = () => (
     <OnboardingStep
       title="What do you do? 💼"
-      description="Tell us about your professional life"
+      description="Tell us about your work and interests"
       icon={Briefcase}
       step={currentStepIndex}
       totalSteps={totalSteps}

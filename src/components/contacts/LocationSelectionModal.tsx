@@ -392,7 +392,7 @@ export function LocationSelectionModal({
                         type="text"
                         value={eventContext}
                         onChange={(e) => setEventContext(e.target.value)}
-                        placeholder="e.g., Conference, Birthday Party, Networking Event..."
+                        placeholder="e.g., Conference, Birthday Party, Meetup, Social Event..."
                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
                     </div>
@@ -404,7 +404,7 @@ export function LocationSelectionModal({
                   <div className="mt-6 bg-indigo-50 p-4 rounded-lg">
                     <h3 className="text-sm font-medium text-indigo-800 mb-2">Suggestions:</h3>
                     <div className="flex flex-wrap gap-2">
-                      {['Lisbon Tech Meetup', 'Coffee Chat', 'Networking Event', 'Business Meeting', 
+                      {['Lisbon Tech Meetup', 'Coffee Chat', 'Social Event', 'Business Meeting',
                         'Conference', 'Startup Pitch', 'Workshop', 'Community Gathering', 
                         'Product Demo', 'Casual Encounter'].map((suggestion) => (
                         <button

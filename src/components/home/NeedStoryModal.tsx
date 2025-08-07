@@ -68,7 +68,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
         return Palette;
       case 'learning':
         return BookOpen;
-      case 'professional':
+      case 'work-career':
         return Briefcase;
       case 'ideas':
         return Lightbulb;
@@ -94,7 +94,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
         return 'bg-pink-500 text-white';
       case 'learning':
         return 'bg-indigo-500 text-white';
-      case 'professional':
+      case 'work-career':
         return 'bg-sky-500 text-white';
       case 'ideas':
         return 'bg-amber-500 text-white';

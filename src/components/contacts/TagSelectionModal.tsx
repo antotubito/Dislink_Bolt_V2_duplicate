@@ -38,17 +38,9 @@ const RELATIONSHIP_TAGS = {
     'Festival Friend',
     'Coffee Mate'
   ],
-  'Professional': [
-    'Colleague',
-    'Mentor',
-    'Mentee',
-    'Business Partner',
-    'Client',
-    'Service Provider',
-    'Industry Peer',
-    'Collaborator',
-    'Advisor',
-    'Team Member'
+  'Work & Career': [
+    'Colleague', 'Mentor', 'Mentee', 'Client', 'Partner', 'Investor',
+    'Advisor', 'Consultant', 'Freelancer', 'Contractor', 'Vendor'
   ],
   'Community': [
     'Volunteer',

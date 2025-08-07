@@ -18,6 +18,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
   const publicPaths = [
     '/',
     '/waitlist',
+    '/story',
     '/app/login',
     '/app/register',
     '/app/terms',
@@ -30,9 +31,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
     '/confirm',
     '/confirmed',
     '/share',
-    '/app/reset-password',
-    '/demo',
-    '/story'
+    '/app/reset-password'
   ];
 
   useEffect(() => {
@@ -41,23 +40,12 @@ export function SessionGuard({ children }: SessionGuardProps) {
         location.pathname === path || location.pathname.startsWith(`${path}/`)
       );
 
-      // For public paths, just check if user is authenticated for optional features
+      // Skip auth check for public paths
       if (isPublicPath) {
-        if (!loading) {
-          try {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session && !user) {
-              await refreshUser();
-            }
-          } catch (error) {
-            logger.error('Error checking session on public path:', error);
-          }
-        }
         setIsCheckingSession(false);
         return;
       }
 
-      // For protected paths, require authentication
       if (!loading) {
         setIsCheckingSession(true);
         try {
@@ -70,7 +58,9 @@ export function SessionGuard({ children }: SessionGuardProps) {
                 error.message?.includes('refresh_token_not_found')) {
               await supabase.auth.signOut();
               // Store the attempted URL for redirect after login
-              localStorage.setItem('redirectUrl', location.pathname);
+              if (location.pathname.startsWith('/app')) {
+                localStorage.setItem('redirectUrl', location.pathname);
+              }
               navigate('/app/login');
               return;
             }
@@ -79,8 +69,12 @@ export function SessionGuard({ children }: SessionGuardProps) {
           
           if (!session) {
             // Store the attempted URL for redirect after login
-            localStorage.setItem('redirectUrl', location.pathname);
-            navigate('/app/login');
+            if (location.pathname.startsWith('/app')) {
+              localStorage.setItem('redirectUrl', location.pathname);
+              navigate('/app/login');
+            } else {
+              navigate('/waitlist');
+            }
           } else if (!user) {
             // We have a session but no user data, refresh the user
             await refreshUser();
@@ -94,18 +88,14 @@ export function SessionGuard({ children }: SessionGuardProps) {
         } finally {
           setIsCheckingSession(false);
         }
-      } else {
-        setIsCheckingSession(false);
       }
     };
 
     checkSession();
   }, [user, loading, location.pathname, navigate, refreshUser]);
 
-  // Show loading state only for protected routes while checking auth
-  if (isCheckingSession && !publicPaths.some(path => 
-    location.pathname === path || location.pathname.startsWith(`${path}/`)
-  )) {
+  // Show loading state while checking auth
+  if (loading && isCheckingSession) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
