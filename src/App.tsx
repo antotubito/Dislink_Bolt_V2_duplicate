@@ -24,6 +24,7 @@ import { EmailConfirm } from './pages/EmailConfirm';
 import { Confirmed } from './pages/Confirmed';
 import { ResetPassword } from './pages/ResetPassword';
 import { Demo } from './pages/Demo';
+import { PasswordGate } from './pages/PasswordGate';
 import { ConnectionErrorBanner } from './components/ConnectionErrorBanner';
 import { MobileAppBanner } from './components/MobileAppBanner';
 import { isMobileApp } from './lib/mobileUtils';
@@ -54,6 +55,7 @@ function App() {
             
             {/* Auth Routes - No authentication required */}
             <Route path="/app/login" element={<Login />} />
+            <Route path="/app/access" element={<PasswordGate />} />
             <Route path="/app/register" element={<Register />} />
             <Route path="/app/reset-password" element={<ResetPassword />} />
             <Route path="/app/terms" element={<TermsConditions />} />
