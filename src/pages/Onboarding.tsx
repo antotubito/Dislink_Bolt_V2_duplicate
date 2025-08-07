@@ -114,11 +114,15 @@ export function Onboarding() {
     setError(null);
 
     try {
+      console.log('🎯 Starting onboarding completion...');
+      
       // Get current session to ensure we have the user ID
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('No active session');
       }
+      
+      console.log('📝 Updating profile with onboarding completion...');
 
       await updateProfile({
         firstName: formData.firstName,
@@ -137,11 +141,23 @@ export function Onboarding() {
         onboardingCompletedAt: new Date()
       });
 
+      console.log('✅ Profile updated successfully');
+
+      // Refresh user state to reflect onboarding completion
+      console.log('🔄 Refreshing user state after profile update...');
+      await refreshUser();
+      
+      console.log('👤 User state after refresh:', { 
+        id: user?.id, 
+        onboardingComplete: user?.onboardingComplete 
+      });
+
       localStorage.removeItem('onboarding_progress');
 
+      console.log('🎉 Moving to complete step...');
       setStep('complete');
     } catch (err) {
-      console.error('Onboarding completion error:', err);
+      console.error('❌ Onboarding completion error:', err);
       setError(err instanceof Error ? err.message : 'Failed to complete onboarding');
     } finally {
       setLoading(false);
@@ -150,10 +166,27 @@ export function Onboarding() {
 
   const handleFinish = async () => {
     try {
+      console.log('🎯 Starting handleFinish...');
+      
+      // Refresh user to get updated onboarding status
+      console.log('🔄 Refreshing user state...');
       await refreshUser();
-      navigate('/app');
+      
+      // Check current user state
+      console.log('👤 Current user after refresh:', { 
+        id: user?.id, 
+        onboardingComplete: user?.onboardingComplete 
+      });
+      
+      // Small delay to ensure auth state is updated
+      console.log('⏳ Waiting for auth state to settle...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Navigate to the app dashboard
+      console.log('🚀 Navigating to /app...');
+      navigate('/app', { replace: true });
     } catch (error) {
-      console.error('Error completing onboarding:', error);
+      console.error('❌ Error completing onboarding:', error);
       setError('Failed to complete onboarding');
     }
   };
