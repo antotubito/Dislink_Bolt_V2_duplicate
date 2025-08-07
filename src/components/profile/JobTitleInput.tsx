@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Briefcase, Search } from 'lucide-react';
+import { Briefcase, Search, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UNIQUE_JOB_TITLES } from '../../types/jobTitles';
 import { Industry, INDUSTRY_JOB_TITLES } from '../../types/industry';
@@ -22,6 +22,7 @@ export function JobTitleInput({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [allSuggestions, setAllSuggestions] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
@@ -36,6 +37,9 @@ export function JobTitleInput({
       filteredTitles = UNIQUE_JOB_TITLES;
     }
     
+    // Store all suggestions for this industry
+    setAllSuggestions(filteredTitles);
+    
     // If there's a search term, filter further
     if (searchTerm.trim()) {
       filteredTitles = filteredTitles.filter(title =>
@@ -43,8 +47,8 @@ export function JobTitleInput({
       );
     }
     
-    // Limit to 10 suggestions for better UX
-    setSuggestions(filteredTitles.slice(0, 10));
+    // Show all suggestions (no limit)
+    setSuggestions(filteredTitles);
   }, [industry, searchTerm]);
 
   // Handle input change
@@ -79,6 +83,13 @@ export function JobTitleInput({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const getSuggestionCount = () => {
+    if (searchTerm.trim()) {
+      return suggestions.length;
+    }
+    return allSuggestions.length;
+  };
+
   return (
     <div className={`relative ${className}`}>
       <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-1">
@@ -95,10 +106,11 @@ export function JobTitleInput({
           value={value}
           onChange={handleInputChange}
           onFocus={() => setShowSuggestions(true)}
-          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           placeholder="Enter or select your job title"
           required={required}
         />
+        <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
       </div>
 
       <AnimatePresence>
@@ -108,19 +120,33 @@ export function JobTitleInput({
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-auto"
+            className="absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto"
           >
             <div className="py-1">
-              {suggestions.map((title) => (
+              {suggestions.length > 0 && (
+                <div className="px-4 py-2 text-xs text-gray-500 border-b border-gray-100">
+                  {searchTerm.trim() ? (
+                    `Found ${suggestions.length} matching job titles`
+                  ) : (
+                    `Showing ${suggestions.length} job titles for ${industry ? INDUSTRY_JOB_TITLES[industry]?.length || 0 : 'all'} industries`
+                  )}
+                </div>
+              )}
+              {suggestions.map((title, index) => (
                 <button
                   key={title}
                   type="button"
                   onClick={() => handleSelectSuggestion(title)}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100"
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none transition-colors"
                 >
                   {title}
                 </button>
               ))}
+              {suggestions.length === 0 && searchTerm.trim() && (
+                <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                  No job titles found matching "{searchTerm}"
+                </div>
+              )}
             </div>
           </motion.div>
         )}
