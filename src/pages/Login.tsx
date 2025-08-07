@@ -64,16 +64,22 @@ export function Login() {
     e.preventDefault();
     setError(null);
 
-    // Validate input
+    // Immediate client-side validation
     if (!email.trim() || !password.trim()) {
       setError('Please enter both email and password');
       return;
     }
 
-    // Basic email validation
+    // Basic email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(email.trim())) {
       setError('Please enter a valid email address');
+      return;
+    }
+
+    // Basic password length check
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters long');
       return;
     }
 
@@ -107,81 +113,87 @@ export function Login() {
       
       setLoginStep('Authenticating...');
       
-      // Add timeout to prevent hanging
-      const loginTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Login timeout - please try again')), 90000) // Increased to 90 seconds
-      );
-      
-      const result = await Promise.race([
-        login({ email, password }),
-        loginTimeout
-      ]) as any;
+      // Call login function directly - no need for timeout on invalid credentials
+      const result = await login({ email, password });
       
       logger.info('Login result received:', { success: result.success, requiresOnboarding: result.requiresOnboarding });
       
-      if (result.success) {
-        logger.info('Login successful, refreshing user data');
-        setLoginStep('Loading your profile...');
-        
-        // Add timeout to refreshUser as well
-        const refreshTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('User data refresh timeout')), 60000) // Increased to 60 seconds
-        );
-        
-        logger.info('Starting user data refresh...');
-        await Promise.race([
-          refreshUser(true), // Force refresh even on public paths
-          refreshTimeout
-        ]);
-        
-        logger.info('User data refresh completed, navigating...');
-        setLoginStep('Redirecting...');
-        
-        // Check for redirect URL
-        const redirectUrl = localStorage.getItem('redirectUrl');
-        
-        if (redirectUrl) {
-          localStorage.removeItem('redirectUrl');
-          logger.info('Redirecting to stored URL:', redirectUrl);
-          navigate(redirectUrl);
-        } else if (result.requiresOnboarding) {
-          // Explicitly redirect to onboarding if required
-          logger.info('Redirecting to onboarding');
-          navigate('/app/onboarding');
-        } else {
-          // Otherwise go to main app
-          logger.info('Redirecting to main app');
-          navigate('/app');
+      // Handle immediate errors (invalid credentials, etc.)
+      if (!result.success) {
+        if (result.emailConfirmationRequired) {
+          logger.info('Email confirmation required');
+          setShowEmailConfirmation(true);
+          localStorage.setItem('confirmEmail', email);
+          return;
         }
-      } else if (result.emailConfirmationRequired) {
-        logger.info('Email confirmation required');
-        setShowEmailConfirmation(true);
-        localStorage.setItem('confirmEmail', email);
-      } else if (result.emailNotFound) {
-        logger.warn('Email not found during login attempt');
-        setError(
-          <div className="text-sm">
-            No account found with this email.{' '}
-            <Link to="/app/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
-              Create an account
-            </Link>
-            {' '}or try a different email.
-          </div>
-        );
-      } else if (result.error) {
-        logger.error('Login error from result:', result.error);
-        setError(result.error);
+        
+        if (result.emailNotFound) {
+          logger.warn('Email not found during login attempt');
+          setError(
+            <div className="text-sm">
+              No account found with this email.{' '}
+              <Link to="/app/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
+                Create an account
+              </Link>
+              {' '}or try a different email.
+            </div>
+          );
+          return;
+        }
+        
+        if (result.error) {
+          logger.error('Login error from result:', result.error);
+          setError(result.error);
+          return;
+        }
+        
+        // Fallback error
+        setError('Login failed. Please try again.');
+        return;
+      }
+      
+      // Only proceed with loading user data if login was successful
+      logger.info('Login successful, refreshing user data');
+      setLoginStep('Loading your profile...');
+      
+      // Add timeout only to refreshUser, not the initial authentication
+      const refreshTimeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('User data refresh timeout')), 60000)
+      );
+      
+      logger.info('Starting user data refresh...');
+      await Promise.race([
+        refreshUser(true), // Force refresh even on public paths
+        refreshTimeout
+      ]);
+      
+      logger.info('User data refresh completed, navigating...');
+      setLoginStep('Redirecting...');
+      
+      // Check for redirect URL
+      const redirectUrl = localStorage.getItem('redirectUrl');
+      
+      if (redirectUrl) {
+        localStorage.removeItem('redirectUrl');
+        logger.info('Redirecting to stored URL:', redirectUrl);
+        navigate(redirectUrl);
+      } else if (result.requiresOnboarding) {
+        // Explicitly redirect to onboarding if required
+        logger.info('Redirecting to onboarding');
+        navigate('/app/onboarding');
+      } else {
+        // Otherwise go to main app
+        logger.info('Redirecting to main app');
+        navigate('/app');
       }
     } catch (err) {
       logger.error('Login error:', err);
       
       if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
+        if (err.message.includes('timeout') || err.message.includes('refresh timeout')) {
           setError('Login is taking longer than expected. This might be due to a slow connection. Please try again.');
         } else if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
           setError('Network error. Please check your internet connection and try again.');
-        } else if (err.message.includes('Invalid login credentials')) {
-          setError('Invalid email or password');
         } else {
           setError(err.message);
         }

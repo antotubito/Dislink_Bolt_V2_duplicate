@@ -120,247 +120,148 @@ export async function login(credentials: LoginCredentials): Promise<{
       };
     }
 
-    // Try direct Supabase auth
-    if ('accessKey' in credentials) {
-      // Handle testing access key login
-      if (!credentials.accessKey?.trim()) {
-        return {
-          success: false,
-          error: 'Access key is required'
-        };
-      }
+    // Handle regular email/password login (simplified - no access key logic)
+    if (!credentials.email?.trim() || !credentials.password?.trim()) {
+      return {
+        success: false,
+        error: 'Email and password are required'
+      };
+    }
 
-      // Clear any existing auth data
-      await supabase.auth.signOut();
+    console.log('📧 Preparing regular email/password login:', {
+      email: credentials.email,
+      emailLength: credentials.email.length,
+      passwordLength: credentials.password.length
+    });
 
-      // Use test credentials for access key login
-      const testEmail = `test-${credentials.accessKey}@example.com`;
-      const testPassword = credentials.accessKey;
+    console.log('🚀 Calling supabase.auth.signInWithPassword...');
+    const loginStartTime = Date.now();
+    
+    // Direct Supabase authentication - this should be fast for invalid credentials
+    const { data: userData, error: userError } = await supabase.auth.signInWithPassword({
+      email: credentials.email.trim(),
+      password: credentials.password
+    });
 
-      console.log('🧪 Attempting test access key login:', { testEmail });
+    const loginDuration = Date.now() - loginStartTime;
+    console.log('⏱️ Login attempt completed:', {
+      duration: `${loginDuration}ms`,
+      hasData: !!userData,
+      hasSession: !!userData?.session,
+      hasUser: !!userData?.user,
+      hasError: !!userError,
+      errorType: userError?.message || 'none'
+    });
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: testEmail,
-        password: testPassword
+    // Handle errors first - this should be immediate for wrong credentials
+    if (userError) {
+      console.error('❌ Supabase login error details:', {
+        message: userError.message,
+        status: userError.status,
+        statusText: userError.statusText
       });
-
-      if (error) {
-        console.error('❌ Test login failed:', error);
-        if (error.message.includes('Invalid login credentials')) {
-          return {
-            success: false,
-            error: 'Invalid access key'
-          };
-        }
-        throw error;
-      }
-
-      if (!data.session) {
+      
+      logger.error('Login error from Supabase:', userError);
+      
+      // Network errors
+      if (userError.message.includes('Failed to fetch') || userError.message.includes('fetch')) {
+        console.error('🌐 Network error detected during login');
         return {
           success: false,
-          error: 'No session returned'
+          error: 'Network error. Please check your internet connection and try again.'
+        };
+      }
+      
+      // Email not confirmed
+      if (userError.message.includes('Email not confirmed')) {
+        console.log('📧 Email confirmation required');
+        localStorage.setItem('confirmEmail', credentials.email);
+        return {
+          success: false,
+          emailConfirmationRequired: true
         };
       }
 
-      // Get user profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('onboarding_complete, registration_status')
-        .eq('id', data.session.user.id)
-        .single();
+      // Invalid credentials - this should be the most common case
+      if (userError.message.includes('Invalid login credentials') || 
+          userError.message.includes('Invalid') || 
+          userError.status === 400) {
+        console.log('🔐 Invalid credentials provided');
+        return {
+          success: false,
+          error: 'Invalid email or password. Please check your credentials and try again.'
+        };
+      }
 
-      logger.info('Test login successful', { userId: data.user?.id });
+      // Rate limiting
+      if (userError.message.includes('rate limit') || userError.message.includes('too many')) {
+        console.log('⏰ Rate limit hit');
+        return {
+          success: false,
+          error: 'Too many login attempts. Please wait a few minutes before trying again.'
+        };
+      }
+
+      // Any other auth error
+      console.error('❌ Other auth error:', userError.message);
+      return {
+        success: false,
+        error: userError.message || 'Authentication failed. Please try again.'
+      };
+    }
+
+    // Validate successful response
+    if (!userData || !userData.session || !userData.user) {
+      console.error('❌ Invalid response from Supabase - missing session or user data');
+      return {
+        success: false,
+        error: 'Invalid response from authentication service. Please try again.'
+      };
+    }
+
+    console.log('✅ Supabase login successful:', {
+      hasSession: !!userData.session,
+      sessionId: userData.session.access_token ? `${userData.session.access_token.substring(0, 10)}...` : 'none',
+      userId: userData.user.id,
+      userEmail: userData.user.email
+    });
+
+    console.log('👤 Fetching user profile from database...');
+    
+    // Get user profile with minimal data for login check
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('onboarding_complete, registration_status')
+      .eq('id', userData.session.user.id)
+      .single();
+
+    if (profileError) {
+      console.error('❌ Profile fetch error:', profileError);
+      // Don't fail login if profile fetch fails - user can still access the app
+      logger.warn('Profile fetch failed during login, continuing anyway:', profileError);
       
+      console.log('🎉 Login flow completed successfully (no profile data)');
       return { 
         success: true,
-        requiresOnboarding: !profile?.onboarding_complete
+        requiresOnboarding: true // Default to requiring onboarding if we can't check
       };
-    } else {
-      // Handle regular email/password login
-      if (!credentials.email?.trim() || !credentials.password?.trim()) {
-        return {
-          success: false,
-          error: 'Email and password are required'
-        };
-      }
-
-      console.log('📧 Preparing regular email/password login:', {
-        email: credentials.email,
-        emailLength: credentials.email.length,
-        passwordLength: credentials.password.length,
-        hasSpecialChars: /[!@#$%^&*(),.?":{}|<>]/.test(credentials.password)
-      });
-
-      // First check if the email exists in auth.users
-      try {
-        console.log('🚀 Calling supabase.auth.signInWithPassword...');
-        const loginStartTime = Date.now();
-        
-        // Get the user directly from Supabase Auth
-        const { data: userData, error: userError } = await supabase.auth.signInWithPassword({
-          email: credentials.email,
-          password: credentials.password
-        });
-
-        const loginDuration = Date.now() - loginStartTime;
-        console.log('⏱️ Login attempt completed:', {
-          duration: `${loginDuration}ms`,
-          hasData: !!userData,
-          hasSession: !!userData?.session,
-          hasUser: !!userData?.user,
-          hasError: !!userError,
-          errorType: userError?.message || 'none'
-        });
-
-        if (userError) {
-          console.error('❌ Supabase login error details:', {
-            message: userError.message,
-            status: userError.status,
-            statusText: userError.statusText,
-            details: userError
-          });
-          
-          logger.error('Login error from Supabase:', userError);
-          
-          if (userError.message.includes('Failed to fetch')) {
-            console.error('🌐 Network error detected during login');
-            return {
-              success: false,
-              error: 'Network error. Please check your internet connection and try again.'
-            };
-          }
-          
-          if (userError.message.includes('Email not confirmed')) {
-            console.log('📧 Email confirmation required');
-            localStorage.setItem('confirmEmail', credentials.email);
-            return {
-              success: false,
-              emailConfirmationRequired: true
-            };
-          }
-
-          if (userError.message.includes('Invalid login credentials')) {
-            console.log('🔍 Invalid credentials, checking if email exists in profiles...');
-            
-            // Check if the email exists in profiles
-            const { data: profileCheck, error: profileError } = await supabase
-              .from('profiles')
-              .select('id, email')
-              .ilike('email', credentials.email.toLowerCase().trim())
-              .limit(1);
-
-            if (profileError) {
-              console.error('❌ Profile check error:', profileError);
-              logger.error('Profile check error:', profileError);
-            }
-
-            console.log('👤 Profile check result:', {
-              profilesFound: profileCheck?.length || 0,
-              hasProfiles: !!(profileCheck && profileCheck.length > 0)
-            });
-
-            // If profile exists but credentials are invalid, it's a password issue
-            if (profileCheck && profileCheck.length > 0) {
-              console.log('🔐 Profile found but password is incorrect');
-              logger.info('Profile found but password is incorrect');
-              return {
-                success: false,
-                error: 'Invalid password'
-              };
-            } else {
-              // If no profile found, the email doesn't exist
-              console.log('👻 Email not found in profiles');
-              logger.warn('Email not found in profiles:', { email: credentials.email });
-              return {
-                success: false,
-                emailNotFound: true
-              };
-            }
-          }
-
-          throw userError;
-        }
-
-        console.log('✅ Supabase login successful:', {
-          hasSession: !!userData.session,
-          sessionId: userData.session?.access_token ? `${userData.session.access_token.substring(0, 10)}...` : 'none',
-          userId: userData.user?.id,
-          userEmail: userData.user?.email
-        });
-
-        if (!userData.session) {
-          console.error('❌ No session returned despite successful login');
-          return {
-            success: false,
-            error: 'No session returned'
-          };
-        }
-
-        console.log('👤 Fetching user profile from database...');
-        
-        // Get user profile with minimal data for login check
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('onboarding_complete, registration_status')
-          .eq('id', userData.session.user.id)
-          .single();
-
-        if (profileError) {
-          console.error('❌ Profile fetch error:', profileError);
-          // Don't fail login if profile fetch fails - user can still access the app
-          logger.warn('Profile fetch failed during login, continuing anyway:', profileError);
-          
-          console.log('🎉 Login flow completed successfully (no profile data)');
-          return { 
-            success: true,
-            requiresOnboarding: true // Default to requiring onboarding if we can't check
-          };
-        }
-
-        console.log('📊 Profile fetch result:', {
-          hasProfile: !!profile,
-          onboardingComplete: profile?.onboarding_complete,
-          registrationStatus: profile?.registration_status
-        });
-
-        logger.info('Login successful', { userId: userData.user?.id });
-        
-        console.log('🎉 Login flow completed successfully');
-        
-        return { 
-          success: true,
-          requiresOnboarding: !profile?.onboarding_complete
-        };
-      } catch (error) {
-        console.error('💥 Unexpected error during login:', {
-          errorType: typeof error,
-          errorMessage: error instanceof Error ? error.message : 'unknown',
-          errorStack: error instanceof Error ? error.stack : 'none',
-          error
-        });
-        
-        logger.error('Error during login:', error);
-        
-        if (error instanceof Error) {
-          if (error.message.includes('Failed to fetch')) {
-            return {
-              success: false,
-              error: 'Network error. Please check your internet connection and try again.'
-            };
-          }
-          
-          return {
-            success: false,
-            error: error.message
-          };
-        }
-        
-        return {
-          success: false,
-          error: 'An unexpected error occurred. Please try again.'
-        };
-      }
     }
+
+    console.log('📊 Profile fetch result:', {
+      hasProfile: !!profile,
+      onboardingComplete: profile?.onboarding_complete,
+      registrationStatus: profile?.registration_status
+    });
+
+    logger.info('Login successful', { userId: userData.user?.id });
+    
+    console.log('🎉 Login flow completed successfully');
+    
+    return { 
+      success: true,
+      requiresOnboarding: !profile?.onboarding_complete
+    };
+
   } catch (error) {
     console.error('💥 Top-level login error:', {
       errorType: typeof error,
@@ -371,7 +272,7 @@ export async function login(credentials: LoginCredentials): Promise<{
     logger.error('Login error:', error);
     
     if (error instanceof Error) {
-      if (error.message.includes('Failed to fetch')) {
+      if (error.message.includes('Failed to fetch') || error.message.includes('fetch')) {
         return {
           success: false,
           error: 'Network error. Please check your internet connection and try again.'
@@ -469,7 +370,7 @@ export function validatePassword(password: string) {
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
-  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
   if (password.length < minLength) {
     return { isValid: false, message: 'Password must be at least 8 characters long' };
