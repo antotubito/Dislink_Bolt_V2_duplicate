@@ -28,10 +28,23 @@ Contact your developer to get the correct values.
 }
 
 // Log environment variables for debugging
+console.log('🔧 Supabase Configuration Debug:', { 
+  urlAvailable: !!supabaseUrl, 
+  keyAvailable: !!supabaseAnonKey,
+  url: supabaseUrl?.substring(0, 30) + '...' || 'MISSING',
+  key: supabaseAnonKey?.substring(0, 10) + '...' || 'MISSING',
+  urlLength: supabaseUrl?.length || 0,
+  keyLength: supabaseAnonKey?.length || 0,
+  mode: import.meta.env.MODE,
+  isDev: import.meta.env.DEV,
+  allViteEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
+  supabaseEnvVars: Object.keys(import.meta.env).filter(key => key.includes('SUPABASE'))
+});
+
 logger.info('Supabase configuration:', { 
   urlAvailable: !!supabaseUrl, 
   keyAvailable: !!supabaseAnonKey,
-  url: supabaseUrl?.substring(0, 30) + '...' // Only show partial URL for security
+  url: supabaseUrl?.substring(0, 30) + '...' || 'MISSING' // Only show partial URL for security
 });
 
 // Create Supabase client with improved configuration

@@ -91,14 +91,29 @@ export async function login(credentials: LoginCredentials): Promise<{
   error?: string;
 }> {
   try {
-    logger.info('Attempting login', { email: credentials.email });
+    logger.info('🔑 Starting login attempt', { email: credentials.email });
 
     // Check if Supabase is properly configured
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
+    console.log('🔧 Supabase Environment Check:', {
+      url: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING',
+      key: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 10)}...` : 'MISSING',
+      urlLength: supabaseUrl?.length || 0,
+      keyLength: supabaseAnonKey?.length || 0,
+      isDev: import.meta.env.DEV,
+      mode: import.meta.env.MODE
+    });
+    
     if (!supabaseUrl || !supabaseAnonKey) {
       logger.error('❌ Supabase not configured - login cannot proceed');
+      console.error('❌ SUPABASE CONFIG ERROR:', {
+        supabaseUrl: !!supabaseUrl,
+        supabaseAnonKey: !!supabaseAnonKey,
+        allEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
+      });
+      
       return {
         success: false,
         error: 'Application configuration error. Please check Supabase credentials.'
@@ -122,12 +137,15 @@ export async function login(credentials: LoginCredentials): Promise<{
       const testEmail = `test-${credentials.accessKey}@example.com`;
       const testPassword = credentials.accessKey;
 
+      console.log('🧪 Attempting test access key login:', { testEmail });
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: testEmail,
         password: testPassword
       });
 
       if (error) {
+        console.error('❌ Test login failed:', error);
         if (error.message.includes('Invalid login credentials')) {
           return {
             success: false,
@@ -166,18 +184,46 @@ export async function login(credentials: LoginCredentials): Promise<{
         };
       }
 
+      console.log('📧 Preparing regular email/password login:', {
+        email: credentials.email,
+        emailLength: credentials.email.length,
+        passwordLength: credentials.password.length,
+        hasSpecialChars: /[!@#$%^&*(),.?":{}|<>]/.test(credentials.password)
+      });
+
       // First check if the email exists in auth.users
       try {
+        console.log('🚀 Calling supabase.auth.signInWithPassword...');
+        const loginStartTime = Date.now();
+        
         // Get the user directly from Supabase Auth
         const { data: userData, error: userError } = await supabase.auth.signInWithPassword({
           email: credentials.email,
           password: credentials.password
         });
 
+        const loginDuration = Date.now() - loginStartTime;
+        console.log('⏱️ Login attempt completed:', {
+          duration: `${loginDuration}ms`,
+          hasData: !!userData,
+          hasSession: !!userData?.session,
+          hasUser: !!userData?.user,
+          hasError: !!userError,
+          errorType: userError?.message || 'none'
+        });
+
         if (userError) {
+          console.error('❌ Supabase login error details:', {
+            message: userError.message,
+            status: userError.status,
+            statusText: userError.statusText,
+            details: userError
+          });
+          
           logger.error('Login error from Supabase:', userError);
           
           if (userError.message.includes('Failed to fetch')) {
+            console.error('🌐 Network error detected during login');
             return {
               success: false,
               error: 'Network error. Please check your internet connection and try again.'
@@ -185,6 +231,7 @@ export async function login(credentials: LoginCredentials): Promise<{
           }
           
           if (userError.message.includes('Email not confirmed')) {
+            console.log('📧 Email confirmation required');
             localStorage.setItem('confirmEmail', credentials.email);
             return {
               success: false,
@@ -193,6 +240,8 @@ export async function login(credentials: LoginCredentials): Promise<{
           }
 
           if (userError.message.includes('Invalid login credentials')) {
+            console.log('🔍 Invalid credentials, checking if email exists in profiles...');
+            
             // Check if the email exists in profiles
             const { data: profileCheck, error: profileError } = await supabase
               .from('profiles')
@@ -201,11 +250,18 @@ export async function login(credentials: LoginCredentials): Promise<{
               .limit(1);
 
             if (profileError) {
+              console.error('❌ Profile check error:', profileError);
               logger.error('Profile check error:', profileError);
             }
 
+            console.log('👤 Profile check result:', {
+              profilesFound: profileCheck?.length || 0,
+              hasProfiles: !!(profileCheck && profileCheck.length > 0)
+            });
+
             // If profile exists but credentials are invalid, it's a password issue
             if (profileCheck && profileCheck.length > 0) {
+              console.log('🔐 Profile found but password is incorrect');
               logger.info('Profile found but password is incorrect');
               return {
                 success: false,
@@ -213,6 +269,7 @@ export async function login(credentials: LoginCredentials): Promise<{
               };
             } else {
               // If no profile found, the email doesn't exist
+              console.log('👻 Email not found in profiles');
               logger.warn('Email not found in profiles:', { email: credentials.email });
               return {
                 success: false,
@@ -224,13 +281,23 @@ export async function login(credentials: LoginCredentials): Promise<{
           throw userError;
         }
 
+        console.log('✅ Supabase login successful:', {
+          hasSession: !!userData.session,
+          sessionId: userData.session?.access_token ? `${userData.session.access_token.substring(0, 10)}...` : 'none',
+          userId: userData.user?.id,
+          userEmail: userData.user?.email
+        });
+
         if (!userData.session) {
+          console.error('❌ No session returned despite successful login');
           return {
             success: false,
             error: 'No session returned'
           };
         }
 
+        console.log('👤 Fetching user profile from database...');
+        
         // Get user profile
         const { data: profile } = await supabase
           .from('profiles')
@@ -238,13 +305,28 @@ export async function login(credentials: LoginCredentials): Promise<{
           .eq('id', userData.session.user.id)
           .single();
 
+        console.log('📊 Profile fetch result:', {
+          hasProfile: !!profile,
+          onboardingComplete: profile?.onboarding_complete,
+          registrationStatus: profile?.registration_status
+        });
+
         logger.info('Login successful', { userId: userData.user?.id });
+        
+        console.log('🎉 Login flow completed successfully');
         
         return { 
           success: true,
           requiresOnboarding: !profile?.onboarding_complete
         };
       } catch (error) {
+        console.error('💥 Unexpected error during login:', {
+          errorType: typeof error,
+          errorMessage: error instanceof Error ? error.message : 'unknown',
+          errorStack: error instanceof Error ? error.stack : 'none',
+          error
+        });
+        
         logger.error('Error during login:', error);
         
         if (error instanceof Error) {
@@ -268,6 +350,12 @@ export async function login(credentials: LoginCredentials): Promise<{
       }
     }
   } catch (error) {
+    console.error('💥 Top-level login error:', {
+      errorType: typeof error,
+      errorMessage: error instanceof Error ? error.message : 'unknown',
+      error
+    });
+    
     logger.error('Login error:', error);
     
     if (error instanceof Error) {

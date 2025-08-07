@@ -24,13 +24,32 @@ export function Login() {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
     
+    console.log('🔍 Login Page Environment Check:', {
+      allEnvVars: Object.keys(import.meta.env),
+      viteEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
+      supabaseEnvVars: Object.keys(import.meta.env).filter(key => key.includes('SUPABASE')),
+      supabaseUrl: {
+        exists: !!supabaseUrl,
+        length: supabaseUrl?.length || 0,
+        preview: supabaseUrl ? `${supabaseUrl.substring(0, 30)}...` : 'MISSING'
+      },
+      supabaseKey: {
+        exists: !!supabaseAnonKey,
+        length: supabaseAnonKey?.length || 0,
+        preview: supabaseAnonKey ? `${supabaseAnonKey.substring(0, 10)}...` : 'MISSING'
+      }
+    });
+    
     const debugData = {
       environment: import.meta.env.MODE,
       supabaseConfigured: !!(supabaseUrl && supabaseAnonKey),
       urlAvailable: !!supabaseUrl,
       keyAvailable: !!supabaseAnonKey,
+      urlLength: supabaseUrl?.length || 0,
+      keyLength: supabaseAnonKey?.length || 0,
       connectionStatus,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      allViteEnvVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
     };
     
     setDebugInfo(debugData);
@@ -321,12 +340,21 @@ export function Login() {
           <div className="text-xs text-yellow-700 space-y-1">
             <div>Environment: {debugInfo.environment}</div>
             <div>Supabase Configured: {debugInfo.supabaseConfigured ? '✅' : '❌'}</div>
-            <div>URL Available: {debugInfo.urlAvailable ? '✅' : '❌'}</div>
-            <div>Key Available: {debugInfo.keyAvailable ? '✅' : '❌'}</div>
+            <div>URL Available: {debugInfo.urlAvailable ? '✅' : '❌'} ({debugInfo.urlLength} chars)</div>
+            <div>Key Available: {debugInfo.keyAvailable ? '✅' : '❌'} ({debugInfo.keyLength} chars)</div>
             <div>Connection: {debugInfo.connectionStatus}</div>
+            <div>VITE Env Vars: {debugInfo.allViteEnvVars?.length || 0}</div>
+            {debugInfo.allViteEnvVars && debugInfo.allViteEnvVars.length > 0 && (
+              <div className="ml-2 text-xs text-yellow-600">
+                {debugInfo.allViteEnvVars.map((key: string) => (
+                  <div key={key}>• {key}</div>
+                ))}
+              </div>
+            )}
             {!debugInfo.supabaseConfigured && (
               <div className="mt-2 p-2 bg-red-100 rounded text-red-800 text-xs">
                 ⚠️ Missing Supabase credentials! Login will not work.
+                <br />Check your .env file for VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
               </div>
             )}
           </div>
