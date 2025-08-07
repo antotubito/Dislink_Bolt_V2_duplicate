@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../components/auth/AuthProvider';
-import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { login } from '../lib/auth';
 import { supabase, getSafeSession } from '../lib/supabase';
@@ -19,19 +19,24 @@ export function Login() {
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [pendingRedirect, setPendingRedirect] = useState(false);
 
-  // Redirect if user is already authenticated
+  // Redirect if user is already authenticated - BUT only if they came from a protected route
   useEffect(() => {
     if (!loading && user) {
-      logger.info('🔄 User already authenticated, redirecting');
-      
+      // Check if there's a stored redirectUrl indicating they came from a protected route
       const redirectUrl = localStorage.getItem('redirectUrl');
+      
       if (redirectUrl) {
+        // User was redirected here from a protected route, so redirect them after auth
+        logger.info('🔄 User already authenticated with stored redirect URL, redirecting to:', redirectUrl);
         localStorage.removeItem('redirectUrl');
         navigate(redirectUrl);
-      } else if (!user.onboardingComplete) {
-        navigate('/app/onboarding');
       } else {
-        navigate('/app');
+        // User navigated to login page directly while already authenticated
+        // Don't auto-redirect, let them stay on the login page or navigate manually
+        logger.info('🔄 User already authenticated but no redirect URL - staying on login page');
+        
+        // Optionally show a message or state that they're already logged in
+        // But don't force redirect to /app
       }
     }
   }, [user, loading, navigate]);
@@ -353,6 +358,37 @@ export function Login() {
             </div>
           </div>
         )}
+
+        {!loading && user && (
+          <div className="mb-4 rounded-md bg-blue-50 p-4">
+            <div className="flex items-start">
+              <CheckCircle className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-sm text-blue-700">
+                  <p className="font-medium">You're already signed in as {user.firstName} {user.lastName}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <button
+                      onClick={() => navigate(user.onboardingComplete ? '/app' : '/app/onboarding')}
+                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
+                    >
+                      <ArrowRight className="h-3 w-3 mr-1" />
+                      {user.onboardingComplete ? 'Go to App' : 'Complete Onboarding'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await supabase.auth.signOut();
+                        window.location.reload(); // Refresh to clear state
+                      }}
+                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         
         <form onSubmit={handleLogin} className="space-y-6">
           {error && (
@@ -374,7 +410,8 @@ export function Login() {
                 type="email"
                 id="email"
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                disabled={!loading && !!user}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -395,7 +432,8 @@ export function Login() {
                 type="password"
                 id="password"
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                disabled={!loading && !!user}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -407,8 +445,9 @@ export function Login() {
             <div className="text-sm">
               <button
                 type="button"
+                disabled={!loading && !!user}
                 onClick={handleForgotPassword}
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+                className="font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400 disabled:cursor-not-allowed"
               >
                 Forgot your password?
               </button>
@@ -417,10 +456,12 @@ export function Login() {
 
           <button
             type="submit"
-            disabled={isLoggingIn || connectionStatus === 'disconnected'}
-            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            disabled={isLoggingIn || connectionStatus === 'disconnected' || (!loading && !!user)}
+            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoggingIn ? (
+            {!loading && user ? (
+              'Already Signed In'
+            ) : isLoggingIn ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
                 Signing in...

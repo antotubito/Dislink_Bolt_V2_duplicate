@@ -222,15 +222,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Initialize user preferences with user ID
       await initUserPreferences(profile.id);
 
-      // Handle routing based on registration status
-      if (profile.registration_status === 'pending' && !location.pathname.startsWith('/app/register')) {
-        navigate('/app/register');
-        return;
-      }
+      // Handle routing based on registration status - BUT only for protected routes
+      const isOnPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
+      
+      if (!isOnPublicPath) {
+        // Only enforce these redirects on protected routes
+        if (profile.registration_status === 'pending' && !location.pathname.startsWith('/app/register')) {
+          navigate('/app/register');
+          return;
+        }
 
-      if (!profile.onboarding_complete && !location.pathname.startsWith('/app/onboarding')) {
-        navigate('/app/onboarding');
-        return;
+        if (!profile.onboarding_complete && !location.pathname.startsWith('/app/onboarding')) {
+          navigate('/app/onboarding');
+          return;
+        }
       }
 
       // Only redirect to app if user is on login/register pages after successful auth
