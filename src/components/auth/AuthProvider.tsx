@@ -11,7 +11,7 @@ interface AuthContextType {
   error: string | null;
   isOwner: boolean;
   isTestingChannel: boolean;
-  refreshUser: () => Promise<void>;
+  refreshUser: (forceRefresh?: boolean) => Promise<void>;
   reconnectSupabase: () => Promise<boolean>;
   connectionStatus: 'connected' | 'disconnected' | 'connecting';
 }
@@ -118,18 +118,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const refreshUser = async () => {
+  const refreshUser = async (forceRefresh: boolean = false) => {
     try {
-      // Skip auth check for public paths
+      // Skip auth check for public paths unless explicitly forced
       const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
-      if (isPublicPath) {
+      if (isPublicPath && !forceRefresh) {
         console.log('🎯 Public path in refreshUser, skipping auth check');
         setLoading(false);
         setSessionChecked(true);
         return;
       }
 
-      logger.info('Refreshing user data');
+      logger.info('Refreshing user data', { forceRefresh, currentPath: location.pathname });
       
       // Check if we have a valid session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -267,7 +267,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logger.info('Auth state changed:', event);
       
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        await refreshUser();
+        await refreshUser(true); // Force refresh to ensure user data is loaded
       } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         setUser(null);
         setError(null);

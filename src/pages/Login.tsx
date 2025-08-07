@@ -61,7 +61,7 @@ export function Login() {
       
       if (result.success) {
         logger.info('Login successful, refreshing user data');
-        await refreshUser();
+        await refreshUser(true); // Force refresh even on public paths
         
         // Check for redirect URL
         const redirectUrl = localStorage.getItem('redirectUrl');

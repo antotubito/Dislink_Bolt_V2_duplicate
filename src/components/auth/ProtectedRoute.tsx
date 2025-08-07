@@ -16,7 +16,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
         setSession(session);
 
         if (session && !user) {
-          await refreshUser();
+          await refreshUser(true); // Force refresh to load user data
         }
       } catch (error) {
         console.error('Error checking session:', error);
