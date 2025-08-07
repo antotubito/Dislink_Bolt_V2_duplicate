@@ -57,23 +57,48 @@ export function Login() {
         passwordLength: password.length
       });
       
-      const result = await login({ email, password });
+      // Add timeout to prevent hanging
+      const loginTimeout = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Login timeout - please try again')), 30000)
+      );
+      
+      const result = await Promise.race([
+        login({ email, password }),
+        loginTimeout
+      ]) as any;
+      
+      logger.info('Login result received:', { success: result.success, requiresOnboarding: result.requiresOnboarding });
       
       if (result.success) {
         logger.info('Login successful, refreshing user data');
-        await refreshUser(true); // Force refresh even on public paths
+        
+        // Add timeout to refreshUser as well
+        const refreshTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('User data refresh timeout')), 15000)
+        );
+        
+        logger.info('Starting user data refresh...');
+        await Promise.race([
+          refreshUser(true), // Force refresh even on public paths
+          refreshTimeout
+        ]);
+        
+        logger.info('User data refresh completed, navigating...');
         
         // Check for redirect URL
         const redirectUrl = localStorage.getItem('redirectUrl');
         
         if (redirectUrl) {
           localStorage.removeItem('redirectUrl');
+          logger.info('Redirecting to stored URL:', redirectUrl);
           navigate(redirectUrl);
         } else if (result.requiresOnboarding) {
           // Explicitly redirect to onboarding if required
+          logger.info('Redirecting to onboarding');
           navigate('/app/onboarding');
         } else {
           // Otherwise go to main app
+          logger.info('Redirecting to main app');
           navigate('/app');
         }
       } else if (result.emailConfirmationRequired) {
@@ -99,7 +124,9 @@ export function Login() {
       logger.error('Login error:', err);
       
       if (err instanceof Error) {
-        if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
+        if (err.message.includes('timeout')) {
+          setError('Login is taking too long. Please check your internet connection and try again.');
+        } else if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
           setError('Network error. Please check your internet connection and try again.');
         } else if (err.message.includes('Invalid login credentials')) {
           setError('Invalid email or password');

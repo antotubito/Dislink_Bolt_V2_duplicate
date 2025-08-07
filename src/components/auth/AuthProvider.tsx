@@ -144,8 +144,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logger.debug('No active session');
         setUser(null);
         setLoading(false);
-        // Initialize user preferences with null user ID
-        await initUserPreferences(null);
+        // Initialize user preferences with null user ID (non-blocking)
+        initUserPreferences(null).catch(error => {
+          logger.error('Error clearing user preferences:', error);
+        });
         return;
       }
 
@@ -172,8 +174,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!profile) {
         setUser(null);
         setLoading(false);
-        // Initialize user preferences with null user ID
-        await initUserPreferences(null);
+        // Initialize user preferences with null user ID (non-blocking)
+        initUserPreferences(null).catch(error => {
+          logger.error('Error clearing user preferences:', error);
+        });
         return;
       }
 
@@ -219,8 +223,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       setConnectionStatus('connected');
       
-      // Initialize user preferences with the user's ID
-      await initUserPreferences(userData.id);
+      // Initialize user preferences with the user's ID (non-blocking)
+      initUserPreferences(userData.id).catch(error => {
+        logger.error('Error initializing user preferences:', error);
+      });
       
       logger.info('User data loaded successfully', { 
         userId: userData.id, 
@@ -233,7 +239,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error?.message?.includes('JWT') || error?.message?.includes('unauthorized')) {
         setUser(null);
         // Initialize user preferences with null user ID
-        await initUserPreferences(null);
+        initUserPreferences(null).catch(error => {
+          logger.error('Error clearing user preferences:', error);
+        });
       } else {
         setError(error instanceof Error ? error.message : 'Failed to load user data');
       }
@@ -272,7 +280,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
         setError(null);
         // Initialize user preferences with null user ID
-        await initUserPreferences(null);
+        initUserPreferences(null).catch(error => {
+          logger.error('Error clearing user preferences:', error);
+        });
         
         // Only redirect to login if user was on a protected route
         if (location.pathname.startsWith('/app') && !publicPaths.some(path => location.pathname.startsWith(path))) {
