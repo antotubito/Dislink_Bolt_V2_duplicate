@@ -120,15 +120,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async (forceRefresh: boolean = false) => {
     try {
-      // Skip auth check for public paths unless explicitly forced
-      const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
-      if (isPublicPath && !forceRefresh) {
-        console.log('🎯 Public path in refreshUser, skipping auth check');
-        setLoading(false);
-        setSessionChecked(true);
-        return;
-      }
-
       logger.info('Refreshing user data', { forceRefresh, currentPath: location.pathname });
       
       // Check if we have a valid session
@@ -144,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logger.debug('No active session');
         setUser(null);
         setLoading(false);
+        setSessionChecked(true);
         // Initialize user preferences with null user ID (non-blocking)
         initUserPreferences(null).catch(error => {
           logger.error('Error clearing user preferences:', error);
@@ -164,6 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setConnectionStatus('disconnected');
           setError('Connection to Supabase lost. Please check your internet connection.');
           setLoading(false);
+          setSessionChecked(true);
           return;
         }
         
@@ -174,6 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!profile) {
         setUser(null);
         setLoading(false);
+        setSessionChecked(true);
         // Initialize user preferences with null user ID (non-blocking)
         initUserPreferences(null).catch(error => {
           logger.error('Error clearing user preferences:', error);
@@ -222,6 +216,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(userData);
       setError(null);
       setConnectionStatus('connected');
+      setLoading(false);
+      setSessionChecked(true);
       
       // Initialize user preferences with the user's ID (non-blocking)
       initUserPreferences(userData.id).catch(error => {
@@ -245,7 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else {
         setError(error instanceof Error ? error.message : 'Failed to load user data');
       }
-    } finally {
+      
       setLoading(false);
       setSessionChecked(true);
     }
@@ -253,21 +249,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    // Check if current path is public
-    const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
-    
-    if (isPublicPath) {
-      // For public paths, skip auth check entirely and render immediately
-      console.log('🎯 Public path detected in AuthProvider, skipping auth check');
-      setLoading(false);
-      setSessionChecked(true);
-      return;
-    }
-    
-    // Only check auth for protected paths
-    console.log('🎯 Protected path detected in AuthProvider, checking auth');
-    refreshUser();
-  }, [location.pathname]);
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        logger.info('🔄 Initializing auth state...');
+        
+        // Always check session on mount, regardless of path
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (error) {
+          logger.error('Session error during initialization:', error);
+          setError(error.message);
+          setLoading(false);
+          setSessionChecked(true);
+          return;
+        }
+
+        if (session) {
+          logger.info('🔍 Session found during initialization, loading user data');
+          await refreshUser(true);
+        } else {
+          logger.info('🔍 No session found during initialization');
+          setUser(null);
+          setLoading(false);
+          setSessionChecked(true);
+        }
+      } catch (error) {
+        logger.error('Error during auth initialization:', error);
+        if (mounted) {
+          setError(error instanceof Error ? error.message : 'Authentication initialization failed');
+          setLoading(false);
+          setSessionChecked(true);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+    };
+  }, []); // Only run once on mount
 
   // Subscribe to auth state changes
   useEffect(() => {
@@ -279,6 +304,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
         setUser(null);
         setError(null);
+        setLoading(false);
+        setSessionChecked(true);
         // Initialize user preferences with null user ID
         initUserPreferences(null).catch(error => {
           logger.error('Error clearing user preferences:', error);
@@ -295,12 +322,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [location.pathname, navigate, refreshUser]);
 
   return (
     <AuthContext.Provider value={{ 
       user, 
-      loading: loading && !sessionChecked, 
+      loading, 
       error, 
       isOwner, 
       isTestingChannel,

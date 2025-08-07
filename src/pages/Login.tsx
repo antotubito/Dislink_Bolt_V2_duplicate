@@ -84,7 +84,7 @@ export function Login() {
       
       // Add timeout to prevent hanging
       const loginTimeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Login timeout - please try again')), 30000)
+        setTimeout(() => reject(new Error('Login timeout - please try again')), 60000) // Increased to 60 seconds
       );
       
       const result = await Promise.race([
@@ -99,7 +99,7 @@ export function Login() {
         
         // Add timeout to refreshUser as well
         const refreshTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('User data refresh timeout')), 15000)
+          setTimeout(() => reject(new Error('User data refresh timeout')), 30000) // Increased to 30 seconds
         );
         
         logger.info('Starting user data refresh...');
@@ -363,18 +363,6 @@ export function Login() {
               <div className="flex">
                 <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
                 <div className="text-sm text-red-700">{error}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Development Test Instructions */}
-          {import.meta.env.DEV && debugInfo && !debugInfo.supabaseConfigured && (
-            <div className="rounded-md bg-blue-50 p-4">
-              <div className="text-sm text-blue-700">
-                <strong>🧪 Development Test Mode:</strong><br/>
-                Use these credentials to test login:<br/>
-                Email: <code className="bg-blue-100 px-1 rounded">test@dislink.com</code><br/>
-                Password: <code className="bg-blue-100 px-1 rounded">testpassword</code>
               </div>
             </div>
           )}

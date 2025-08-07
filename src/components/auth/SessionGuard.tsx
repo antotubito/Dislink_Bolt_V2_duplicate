@@ -1,19 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
-import { supabase } from '../../lib/supabase';
-import { logger } from '../../lib/logger';
 
 interface SessionGuardProps {
   children: React.ReactNode;
 }
 
 export function SessionGuard({ children }: SessionGuardProps) {
-  const { user, loading, refreshUser } = useAuth();
+  const { loading } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-  const [isCheckingSession, setIsCheckingSession] = useState(false);
-  const [sessionChecked, setSessionChecked] = useState(false);
 
   // Public paths that don't require authentication
   const publicPaths = [
@@ -35,41 +30,16 @@ export function SessionGuard({ children }: SessionGuardProps) {
     '/app/reset-password'
   ];
 
-  useEffect(() => {
-    // Check if current path is public
-    const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
-    
-    if (isPublicPath) {
-      // For public paths, render immediately without auth checks
-      setIsCheckingSession(false);
-      return;
-    }
+  // Check if current path is public
+  const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
 
-    // For protected paths, let ProtectedRoute handle authentication
-    // SessionGuard only handles session management, not redirects
-    const checkSession = async () => {
-      if (!user || !sessionChecked) {
-        setIsCheckingSession(true);
-        try {
-          // Just refresh user data if needed, don't handle redirects
-          if (!user) {
-            await refreshUser();
-          }
-        } catch (error) {
-          logger.error('Error checking session:', error);
-        } finally {
-          setIsCheckingSession(false);
-        }
-      } else {
-        setIsCheckingSession(false);
-      }
-    };
+  // For public paths, render immediately without loading states
+  if (isPublicPath) {
+    return <>{children}</>;
+  }
 
-    checkSession();
-  }, [location.pathname, user, sessionChecked, refreshUser]);
-
-  // Show loading state while checking auth
-  if (loading && isCheckingSession) {
+  // For protected paths, show loading until auth is determined
+  if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
@@ -77,5 +47,6 @@ export function SessionGuard({ children }: SessionGuardProps) {
     );
   }
 
+  // Let ProtectedRoute handle auth logic for protected paths
   return <>{children}</>;
 }

@@ -99,21 +99,9 @@ export async function login(credentials: LoginCredentials): Promise<{
     
     if (!supabaseUrl || !supabaseAnonKey) {
       logger.error('❌ Supabase not configured - login cannot proceed');
-      
-      // In development mode, provide test credentials option
-      if (import.meta.env.DEV && 'email' in credentials) {
-        if (credentials.email === 'test@dislink.com' && credentials.password === 'testpassword') {
-          logger.info('🧪 Using development test mode');
-          return {
-            success: true,
-            requiresOnboarding: true
-          };
-        }
-      }
-      
       return {
         success: false,
-        error: 'Application configuration error. Please contact support.'
+        error: 'Application configuration error. Please check Supabase credentials.'
       };
     }
 

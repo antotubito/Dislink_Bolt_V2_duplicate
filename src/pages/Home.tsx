@@ -6,7 +6,7 @@ import {
   Clock, Calendar, CheckCircle, XCircle, User, ArrowRight, 
   ChevronDown, ChevronUp, Plus, QrCode, Filter, Search, 
   Bell, MapPin, Tag, Briefcase, Building2, UserPlus, Users, 
-  Sparkles, Zap, Globe, CalendarDays
+  Sparkles, Globe, CalendarDays
 } from 'lucide-react';
 import ContactCard from '../components/contacts/ContactCard';
 import { ConnectionStats } from '../components/contacts/ConnectionStats';
@@ -18,8 +18,6 @@ import {
   declineConnectionRequest, 
   listRecentContacts,
   listContacts,
-  createEmilyTechRequest,
-  createLisbonConnectionRequest,
   updateContactTier
 } from '../lib/contacts';
 import type { Contact, FollowUp } from '../types/contact';
@@ -223,36 +221,6 @@ export function Home() {
 
   const handleViewContact = (contactId: string) => {
     navigate(`/app/contact/${contactId}`);
-  };
-
-  const createTestRequest = async () => {
-    try {
-      // Create a test connection request
-      const requestId = createEmilyTechRequest();
-      
-      // Refresh the requests list
-      const requestsData = await listConnectionRequests();
-      setRequests(requestsData);
-      
-      logger.info('Test connection request created', { requestId });
-    } catch (error) {
-      logger.error('Error creating test connection request:', error);
-    }
-  };
-
-  const createLisbonRequest = async () => {
-    try {
-      // Create a Lisbon connection request
-      const requestId = createLisbonConnectionRequest();
-      
-      // Refresh the requests list
-      const requestsData = await listConnectionRequests();
-      setRequests(requestsData);
-      
-      logger.info('Lisbon connection request created', { requestId });
-    } catch (error) {
-      logger.error('Error creating Lisbon connection request:', error);
-    }
   };
 
   // Filter contacts based on search query
@@ -670,40 +638,6 @@ export function Home() {
             onViewContact={handleViewContact}
           />
         )}
-      </div>
-
-      {/* Test Data Section */}
-      <div className="mb-8 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl shadow-sm p-6 border border-gray-200">
-        <div className="flex items-center mb-4">
-          <div className="p-2 bg-gray-200 rounded-full mr-3">
-            <Zap className="h-5 w-5 text-gray-600" />
-          </div>
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">Test Data</h2>
-            <p className="text-sm text-gray-600">Try the app with sample connections</p>
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-3 mt-4">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={createTestRequest}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 transition-all duration-200"
-          >
-            <Plus className="h-5 w-5 mr-1.5" />
-            Tech Connection
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={createLisbonRequest}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 transition-all duration-200"
-          >
-            <Plus className="h-5 w-5 mr-1.5" />
-            Lisbon Connection
-          </motion.button>
-        </div>
       </div>
 
       {/* QR Code Modal */}

@@ -1,216 +1,99 @@
 import { logger } from './logger';
 import type { Need, NeedReply } from '../types/need';
-import { ANTONIO_TUBITO } from './contacts';
 import { formatDistanceToNow } from 'date-fns';
 import { supabase } from './supabase';
 
-// Mock data for needs
-const MOCK_NEEDS: Need[] = [
-  {
-    id: '1',
-    userId: 'user-1',
-    userName: 'Sarah Johnson',
-    userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'socialize',
-    categoryLabel: 'Socialize',
-    message: 'Anyone up for coffee this afternoon in downtown?',
-    tags: ['coffee', 'chat'],
-    visibility: 'open', // Open visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
-  },
-  {
-    id: '2',
-    userId: 'user-2',
-    userName: 'Michael Chen',
-    userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'events',
-    categoryLabel: 'Events',
-    message: 'Got an extra ticket for tonight\'s concert at Madison Square Garden!',
-    tags: ['concert', 'music'],
-    visibility: 'private', // Private visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // Expires in 48 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
-  },
-  {
-    id: '3',
-    userId: 'user-3',
-    userName: 'Emma Rodriguez',
-    userImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'learning',
-    categoryLabel: 'Learning',
-    message: 'Starting a Spanish study group - beginners welcome! Meeting this weekend.',
-    tags: ['language', 'study'],
-    visibility: 'open', // Open visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5) // 5 hours ago
-  },
-  {
-    id: '4',
-    userId: 'user-4',
-    userName: 'David Kim',
-    userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'active',
-    categoryLabel: 'Active',
-    message: 'Looking for a tennis partner for Sunday morning at Central Park courts.',
-    tags: ['sports', 'tennis'],
-    visibility: 'private', // Private visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // Expires in 48 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8) // 8 hours ago
-  },
-  {
-    id: '5',
-    userId: ANTONIO_TUBITO.id,
-    userName: ANTONIO_TUBITO.name,
-    userImage: ANTONIO_TUBITO.profileImage,
-    category: 'food',
-    categoryLabel: 'Food',
-    message: 'Trying that new Italian restaurant downtown tonight. Anyone want to join?',
-    tags: ['dining', 'italian'],
-    visibility: 'open', // Open visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1) // 1 hour ago
-  }
-];
-
-// Mock data for replies
-const MOCK_REPLIES: Record<string, NeedReply[]> = {
-  '1': [
-    {
-      id: 'reply-1-1',
-      needId: '1',
-      userId: 'user-2',
-      userName: 'Michael Chen',
-      userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'I\'m free after 3pm. Which coffee shop were you thinking?',
-      createdAt: new Date(Date.now() - 1000 * 60 * 20) // 20 minutes ago
-    },
-    {
-      id: 'reply-1-2',
-      needId: '1',
-      userId: 'user-3',
-      userName: 'Emma Rodriguez',
-      userImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'I\'d love to join! I know a great place on Main Street.',
-      createdAt: new Date(Date.now() - 1000 * 60 * 15) // 15 minutes ago
-    }
-  ],
-  '2': [
-    {
-      id: 'reply-2-1',
-      needId: '2',
-      userId: 'user-4',
-      userName: 'David Kim',
-      userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'Who\'s playing? I might be interested!',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60) // 1 hour ago
-    }
-  ],
-  '5': [
-    {
-      id: 'reply-5-1',
-      needId: '5',
-      userId: 'user-1',
-      userName: 'Sarah Johnson',
-      userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'I\'ve been wanting to try that place! What time are you going?',
-      createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
-    }
-  ]
-};
-
-/**
- * List all needs
- */
+// Dynamic needs functions that use Supabase
 export async function listNeeds(): Promise<Need[]> {
   try {
-    // Get current user
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      return []; // Return empty array for non-authenticated users
-    }
+    if (!session) return [];
 
-    // Fetch needs from database
-    const { data, error } = await supabase
+    const { data: needs, error } = await supabase
       .from('daily_needs')
-      .select('*')
-      .eq('user_id', session.user.id)
-      .eq('status', 'active')
+      .select(`
+        id,
+        user_id,
+        category,
+        message,
+        tags,
+        visibility,
+        expires_at,
+        is_satisfied,
+        created_at,
+        profiles (
+          first_name,
+          last_name,
+          profile_image
+        )
+      `)
+      .eq('expires_at', null) // Only get active needs
+      .or(`visibility.eq.open,user_id.eq.${session.user.id}`) // Open visibility or user's own needs
       .order('created_at', { ascending: false });
 
     if (error) {
-      logger.error('Error listing needs:', error);
+      logger.error('Error fetching needs:', error);
       return [];
     }
 
-    // Transform database data to Need type
-    const needs: Need[] = (data || []).map(need => ({
+    return needs.map(need => ({
       id: need.id,
       userId: need.user_id,
-      title: need.title,
-      description: need.description,
-      category: need.category as Need['category'],
-      priority: need.priority as Need['priority'],
-      isSatisfied: need.is_satisfied,
-      satisfiedAt: need.satisfied_at ? new Date(need.satisfied_at) : undefined,
-      expiresAt: need.expires_at ? new Date(need.expires_at) : undefined,
+      userName: `${need.profiles.first_name} ${need.profiles.last_name}`,
+      userImage: need.profiles.profile_image,
+      category: need.category,
+      categoryLabel: getCategoryLabel(need.category),
+      message: need.message,
       tags: need.tags || [],
-      metadata: need.metadata || {},
+      visibility: need.visibility,
+      expiresAt: need.expires_at ? new Date(need.expires_at) : new Date(Date.now() + 24 * 60 * 60 * 1000), // Default 24h
+      isSatisfied: need.is_satisfied,
       createdAt: new Date(need.created_at)
     }));
-
-    // Filter out expired needs
-    const now = new Date();
-    const activeNeeds = needs.filter(need => 
-      !need.isSatisfied && (!need.expiresAt || need.expiresAt > now)
-    );
-
-    logger.info(`Fetched ${activeNeeds.length} active needs from database`);
-    return activeNeeds;
   } catch (error) {
-    logger.error('Error listing needs:', error);
+    logger.error('Error in listNeeds:', error);
     return [];
   }
 }
 
-/**
- * Create a new need
- */
-export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'createdAt'>): Promise<Need> {
+export async function createNeed(needData: {
+  category: string;
+  message: string;
+  tags?: string[];
+  visibility: 'open' | 'private';
+  expiresAt?: Date;
+}): Promise<Need> {
   try {
-    // Get current user
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error('No active session');
-    }
+    if (!session) throw new Error('No active session');
 
-    logger.info('Creating new need', { 
-      title: needData.title,
-      category: needData.category,
-      priority: needData.priority 
-    });
-
-    // Insert need into database
-    const { data, error } = await supabase
+    const { data: need, error } = await supabase
       .from('daily_needs')
       .insert({
         user_id: session.user.id,
-        title: needData.title,
-        description: needData.description,
         category: needData.category,
-        priority: needData.priority || 'medium',
-        is_satisfied: needData.isSatisfied || false,
-        satisfied_at: needData.satisfiedAt?.toISOString(),
-        expires_at: needData.expiresAt?.toISOString(),
+        message: needData.message,
         tags: needData.tags || [],
-        metadata: needData.metadata || {}
+        visibility: needData.visibility,
+        expires_at: needData.expiresAt?.toISOString(),
+        is_satisfied: false
       })
-      .select()
+      .select(`
+        id,
+        user_id,
+        category,
+        message,
+        tags,
+        visibility,
+        expires_at,
+        is_satisfied,
+        created_at,
+        profiles (
+          first_name,
+          last_name,
+          profile_image
+        )
+      `)
       .single();
 
     if (error) {
@@ -218,28 +101,36 @@ export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'created
       throw error;
     }
 
-    // Transform to Need type
-    const newNeed: Need = {
-      id: data.id,
-      userId: data.user_id,
-      title: data.title,
-      description: data.description,
-      category: data.category as Need['category'],
-      priority: data.priority as Need['priority'],
-      isSatisfied: data.is_satisfied,
-      satisfiedAt: data.satisfied_at ? new Date(data.satisfied_at) : undefined,
-      expiresAt: data.expires_at ? new Date(data.expires_at) : undefined,
-      tags: data.tags || [],
-      metadata: data.metadata || {},
-      createdAt: new Date(data.created_at)
+    return {
+      id: need.id,
+      userId: need.user_id,
+      userName: `${need.profiles.first_name} ${need.profiles.last_name}`,
+      userImage: need.profiles.profile_image,
+      category: need.category,
+      categoryLabel: getCategoryLabel(need.category),
+      message: need.message,
+      tags: need.tags || [],
+      visibility: need.visibility,
+      expiresAt: need.expires_at ? new Date(need.expires_at) : new Date(Date.now() + 24 * 60 * 60 * 1000),
+      isSatisfied: need.is_satisfied,
+      createdAt: new Date(need.created_at)
     };
-
-    logger.info('Need created successfully', { id: newNeed.id });
-    return newNeed;
   } catch (error) {
-    logger.error('Error creating need:', error);
+    logger.error('Error in createNeed:', error);
     throw error;
   }
+}
+
+function getCategoryLabel(category: string): string {
+  const categoryLabels: Record<string, string> = {
+    'socialize': 'Socialize',
+    'events': 'Events',
+    'work-career': 'Work & Career',
+    'help': 'Help',
+    'travel': 'Travel',
+    'hobbies': 'Hobbies'
+  };
+  return categoryLabels[category] || 'Other';
 }
 
 /**
