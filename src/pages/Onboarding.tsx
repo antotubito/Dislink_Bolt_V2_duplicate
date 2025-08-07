@@ -422,47 +422,134 @@ export function Onboarding() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-lg mx-auto text-center"
+      className="max-w-2xl mx-auto text-center"
     >
-      <div className="bg-white p-8 rounded-xl shadow-lg">
-        <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-          <Check className="h-10 w-10 text-green-600" />
-        </div>
+      <div className="bg-gradient-to-br from-white to-indigo-50 p-8 rounded-2xl shadow-2xl border border-indigo-100">
+        {/* Success Animation */}
+        <motion.div
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 200, damping: 10 }}
+          className="mx-auto w-24 h-24 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mb-8 shadow-lg"
+        >
+          <Check className="h-12 w-12 text-white" />
+        </motion.div>
         
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">
-          Welcome to Dislink! 🎉
-        </h2>
-        
-        <p className="text-lg text-gray-600 mb-8">
-          Your profile is all set up and ready to go. Start connecting with amazing people and grow your network!
-        </p>
+        {/* Celebration Text */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Welcome to Dislink! 🎉
+          </h2>
+          
+          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
+            Your profile is all set up and ready to go. You're now part of a community of amazing people building meaningful connections!
+          </p>
+        </motion.div>
 
-        <div className="space-y-4">
-          <div className="p-4 bg-indigo-50 rounded-lg text-left">
-            <h3 className="font-medium text-indigo-900 mb-2">What's Next?</h3>
-            <ul className="space-y-2 text-indigo-700">
-              <li className="flex items-center">
-                <Check className="h-5 w-5 mr-2 text-indigo-500" />
-                Explore your personalized dashboard
-              </li>
-              <li className="flex items-center">
-                <Check className="h-5 w-5 mr-2 text-indigo-500" />
-                Connect with people you know
-              </li>
-              <li className="flex items-center">
-                <Check className="h-5 w-5 mr-2 text-indigo-500" />
-                Share your unique profile link
-              </li>
-            </ul>
+        {/* What's Next Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="space-y-6"
+        >
+          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-100">
+            <h3 className="font-semibold text-indigo-900 mb-4 text-lg">What's Next? 🚀</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-indigo-600 font-semibold text-sm">1</span>
+                </div>
+                <div>
+                  <h4 className="font-medium text-indigo-900 mb-1">Explore Your Dashboard</h4>
+                  <p className="text-sm text-indigo-700">Discover your personalized experience and start connecting</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-purple-600 font-semibold text-sm">2</span>
+                </div>
+                <div>
+                  <h4 className="font-medium text-purple-900 mb-1">Connect with People</h4>
+                  <p className="text-sm text-purple-700">Find and connect with people you know and want to meet</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-green-600 font-semibold text-sm">3</span>
+                </div>
+                <div>
+                  <h4 className="font-medium text-green-900 mb-1">Share Your Profile</h4>
+                  <p className="text-sm text-green-700">Share your unique profile link with others</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
+                  <span className="text-yellow-600 font-semibold text-sm">4</span>
+                </div>
+                <div>
+                  <h4 className="font-medium text-yellow-900 mb-1">Build Relationships</h4>
+                  <p className="text-sm text-yellow-700">Grow your network and build meaningful connections</p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <AnimatedButton
-            onClick={handleFinish}
-            className="w-full"
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.7 }}
+              className="bg-white p-4 rounded-lg border border-gray-200"
+            >
+              <div className="text-2xl font-bold text-indigo-600">100%</div>
+              <div className="text-xs text-gray-500">Profile Complete</div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.8 }}
+              className="bg-white p-4 rounded-lg border border-gray-200"
+            >
+              <div className="text-2xl font-bold text-purple-600">∞</div>
+              <div className="text-xs text-gray-500">Connections Possible</div>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.9 }}
+              className="bg-white p-4 rounded-lg border border-gray-200"
+            >
+              <div className="text-2xl font-bold text-green-600">24/7</div>
+              <div className="text-xs text-gray-500">Always Available</div>
+            </motion.div>
+          </div>
+
+          {/* Action Button */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.0 }}
           >
-            Get Started
-          </AnimatedButton>
-        </div>
+            <AnimatedButton
+              onClick={handleFinish}
+              className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              <Sparkles className="h-5 w-5 mr-2" />
+              Start Your Journey
+            </AnimatedButton>
+          </motion.div>
+        </motion.div>
       </div>
     </motion.div>
   );
