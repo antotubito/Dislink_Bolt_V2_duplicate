@@ -57,7 +57,7 @@ export function Layout() {
     try {
       await logout();
       setIsAuthenticated(false);
-      navigate('/waitlist');
+      navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
     }

@@ -73,7 +73,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
               localStorage.setItem('redirectUrl', location.pathname);
               navigate('/app/login');
             } else {
-              navigate('/waitlist');
+              navigate('/');
             }
           } else if (!user) {
             // We have a session but no user data, refresh the user

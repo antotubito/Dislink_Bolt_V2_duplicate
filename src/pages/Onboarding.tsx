@@ -177,7 +177,7 @@ export function Onboarding() {
     };
     localStorage.setItem('onboarding_progress', JSON.stringify(currentProgress));
     
-    navigate('/waitlist');
+    navigate('/');
   };
 
   const handlePhotoCapture = (photoData: string) => {
