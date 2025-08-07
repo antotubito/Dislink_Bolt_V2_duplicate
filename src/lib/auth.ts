@@ -157,8 +157,7 @@ export async function login(credentials: LoginCredentials): Promise<{
     if (userError) {
       console.error('❌ Supabase login error details:', {
         message: userError.message,
-        status: userError.status,
-        statusText: userError.statusText
+        status: userError.status
       });
       
       logger.error('Login error from Supabase:', userError);
