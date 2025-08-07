@@ -2,10 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
-  plugins: [react({
-    fastRefresh: false,
-    jsxRuntime: 'automatic'
-  })],
+  plugins: [react()],
   optimizeDeps: {
     include: [
       '@capacitor/app',
@@ -22,10 +19,6 @@ export default defineConfig({
     ]
   },
   server: {
-    host: true,
-    port: 3000,
-    strictPort: true,
-    // Remove problematic HMR configuration
-    historyApiFallback: true,
+    port: 5173
   }
 });
