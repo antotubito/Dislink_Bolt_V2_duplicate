@@ -20,6 +20,8 @@ import { Footer } from '../components/Footer';
 import { WaitlistForm } from '../components/waitlist/WaitlistForm';
 
 export function Waitlist() {
+  console.log('Waitlist component rendering...');
+  
   const navigate = useNavigate();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [showTesterModal, setShowTesterModal] = useState(false);

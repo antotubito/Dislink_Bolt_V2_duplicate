@@ -11,7 +11,7 @@ const rootElement = document.getElementById('root');
 if (!rootElement) {
   console.error('Root element not found');
 } else {
-  console.log('Root element found, rendering app...');
+  console.log('Root element found, rendering app immediately...');
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
@@ -21,4 +21,14 @@ if (!rootElement) {
     </StrictMode>
   );
   console.log('App rendered successfully');
+  
+  // Initialize Supabase connection in background (non-blocking)
+  import('./lib/supabase').then(({ initializeConnection }) => {
+    console.log('Initializing Supabase connection in background...');
+    initializeConnection().catch(error => {
+      console.error('Background Supabase connection failed:', error);
+    });
+  }).catch(error => {
+    console.error('Failed to load Supabase module:', error);
+  });
 }

@@ -12,7 +12,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
   const { user, loading, refreshUser } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isCheckingSession, setIsCheckingSession] = useState(true);
+  const [isCheckingSession, setIsCheckingSession] = useState(false);
 
   // Public paths that don't require authentication
   const publicPaths = [
@@ -31,7 +31,8 @@ export function SessionGuard({ children }: SessionGuardProps) {
     '/confirmed',
     '/share',
     '/app/reset-password',
-    '/demo'
+    '/demo',
+    '/story'
   ];
 
   useEffect(() => {
@@ -58,6 +59,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
 
       // For protected paths, require authentication
       if (!loading) {
+        setIsCheckingSession(true);
         try {
           // Check if we have a valid session
           const { data: { session }, error } = await supabase.auth.getSession();
@@ -100,8 +102,10 @@ export function SessionGuard({ children }: SessionGuardProps) {
     checkSession();
   }, [user, loading, location.pathname, navigate, refreshUser]);
 
-  // Show loading state while checking auth
-  if (loading || isCheckingSession) {
+  // Show loading state only for protected routes while checking auth
+  if (isCheckingSession && !publicPaths.some(path => 
+    location.pathname === path || location.pathname.startsWith(`${path}/`)
+  )) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
