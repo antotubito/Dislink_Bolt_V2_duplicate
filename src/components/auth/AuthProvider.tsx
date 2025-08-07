@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../../types/user';
-import { supabase, isConnectionHealthy } from '../../lib/supabase';
+import { supabase, isConnectionHealthy, getSafeSession, waitForSupabaseReady } from '../../lib/supabase';
 import { logger } from '../../lib/logger';
 import { initUserPreferences } from '../../lib/userPreferences';
 
@@ -273,8 +273,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logger.info('🎯 Protected path detected in AuthProvider, checking auth');
       
       try {
-        // Get current session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Wait for Supabase to be ready before checking session
+        await waitForSupabaseReady();
+        
+        // Get current session safely
+        const { data: { session }, error: sessionError } = await getSafeSession();
         
         if (sessionError) {
           logger.error('Session initialization error:', sessionError);
@@ -389,10 +392,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (event === 'SIGNED_IN') {
         // User just signed in - refresh user data and handle redirect
-        logger.info('🔐 User signed in, refreshing user data');
+        logger.info('🔐 User signed in, processing...');
         
         if (session?.user) {
           try {
+            // Add a small delay to ensure everything is ready
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
             // Get user profile
             const { data: profile, error: profileError } = await supabase
               .from('profiles')
@@ -447,25 +453,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               
               logger.info('✅ User data refreshed after sign in');
               
-              // Handle post-login redirect only if currently on login page
-              if (location.pathname === '/app/login') {
-                const redirectUrl = localStorage.getItem('redirectUrl');
-                if (redirectUrl) {
-                  localStorage.removeItem('redirectUrl');
-                  logger.info('🔄 Redirecting to stored URL:', redirectUrl);
-                  navigate(redirectUrl);
-                } else if (!profile.onboarding_complete) {
-                  logger.info('🔄 Redirecting to onboarding');
-                  navigate('/app/onboarding');
+              // Handle post-login redirect with improved logic
+              logger.info('🔄 Current location:', location.pathname);
+              
+              // Small delay to ensure state updates are processed
+              setTimeout(() => {
+                if (location.pathname === '/app/login') {
+                  const redirectUrl = localStorage.getItem('redirectUrl');
+                  if (redirectUrl) {
+                    localStorage.removeItem('redirectUrl');
+                    logger.info('🔄 Redirecting to stored URL:', redirectUrl);
+                    navigate(redirectUrl);
+                  } else if (!profile.onboarding_complete) {
+                    logger.info('🔄 Redirecting to onboarding');
+                    navigate('/app/onboarding');
+                  } else {
+                    logger.info('🔄 Redirecting to app home');
+                    navigate('/app');
+                  }
                 } else {
-                  logger.info('🔄 Redirecting to app home');
-                  navigate('/app');
+                  logger.info('🔄 Not on login page, skipping redirect. Current path:', location.pathname);
                 }
-              }
+              }, 100);
+            } else {
+              logger.error('Failed to fetch profile after sign in:', profileError);
             }
           } catch (error) {
             logger.error('Error refreshing user after sign in:', error);
           }
+        } else {
+          logger.warn('SIGNED_IN event but no session user provided');
         }
       } else if (event === 'TOKEN_REFRESHED') {
         // Token refreshed - just log it, don't redirect

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
-import { supabase } from '../../lib/supabase';
+import { supabase, getSafeSession, waitForSupabaseReady } from '../../lib/supabase';
 import { logger } from '../../lib/logger';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -17,7 +17,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       try {
         logger.info('🔐 ProtectedRoute: Checking session for:', location.pathname);
         
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Wait for Supabase to be ready before checking session
+        await waitForSupabaseReady();
+        
+        const { data: { session }, error } = await getSafeSession();
         
         if (error) {
           logger.error('ProtectedRoute: Session check error:', error);

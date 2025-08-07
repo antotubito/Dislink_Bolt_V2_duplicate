@@ -4,7 +4,7 @@ import { useAuth } from '../components/auth/AuthProvider';
 import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { login } from '../lib/auth';
-import { supabase } from '../lib/supabase';
+import { supabase, getSafeSession } from '../lib/supabase';
 import { logger } from '../lib/logger';
 
 export function Login() {
@@ -17,6 +17,7 @@ export function Login() {
   const [resetSent, setResetSent] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [pendingRedirect, setPendingRedirect] = useState(false);
 
   // Redirect if user is already authenticated
   useEffect(() => {
@@ -35,9 +36,65 @@ export function Login() {
     }
   }, [user, loading, navigate]);
 
+  // Handle pending redirect after successful login
+  useEffect(() => {
+    if (pendingRedirect && !isLoggingIn) {
+      const checkSessionAndRedirect = async () => {
+        try {
+          logger.info('🔄 Checking session for pending redirect...');
+          
+          // Wait a bit for auth state to propagate
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const { data: { session }, error } = await getSafeSession();
+          
+          if (session && !error) {
+            logger.info('✅ Session confirmed, proceeding with redirect');
+            
+            // Get user profile to check onboarding status
+            const { data: profile, error: profileError } = await supabase
+              .from('profiles')
+              .select('onboarding_complete')
+              .eq('id', session.user.id)
+              .single();
+            
+            const redirectUrl = localStorage.getItem('redirectUrl');
+            if (redirectUrl) {
+              localStorage.removeItem('redirectUrl');
+              logger.info('🔄 Redirecting to stored URL:', redirectUrl);
+              navigate(redirectUrl);
+            } else if (profileError || !profile?.onboarding_complete) {
+              logger.info('🔄 Redirecting to onboarding');
+              navigate('/app/onboarding');
+            } else {
+              logger.info('🔄 Redirecting to app home');
+              navigate('/app');
+            }
+            
+            setPendingRedirect(false);
+          } else {
+            logger.warn('⚠️ No session found during pending redirect, will retry...');
+            // Retry after another delay
+            setTimeout(() => {
+              if (pendingRedirect) {
+                checkSessionAndRedirect();
+              }
+            }, 2000);
+          }
+        } catch (error) {
+          logger.error('❌ Error during pending redirect:', error);
+          setPendingRedirect(false);
+        }
+      };
+      
+      checkSessionAndRedirect();
+    }
+  }, [pendingRedirect, isLoggingIn, navigate]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setPendingRedirect(false);
 
     // Validate input
     if (!email.trim() || !password.trim()) {
@@ -67,9 +124,26 @@ export function Login() {
       const result = await login({ email, password });
       
       if (result.success) {
-        logger.info('✅ Login successful - auth state change will handle redirect');
-        // The AuthProvider's auth state change handler will manage the redirect
-        // No need to manually navigate here as it will cause race conditions
+        logger.info('✅ Login successful - setting up redirect');
+        
+        // Set pending redirect to handle the redirection
+        setPendingRedirect(true);
+        
+        // Also set a fallback timeout to ensure redirect happens
+        setTimeout(() => {
+          if (pendingRedirect) {
+            logger.info('🔄 Fallback redirect triggered');
+            const redirectUrl = localStorage.getItem('redirectUrl');
+            if (redirectUrl) {
+              localStorage.removeItem('redirectUrl');
+              navigate(redirectUrl);
+            } else {
+              navigate('/app');
+            }
+            setPendingRedirect(false);
+          }
+        }, 5000); // 5 second fallback
+        
       } else if (result.emailConfirmationRequired) {
         logger.info('📧 Email confirmation required');
         setShowEmailConfirmation(true);

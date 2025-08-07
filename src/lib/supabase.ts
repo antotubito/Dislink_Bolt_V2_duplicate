@@ -59,6 +59,11 @@ export const supabase = createClient(
   }
 );
 
+// Session ready state management
+let isSupabaseReady = false;
+let sessionReadyPromise: Promise<void> | null = null;
+const sessionReadyCallbacks: (() => void)[] = [];
+
 // Connection health check
 let connectionHealthy = false;
 let lastConnectionCheck = 0;
@@ -108,6 +113,44 @@ const retryConnection = async (maxRetries = 3, delay = 1000): Promise<boolean> =
   return false;
 };
 
+// Safe session getter that waits for Supabase to be ready
+export const getSafeSession = async (): Promise<{ data: { session: any }, error: any }> => {
+  // Wait for Supabase to be ready before checking session
+  await waitForSupabaseReady();
+  
+  try {
+    logger.info('🔐 Getting session (safe)...');
+    const result = await supabase.auth.getSession();
+    logger.info('🔐 Session result:', { hasSession: !!result.data.session, error: !!result.error });
+    return result;
+  } catch (error) {
+    logger.error('🔐 Error getting safe session:', error);
+    return { data: { session: null }, error };
+  }
+};
+
+// Function to wait for Supabase to be ready
+export const waitForSupabaseReady = (): Promise<void> => {
+  if (isSupabaseReady) {
+    return Promise.resolve();
+  }
+  
+  if (sessionReadyPromise) {
+    return sessionReadyPromise;
+  }
+  
+  sessionReadyPromise = new Promise((resolve) => {
+    if (isSupabaseReady) {
+      resolve();
+      return;
+    }
+    
+    sessionReadyCallbacks.push(resolve);
+  });
+  
+  return sessionReadyPromise;
+};
+
 // Initialize connection in background (non-blocking)
 export const initializeConnection = async (): Promise<void> => {
   // Use setTimeout to ensure this runs after the initial render
@@ -135,19 +178,32 @@ export const initializeConnection = async (): Promise<void> => {
       
       if (!isHealthy) {
         logger.error('❌ Failed to establish healthy Supabase connection after retries');
-        return;
+        // Still mark as ready even if connection failed - allow app to function
       }
 
-      logger.info('✅ Supabase connection initialized successfully');
+      // Mark Supabase as ready
+      isSupabaseReady = true;
+      logger.info('✅ Supabase connection initialized successfully - ready for session checks');
+      
+      // Notify all waiting callbacks
+      sessionReadyCallbacks.forEach(callback => callback());
+      sessionReadyCallbacks.length = 0; // Clear the array
       
     } catch (error) {
       logger.error('❌ Critical error during Supabase initialization:', error);
+      // Still mark as ready to prevent indefinite waiting
+      isSupabaseReady = true;
+      sessionReadyCallbacks.forEach(callback => callback());
+      sessionReadyCallbacks.length = 0;
     }
-  }, 0);
+  }, 100); // Small delay to ensure React has rendered first
 };
 
 // Export connection health checker
 export const isConnectionHealthy = (): boolean => connectionHealthy;
+
+// Export ready state checker
+export const isSupabaseSessionReady = (): boolean => isSupabaseReady;
 
 // Graceful error handling for auth operations
 export const handleSupabaseError = (error: any, operation: string) => {
