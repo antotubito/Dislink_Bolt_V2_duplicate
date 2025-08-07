@@ -60,63 +60,23 @@ export function Onboarding() {
   const totalSteps = STEPS.length;
 
   useEffect(() => {
-    async function checkAccess() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          navigate('/app/login');
-          return;
-        }
-
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_complete')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profile?.onboarding_complete) {
-          navigate('/app');
-        }
-      } catch (error) {
-        console.error('Error checking onboarding access:', error);
-        navigate('/app/login');
-      }
-    }
-
-    checkAccess();
-  }, []);
-
-  useEffect(() => {
     // Removed saved progress loading for security reasons
-    // Progress is now cleared when user exits onboarding
+    // All onboarding data is now entered fresh each time
   }, []);
 
-  // Update form data when user information becomes available
   useEffect(() => {
+    // Pre-fill form with user data
     if (user) {
-      console.log('🎯 User data available in onboarding:', {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email
-      });
-      
-      setFormData(prevData => ({
-        ...prevData,
-        firstName: user.firstName || prevData.firstName,
-        lastName: user.lastName || prevData.lastName,
-        email: user.email || prevData.email,
-        jobTitle: user.jobTitle || prevData.jobTitle,
-        company: user.company || prevData.company,
-        industry: user.industry || prevData.industry,
-        location: user.bio?.location || prevData.location,
-        from: user.bio?.from || prevData.from,
-        profileImage: user.profileImage || prevData.profileImage,
-        socialLinks: user.socialLinks || prevData.socialLinks
+      setFormData(prev => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        jobTitle: user.jobTitle || '',
+        company: user.company || '',
+        profileImage: user.profileImage || '',
+        bio: user.bio || {}
       }));
-      
-      console.log('🎯 Form data updated with user info');
-    } else {
-      console.log('🎯 No user data available yet');
     }
   }, [user]);
 
