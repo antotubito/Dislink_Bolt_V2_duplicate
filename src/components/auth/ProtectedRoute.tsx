@@ -44,8 +44,16 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to="/app/login" replace />;
   }
 
-  // If user is logged in but onboarding not complete, redirect to onboarding (except when already there)
-  if (user && !user.onboardingComplete && location.pathname !== '/app/onboarding') {
+  // Special handling for onboarding page
+  const isOnboardingPage = location.pathname === '/app/onboarding';
+  
+  // If user is on onboarding page and already completed onboarding, redirect to app
+  if (isOnboardingPage && user?.onboardingComplete) {
+    return <Navigate to="/app" replace />;
+  }
+
+  // If user hasn't completed onboarding and is NOT on onboarding page, redirect to onboarding
+  if (user && !user.onboardingComplete && !isOnboardingPage) {
     return <Navigate to="/app/onboarding" replace />;
   }
 

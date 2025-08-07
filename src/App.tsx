@@ -59,7 +59,13 @@ function App() {
             <Route path="/app/terms" element={<TermsConditions />} />
             <Route path="/app/test-terms" element={<TestTerms />} />
             <Route path="/app/privacy" element={<PrivacyPolicy />} />
-            <Route path="/app/onboarding" element={<Onboarding />} />
+            
+            {/* Onboarding - Special protected route outside Layout */}
+            <Route path="/app/onboarding" element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            } />
             
             {/* Protected App Routes - Authentication required */}
             <Route path="/app" element={<Layout />}>

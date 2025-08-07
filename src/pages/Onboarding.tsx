@@ -197,46 +197,7 @@ export function Onboarding() {
     try {
       console.log('🎯 Starting handleFinish...');
       
-      // Refresh user to get updated onboarding status
-      console.log('🔄 Refreshing user state...');
-      await refreshUser();
-      
-      // Wait a bit more and check again to ensure the update has propagated
-      await new Promise(resolve => setTimeout(resolve, 500));
-      await refreshUser();
-      
-      // Check current user state
-      console.log('👤 Current user after refresh:', { 
-        id: user?.id, 
-        onboardingComplete: user?.onboardingComplete 
-      });
-      
-      // Verify onboarding is actually complete
-      if (!user?.onboardingComplete) {
-        console.warn('⚠️ User onboarding still not marked as complete, trying direct database check...');
-        
-        // Direct database check as fallback
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('onboarding_complete')
-            .eq('id', session.user.id)
-            .single();
-            
-          console.log('🗄️ Direct database check result:', profile);
-          
-          if (!profile?.onboarding_complete) {
-            throw new Error('Onboarding completion was not saved properly. Please try again.');
-          }
-        }
-      }
-      
-      // Small delay to ensure auth state is updated
-      console.log('⏳ Waiting for auth state to settle...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Navigate to the app dashboard
+      // Simple navigation to app - ProtectedRoute will handle the rest
       console.log('🚀 Navigating to /app...');
       navigate('/app', { replace: true });
     } catch (error) {

@@ -13,6 +13,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [isCheckingSession, setIsCheckingSession] = useState(false);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   // Public paths that don't require authentication
   const publicPaths = [
@@ -35,64 +36,37 @@ export function SessionGuard({ children }: SessionGuardProps) {
   ];
 
   useEffect(() => {
+    // Check if current path is public
+    const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
+    
+    if (isPublicPath) {
+      // For public paths, render immediately without auth checks
+      setIsCheckingSession(false);
+      return;
+    }
+
+    // For protected paths, let ProtectedRoute handle authentication
+    // SessionGuard only handles session management, not redirects
     const checkSession = async () => {
-      const isPublicPath = publicPaths.some(path => 
-        location.pathname === path || location.pathname.startsWith(`${path}/`)
-      );
-
-      // Skip auth check for public paths
-      if (isPublicPath) {
-        setIsCheckingSession(false);
-        return;
-      }
-
-      if (!loading) {
+      if (!user || !sessionChecked) {
         setIsCheckingSession(true);
         try {
-          // Check if we have a valid session
-          const { data: { session }, error } = await supabase.auth.getSession();
-          
-          if (error) {
-            logger.error('Session error:', error);
-            if (error.message?.includes('Invalid Refresh Token') || 
-                error.message?.includes('refresh_token_not_found')) {
-              await supabase.auth.signOut();
-              // Store the attempted URL for redirect after login
-              if (location.pathname.startsWith('/app')) {
-                localStorage.setItem('redirectUrl', location.pathname);
-              }
-              navigate('/app/login');
-              return;
-            }
-            throw error;
-          }
-          
-          if (!session) {
-            // Store the attempted URL for redirect after login
-            if (location.pathname.startsWith('/app')) {
-              localStorage.setItem('redirectUrl', location.pathname);
-              navigate('/app/login');
-            }
-            // For public paths, don't redirect - let them stay where they are
-            // The user will be redirected properly after login via other mechanisms
-          } else if (!user) {
-            // We have a session but no user data, refresh the user
+          // Just refresh user data if needed, don't handle redirects
+          if (!user) {
             await refreshUser();
-          } else if (!user.onboardingComplete && !location.pathname.startsWith('/app/onboarding')) {
-            // Redirect to onboarding if not completed
-            navigate('/app/onboarding');
           }
         } catch (error) {
           logger.error('Error checking session:', error);
-          navigate('/app/login');
         } finally {
           setIsCheckingSession(false);
         }
+      } else {
+        setIsCheckingSession(false);
       }
     };
 
     checkSession();
-  }, [user, loading, location.pathname, navigate, refreshUser]);
+  }, [location.pathname, user, sessionChecked, refreshUser]);
 
   // Show loading state while checking auth
   if (loading && isCheckingSession) {

@@ -219,31 +219,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setError(null);
       setConnectionStatus('connected');
       
-      // Initialize user preferences with user ID
-      await initUserPreferences(profile.id);
-
-      // Handle routing based on registration status
-      if (profile.registration_status === 'pending' && !location.pathname.startsWith('/app/register')) {
-        navigate('/app/register');
-        return;
-      }
-
-      if (!profile.onboarding_complete && !location.pathname.startsWith('/app/onboarding')) {
-        navigate('/app/onboarding');
-        return;
-      }
-
-      // Only redirect to app if user is on login/register pages after successful auth
-      if (location.pathname === '/app/login' || location.pathname === '/app/register') {
-        navigate('/app');
-        return;
-      }
+      // Initialize user preferences with the user's ID
+      await initUserPreferences(userData.id);
+      
+      logger.info('User data loaded successfully', { 
+        userId: userData.id, 
+        onboardingComplete: userData.onboardingComplete 
+      });
     } catch (error) {
-      const handled = await handleAuthError(error);
-      if (!handled) {
-        logger.error('Error getting current user:', error);
+      logger.error('Error fetching user data:', error);
+      
+      // Check if it's an auth error (invalid session)
+      if (error?.message?.includes('JWT') || error?.message?.includes('unauthorized')) {
         setUser(null);
-        setError('Failed to load user data');
+        // Initialize user preferences with null user ID
+        await initUserPreferences(null);
+      } else {
+        setError(error instanceof Error ? error.message : 'Failed to load user data');
       }
     } finally {
       setLoading(false);

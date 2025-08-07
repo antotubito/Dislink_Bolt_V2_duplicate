@@ -19,41 +19,8 @@ export function Login() {
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error checking session:', error);
-          return;
-        }
-        
-        if (session?.user) {
-          // Check if user has completed onboarding
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('onboarding_complete')
-            .eq('id', session.user.id)
-            .single();
-            
-          if (profileError) {
-            console.error('Error fetching profile:', profileError);
-            return;
-          }
-            
-          if (profile?.onboarding_complete) {
-            console.log('User already authenticated and onboarded, redirecting to app');
-            navigate('/app', { replace: true });
-          } else {
-            console.log('User already authenticated but onboarding incomplete, redirecting to onboarding');
-            navigate('/app/onboarding', { replace: true });
-          }
-        }
-      } catch (err) {
-        console.error('Session check error:', err);
-      }
-    };
-    checkSession();
+    // Don't do any redirects on login page - let the auth flow handle it naturally
+    // This prevents conflicts with ProtectedRoute logic
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
