@@ -91,6 +91,35 @@ export function Onboarding() {
     // Progress is now cleared when user exits onboarding
   }, []);
 
+  // Update form data when user information becomes available
+  useEffect(() => {
+    if (user) {
+      console.log('🎯 User data available in onboarding:', {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email
+      });
+      
+      setFormData(prevData => ({
+        ...prevData,
+        firstName: user.firstName || prevData.firstName,
+        lastName: user.lastName || prevData.lastName,
+        email: user.email || prevData.email,
+        jobTitle: user.jobTitle || prevData.jobTitle,
+        company: user.company || prevData.company,
+        industry: user.industry || prevData.industry,
+        location: user.bio?.location || prevData.location,
+        from: user.bio?.from || prevData.from,
+        profileImage: user.profileImage || prevData.profileImage,
+        socialLinks: user.socialLinks || prevData.socialLinks
+      }));
+      
+      console.log('🎯 Form data updated with user info');
+    } else {
+      console.log('🎯 No user data available yet');
+    }
+  }, [user]);
+
   useEffect(() => {
     if (step !== 'complete') {
       const currentProgress = {
@@ -172,11 +201,36 @@ export function Onboarding() {
       console.log('🔄 Refreshing user state...');
       await refreshUser();
       
+      // Wait a bit more and check again to ensure the update has propagated
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await refreshUser();
+      
       // Check current user state
       console.log('👤 Current user after refresh:', { 
         id: user?.id, 
         onboardingComplete: user?.onboardingComplete 
       });
+      
+      // Verify onboarding is actually complete
+      if (!user?.onboardingComplete) {
+        console.warn('⚠️ User onboarding still not marked as complete, trying direct database check...');
+        
+        // Direct database check as fallback
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('onboarding_complete')
+            .eq('id', session.user.id)
+            .single();
+            
+          console.log('🗄️ Direct database check result:', profile);
+          
+          if (!profile?.onboarding_complete) {
+            throw new Error('Onboarding completion was not saved properly. Please try again.');
+          }
+        }
+      }
       
       // Small delay to ensure auth state is updated
       console.log('⏳ Waiting for auth state to settle...');
@@ -187,7 +241,7 @@ export function Onboarding() {
       navigate('/app', { replace: true });
     } catch (error) {
       console.error('❌ Error completing onboarding:', error);
-      setError('Failed to complete onboarding');
+      setError(error instanceof Error ? error.message : 'Failed to complete onboarding');
     }
   };
 
@@ -287,7 +341,12 @@ export function Onboarding() {
               <span className="text-sm font-medium text-gray-700">Your Name</span>
             </div>
             <p className="text-gray-900 font-medium">
-              {formData.firstName} {formData.lastName}
+              {formData.firstName && formData.lastName 
+                ? `${formData.firstName} ${formData.lastName}`
+                : user?.firstName && user?.lastName
+                ? `${user.firstName} ${user.lastName}`
+                : 'Loading your name...'
+              }
             </p>
           </div>
           
@@ -296,7 +355,9 @@ export function Onboarding() {
               <Mail className="h-4 w-4 text-gray-500" />
               <span className="text-sm font-medium text-gray-700">Your Email</span>
             </div>
-            <p className="text-gray-900 font-medium">{formData.email}</p>
+            <p className="text-gray-900 font-medium">
+              {formData.email || user?.email || 'Loading your email...'}
+            </p>
           </div>
         </div>
 

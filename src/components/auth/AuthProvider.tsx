@@ -281,7 +281,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(null);
         // Initialize user preferences with null user ID
         await initUserPreferences(null);
-        navigate('/app/login');
+        
+        // Only redirect to login if user was on a protected route
+        if (location.pathname.startsWith('/app') && !publicPaths.some(path => location.pathname.startsWith(path))) {
+          navigate('/app/login');
+        }
+        // For public paths, let them stay where they are
       }
     });
 

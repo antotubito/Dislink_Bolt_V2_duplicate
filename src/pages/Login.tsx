@@ -42,9 +42,11 @@ export function Login() {
           }
             
           if (profile?.onboarding_complete) {
-            navigate('/app');
+            console.log('User already authenticated and onboarded, redirecting to app');
+            navigate('/app', { replace: true });
           } else {
-            navigate('/app/onboarding');
+            console.log('User already authenticated but onboarding incomplete, redirecting to onboarding');
+            navigate('/app/onboarding', { replace: true });
           }
         }
       } catch (err) {

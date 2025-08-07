@@ -72,9 +72,9 @@ export function SessionGuard({ children }: SessionGuardProps) {
             if (location.pathname.startsWith('/app')) {
               localStorage.setItem('redirectUrl', location.pathname);
               navigate('/app/login');
-            } else {
-              navigate('/');
             }
+            // For public paths, don't redirect - let them stay where they are
+            // The user will be redirected properly after login via other mechanisms
           } else if (!user) {
             // We have a session but no user data, refresh the user
             await refreshUser();
