@@ -87,16 +87,8 @@ export function Onboarding() {
   }, []);
 
   useEffect(() => {
-    const savedProgress = localStorage.getItem('onboarding_progress');
-    if (savedProgress) {
-      try {
-        const { step: savedStep, formData: savedData } = JSON.parse(savedProgress);
-        setStep(savedStep);
-        setFormData(savedData);
-      } catch (error) {
-        console.error('Error loading saved progress:', error);
-      }
-    }
+    // Removed saved progress loading for security reasons
+    // Progress is now cleared when user exits onboarding
   }, []);
 
   useEffect(() => {
@@ -170,14 +162,21 @@ export function Onboarding() {
     setShowExitConfirm(true);
   };
 
-  const confirmExit = () => {
-    const currentProgress = {
-      step,
-      formData
-    };
-    localStorage.setItem('onboarding_progress', JSON.stringify(currentProgress));
-    
-    navigate('/');
+  const confirmExit = async () => {
+    try {
+      // Sign out the user for security
+      await supabase.auth.signOut();
+      
+      // Clear any stored progress
+      localStorage.removeItem('onboarding_progress');
+      
+      // Redirect to login page
+      navigate('/app/login');
+    } catch (error) {
+      console.error('Error during exit:', error);
+      // Fallback to home page if sign out fails
+      navigate('/');
+    }
   };
 
   const handlePhotoCapture = (photoData: string) => {
@@ -500,7 +499,7 @@ export function Onboarding() {
                   Exit Onboarding?
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Your progress will be saved, and you can continue later from where you left off.
+                  For security reasons, you'll be signed out and will need to sign in again to continue. Your progress will be saved.
                 </p>
                 <div className="flex space-x-3">
                   <button
@@ -511,9 +510,9 @@ export function Onboarding() {
                   </button>
                   <button
                     onClick={confirmExit}
-                    className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                   >
-                    Exit
+                    Exit & Sign Out
                   </button>
                 </div>
               </motion.div>
