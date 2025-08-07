@@ -403,3 +403,57 @@ export function declineAccessRequest(userId: string) {
   logger.info('Declining access request', { userId });
   return `User ${userId} access request has been declined.`;
 }
+
+// Check if user is already registered and get their status
+export async function checkUserRegistration(email: string): Promise<{
+  exists: boolean;
+  confirmed: boolean;
+  createdAt?: Date;
+  timeSinceRegistration?: number; // in minutes
+}> {
+  try {
+    logger.info('Checking user registration status', { email });
+
+    // Try to sign up with the same email to see if it already exists
+    // This will fail with a specific error if the user already exists
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: 'temporary_password_for_check',
+      options: {
+        emailRedirectTo: `${window.location.origin}/confirmed`
+      }
+    });
+
+    // If no error, this means the user doesn't exist (which shouldn't happen in this flow)
+    if (!error) {
+      // Clean up the temporary user
+      if (data.user) {
+        await supabase.auth.admin.deleteUser(data.user.id);
+      }
+      return { exists: false, confirmed: false };
+    }
+
+    // Check if the error indicates user already exists
+    if (error.message.includes('already exists') || error.message.includes('already registered')) {
+      // Try to get user info by attempting a password reset (this will work if user exists)
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/confirmed`
+      });
+
+      // If reset email was sent successfully, user exists
+      if (!resetError) {
+        return {
+          exists: true,
+          confirmed: false, // We can't determine this without admin access
+          timeSinceRegistration: undefined
+        };
+      }
+    }
+
+    // If we get here, user doesn't exist
+    return { exists: false, confirmed: false };
+  } catch (error) {
+    logger.error('Error checking user registration:', error);
+    throw error;
+  }
+}

@@ -109,13 +109,30 @@ export function Register() {
       console.error('Registration error:', err);
       
       if (err instanceof Error) {
-        if (err.message.includes('already exists')) {
+        if (err.message.includes('already exists') || err.message.includes('already registered')) {
           setError(
             <div className="text-sm">
-              An account with this email already exists.{' '}
-              <Link to="/app/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
-                Sign in instead
-              </Link>
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="h-5 w-5 text-yellow-500" />
+                <span className="font-medium">Account Already Exists</span>
+              </div>
+              <p className="text-gray-600 mb-3">
+                An account with this email address is already registered.
+              </p>
+              <div className="flex flex-col gap-2">
+                <Link 
+                  to="/app/login" 
+                  className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                >
+                  Sign In Instead
+                </Link>
+                <button
+                  onClick={() => setError(null)}
+                  className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Try Different Email
+                </button>
+              </div>
             </div>
           );
         } else if (err.message.includes('security purposes') || err.message.includes('rate limit')) {
@@ -174,7 +191,26 @@ export function Register() {
         throw error;
       }
       
-      setError('Verification email resent. Please check your inbox.');
+      setError(
+        <div className="text-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Mail className="h-5 w-5 text-green-500" />
+            <span className="font-medium text-green-700">Email Resent Successfully</span>
+          </div>
+          <p className="text-gray-600 mb-2">
+            A new verification email has been sent to your inbox.
+          </p>
+          <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="flex items-center gap-2 mb-1">
+              <Timer className="h-4 w-4 text-yellow-600" />
+              <span className="text-xs font-medium text-yellow-800">Reminder</span>
+            </div>
+            <p className="text-xs text-yellow-700">
+              The verification link will expire in <strong>30 minutes</strong>.
+            </p>
+          </div>
+        </div>
+      );
     } catch (err) {
       console.error('Error resending verification:', err);
       setError(err instanceof Error ? err.message : 'Failed to resend verification email');
@@ -201,6 +237,17 @@ export function Register() {
             We've sent a verification link to <strong>{formData.email}</strong>. 
             Click the link to activate your account and start connecting!
           </p>
+          
+          <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <div className="flex items-center gap-2 mb-2">
+              <Timer className="h-5 w-5 text-yellow-600" />
+              <span className="font-medium text-yellow-800">Important</span>
+            </div>
+            <p className="text-sm text-yellow-700">
+              The verification link will expire in <strong>30 minutes</strong>. 
+              Please check your email and click the link as soon as possible.
+            </p>
+          </div>
           
           {error && (
             <div className="mb-4 p-3 bg-red-50 rounded-lg">
