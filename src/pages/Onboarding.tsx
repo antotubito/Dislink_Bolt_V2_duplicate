@@ -323,12 +323,11 @@ export function Onboarding() {
         />
         
         <AnimatedInput
-          label="Company"
+          label="Company (optional)"
           icon={Building2}
           placeholder="Where do you work?"
           value={formData.company}
           onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-          required
         />
         <div className="flex space-x-3">
           <AnimatedButton
@@ -340,7 +339,7 @@ export function Onboarding() {
           </AnimatedButton>
           <AnimatedButton
             onClick={() => setStep('location')}
-            disabled={!formData.jobTitle || !formData.company}
+            disabled={!formData.jobTitle}
           >
             Continue
           </AnimatedButton>
