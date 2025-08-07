@@ -9,10 +9,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
-  ChevronRight, ArrowRight, Play, Star, Heart, Globe, 
-  Users, Sparkles, MessageCircle, Lock, Timer, ArrowLeft,
-  CheckCircle, MapPin, Briefcase, Calendar, Mail, Phone,
-  Shield
+  ArrowRight, Mail, Link as LinkIcon, Check, 
+  Sparkles, Users, Shield, Zap, QrCode, Share2, 
+  MapPin, Bell, Clock, BookOpen, Globe, MessageCircle,
+  Smartphone, Star, X, Smile, Compass, 
+  ArrowUpRight, Quote, Linkedin, Twitter, Lock, CheckCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Footer } from '../components/Footer';
@@ -24,6 +25,8 @@ export function Waitlist() {
   const navigate = useNavigate();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [showTesterModal, setShowTesterModal] = useState(false);
+  const [testerEmail, setTesterEmail] = useState('');
+  const [testerPasscode, setTesterPasscode] = useState('');
   const [success, setSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,9 +65,9 @@ export function Waitlist() {
 
   const handleTesterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Close the modal and redirect to password gate
-    setShowTesterModal(false);
-    navigate('/app/access');
+    // In a real implementation, this would validate the tester credentials
+    console.log('Tester login attempt:', { email: testerEmail, passcode: testerPasscode });
+    navigate('/app/login');
   };
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
@@ -192,10 +195,10 @@ export function Waitlist() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={handleTesterAccess}
+                onClick={handleRegister}
                 className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
               >
-                Test Access
+                Register
               </motion.button>
             </div>
           </div>
@@ -852,40 +855,69 @@ export function Waitlist() {
                 <div className="mx-auto w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-4 shadow-inner">
                   <Lock className="h-8 w-8 text-indigo-600" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Test Access</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Tester Access</h3>
                 <p className="text-gray-600">
-                  Access the test version of Dislink while it's in development.
+                  This area is for testers only. Your feedback helps shape the future of Dislink.
                 </p>
               </div>
               
-              <div className="space-y-4">
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <div className="flex items-start">
-                    <Shield className="h-5 w-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
-                    <div>
-                      <h4 className="text-sm font-medium text-blue-800 mb-1">
-                        Development Version
-                      </h4>
-                      <p className="text-xs text-blue-700">
-                        You'll need an access password to continue to registration. This helps us control access during development.
-                      </p>
-                    </div>
-                  </div>
+              <form onSubmit={handleTesterSubmit} className="space-y-4">
+                <div>
+                  <label htmlFor="testerEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    id="testerEmail"
+                    required
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200 hover:border-indigo-300"
+                    value={testerEmail}
+                    onChange={(e) => setTesterEmail(e.target.value)}
+                  />
                 </div>
                 
-                <div className="flex space-x-3">
+                <div>
+                  <label htmlFor="testerPasscode" className="block text-sm font-medium text-gray-700 mb-1">
+                    Access Code
+                  </label>
+                  <input
+                    type="password"
+                    id="testerPasscode"
+                    required
+                    className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200 hover:border-indigo-300"
+                    value={testerPasscode}
+                    onChange={(e) => setTesterPasscode(e.target.value)}
+                  />
+                </div>
+                
+                <div className="pt-4">
                   <button
-                    onClick={() => setShowTesterModal(false)}
-                    className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg border border-gray-300 font-medium transition-all duration-200"
+                    type="submit"
+                    className="w-full px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md"
                   >
-                    Cancel
+                    Access Testing Environment
                   </button>
-                  <button
-                    onClick={handleTesterSubmit}
-                    className="flex-1 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg font-medium hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-md"
+                </div>
+              </form>
+              
+              <div className="mt-8 pt-6 border-t border-gray-100">
+                <div className="bg-amber-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-amber-800 mb-2 flex items-center">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Tester Feedback
+                  </h4>
+                  <p className="text-sm text-amber-700 mb-3">
+                    Your insights are invaluable! Please share your thoughts on the app experience, features, and any bugs you encounter.
+                  </p>
+                  <a 
+                    href="https://forms.gle/example" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-white text-amber-700 rounded-lg text-sm font-medium border border-amber-200 hover:bg-amber-100 transition-all duration-200 shadow-sm"
                   >
-                    Continue
-                  </button>
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    Submit Feedback
+                  </a>
                 </div>
               </div>
             </motion.div>

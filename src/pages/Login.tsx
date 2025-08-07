@@ -395,6 +395,18 @@ export function Login() {
         </form>
 
         <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account yet?{' '}
+            <Link
+              to="/app/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
+              Create one now
+            </Link>
+          </p>
+        </div>
+
+        <div className="mt-6 text-center">
           <Link
             to="/waitlist"
             className="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600"
