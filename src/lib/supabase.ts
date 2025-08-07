@@ -5,11 +5,33 @@ import { logger } from './logger';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Validate required environment variables
+if (!supabaseUrl || !supabaseAnonKey) {
+  logger.error('❌ CRITICAL: Missing Supabase credentials!', {
+    urlMissing: !supabaseUrl,
+    keyMissing: !supabaseAnonKey,
+    envMode: import.meta.env.MODE
+  });
+  
+  // Show user-friendly error in development
+  if (import.meta.env.DEV) {
+    console.error(`
+🚨 CONFIGURATION ERROR: Missing Supabase credentials!
+
+Please add the following to your .env file:
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+Contact your developer to get the correct values.
+    `);
+  }
+}
+
 // Log environment variables for debugging
 logger.info('Supabase configuration:', { 
   urlAvailable: !!supabaseUrl, 
   keyAvailable: !!supabaseAnonKey,
-  url: supabaseUrl
+  url: supabaseUrl?.substring(0, 30) + '...' // Only show partial URL for security
 });
 
 // Create Supabase client with improved configuration

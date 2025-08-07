@@ -93,6 +93,30 @@ export async function login(credentials: LoginCredentials): Promise<{
   try {
     logger.info('Attempting login', { email: credentials.email });
 
+    // Check if Supabase is properly configured
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      logger.error('❌ Supabase not configured - login cannot proceed');
+      
+      // In development mode, provide test credentials option
+      if (import.meta.env.DEV && 'email' in credentials) {
+        if (credentials.email === 'test@dislink.com' && credentials.password === 'testpassword') {
+          logger.info('🧪 Using development test mode');
+          return {
+            success: true,
+            requiresOnboarding: true
+          };
+        }
+      }
+      
+      return {
+        success: false,
+        error: 'Application configuration error. Please contact support.'
+      };
+    }
+
     // Try direct Supabase auth
     if ('accessKey' in credentials) {
       // Handle testing access key login

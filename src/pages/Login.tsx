@@ -17,11 +17,28 @@ export function Login() {
   const [resetSent, setResetSent] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
+    // Check environment configuration on component mount
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    const debugData = {
+      environment: import.meta.env.MODE,
+      supabaseConfigured: !!(supabaseUrl && supabaseAnonKey),
+      urlAvailable: !!supabaseUrl,
+      keyAvailable: !!supabaseAnonKey,
+      connectionStatus,
+      timestamp: new Date().toISOString()
+    };
+    
+    setDebugInfo(debugData);
+    logger.info('🔍 Login component mounted with debug info:', debugData);
+    
     // Don't do any redirects on login page - let the auth flow handle it naturally
     // This prevents conflicts with ProtectedRoute logic
-  }, [navigate]);
+  }, [navigate, connectionStatus]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +67,19 @@ export function Login() {
         return;
       }
       
+      // Check if Supabase is configured
+      if (debugInfo && !debugInfo.supabaseConfigured) {
+        setError('Application is not properly configured. Please contact support.');
+        setLoading(false);
+        return;
+      }
+      
       // Log the login attempt for debugging
       logger.info('Attempting login with email', { 
         email,
         emailLength: email.length,
-        passwordLength: password.length
+        passwordLength: password.length,
+        debugInfo
       });
       
       // Add timeout to prevent hanging
@@ -289,6 +314,25 @@ export function Login() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      {/* Debug Panel - Only show in development */}
+      {import.meta.env.DEV && debugInfo && (
+        <div className="w-full max-w-md mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <h3 className="text-sm font-semibold text-yellow-800 mb-2">🔧 Debug Info</h3>
+          <div className="text-xs text-yellow-700 space-y-1">
+            <div>Environment: {debugInfo.environment}</div>
+            <div>Supabase Configured: {debugInfo.supabaseConfigured ? '✅' : '❌'}</div>
+            <div>URL Available: {debugInfo.urlAvailable ? '✅' : '❌'}</div>
+            <div>Key Available: {debugInfo.keyAvailable ? '✅' : '❌'}</div>
+            <div>Connection: {debugInfo.connectionStatus}</div>
+            {!debugInfo.supabaseConfigured && (
+              <div className="mt-2 p-2 bg-red-100 rounded text-red-800 text-xs">
+                ⚠️ Missing Supabase credentials! Login will not work.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="text-center mb-8">
         <div className="mx-auto w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
           <Sparkles className="h-10 w-10 text-indigo-600" />
@@ -319,6 +363,18 @@ export function Login() {
               <div className="flex">
                 <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
                 <div className="text-sm text-red-700">{error}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Development Test Instructions */}
+          {import.meta.env.DEV && debugInfo && !debugInfo.supabaseConfigured && (
+            <div className="rounded-md bg-blue-50 p-4">
+              <div className="text-sm text-blue-700">
+                <strong>🧪 Development Test Mode:</strong><br/>
+                Use these credentials to test login:<br/>
+                Email: <code className="bg-blue-100 px-1 rounded">test@dislink.com</code><br/>
+                Password: <code className="bg-blue-100 px-1 rounded">testpassword</code>
               </div>
             </div>
           )}
