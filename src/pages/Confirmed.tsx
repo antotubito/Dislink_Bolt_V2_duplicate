@@ -118,7 +118,7 @@ export function Confirmed() {
   }, [searchParams]);
 
   const handleContinue = () => {
-    navigate('/app/login');
+    navigate('/app/register');
   };
 
   const handleGoToHome = () => {
@@ -167,7 +167,7 @@ export function Confirmed() {
               onClick={handleContinue}
               className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
             >
-              Try Signing In
+              Complete Registration
             </button>
             <button
               onClick={handleGoToHome}
@@ -218,7 +218,7 @@ export function Confirmed() {
           transition={{ delay: 0.4 }}
           className="text-gray-600 mb-8"
         >
-          Thank you for verifying your email address. Your account is now active and ready to use.
+          Thank you for verifying your email address. Your account is now active. Please complete your registration to get started.
         </motion.p>
         
         <motion.div
@@ -231,7 +231,7 @@ export function Confirmed() {
             onClick={handleContinue}
             className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            🚀 Sign In Now
+            🚀 Complete Registration
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
           
