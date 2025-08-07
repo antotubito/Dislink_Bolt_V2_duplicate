@@ -371,7 +371,7 @@ export function Onboarding() {
   const renderPhotoStep = () => (
     <OnboardingStep
       title="Show us your smile! 📸"
-      description="Add a profile photo so others can recognize you"
+      description="Add a profile photo with your face clearly visible (required)"
       icon={Camera}
       step={currentStepIndex}
       totalSteps={totalSteps}
@@ -392,8 +392,9 @@ export function Onboarding() {
           </AnimatedButton>
           <AnimatedButton
             onClick={() => setStep('social')}
+            disabled={!formData.profileImage}
           >
-            {formData.profileImage ? 'Continue' : 'Skip for now'}
+            Continue
           </AnimatedButton>
         </div>
       </div>
