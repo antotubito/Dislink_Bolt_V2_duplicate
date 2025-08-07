@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../../types/user';
-import { supabase, retryConnection } from '../../lib/supabase';
+import { supabase, isConnectionHealthy } from '../../lib/supabase';
 import { logger } from '../../lib/logger';
 import { initUserPreferences } from '../../lib/userPreferences';
 
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     
     try {
-      const reconnected = await retryConnection();
+      const reconnected = await isConnectionHealthy();
       setConnectionStatus(reconnected ? 'connected' : 'disconnected');
       
       if (reconnected) {

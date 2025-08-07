@@ -1,22 +1,304 @@
-import { supabase } from './supabase';
-import type { User, LoginCredentials, RegistrationData } from '../types/user';
+import { supabase, handleSupabaseError } from './supabase';
 import { logger } from './logger';
-import { apiService } from './apiService';
 
-// Get current user based on Supabase session
-export async function getCurrentUser(): Promise<User | null> {
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface AuthError {
+  message: string;
+  code?: string;
+}
+
+// Enhanced login function with better error handling
+export async function login(credentials: LoginCredentials): Promise<{ user: any; session: any; error: AuthError | null }> {
   try {
-    logger.info('Getting current user');
+    logger.info('🔐 Attempting login for:', credentials.email);
     
-    // Check Supabase session
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) {
-      logger.error('Session error:', sessionError);
-      throw sessionError;
+    // Validate input
+    if (!credentials.email || !credentials.password) {
+      return {
+        user: null,
+        session: null,
+        error: { message: 'Email and password are required' }
+      };
     }
+
+    // Attempt sign in
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: credentials.email.trim().toLowerCase(),
+      password: credentials.password,
+    });
+
+    if (error) {
+      logger.error('Login error:', error);
+      return {
+        user: null,
+        session: null,
+        error: { 
+          message: handleSupabaseError(error, 'login'),
+          code: error.message 
+        }
+      };
+    }
+
+    if (!data.user || !data.session) {
+      return {
+        user: null,
+        session: null,
+        error: { message: 'Login failed: No user data received' }
+      };
+    }
+
+    logger.info('✅ Login successful for:', credentials.email);
     
-    if (!session) {
-      logger.debug('No active session');
+    return {
+      user: data.user,
+      session: data.session,
+      error: null
+    };
+    
+  } catch (error) {
+    logger.error('Critical login error:', error);
+    return {
+      user: null,
+      session: null,
+      error: { 
+        message: 'A network error occurred. Please check your connection and try again.',
+        code: 'NETWORK_ERROR'
+      }
+    };
+  }
+}
+
+// Enhanced registration function
+export async function register(userData: RegisterData): Promise<{ user: any; session: any; error: AuthError | null }> {
+  try {
+    logger.info('📝 Attempting registration for:', userData.email);
+    
+    // Validate input
+    if (!userData.email || !userData.password || !userData.firstName || !userData.lastName) {
+      return {
+        user: null,
+        session: null,
+        error: { message: 'All fields are required' }
+      };
+    }
+
+    if (userData.password.length < 6) {
+      return {
+        user: null,
+        session: null,
+        error: { message: 'Password must be at least 6 characters long' }
+      };
+    }
+
+    // Attempt sign up
+    const { data, error } = await supabase.auth.signUp({
+      email: userData.email.trim().toLowerCase(),
+      password: userData.password,
+      options: {
+        data: {
+          firstName: userData.firstName.trim(),
+          lastName: userData.lastName.trim(),
+          full_name: `${userData.firstName.trim()} ${userData.lastName.trim()}`
+        },
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
+    });
+
+    if (error) {
+      logger.error('Registration error:', error);
+      return {
+        user: null,
+        session: null,
+        error: { 
+          message: handleSupabaseError(error, 'registration'),
+          code: error.message 
+        }
+      };
+    }
+
+    logger.info('✅ Registration initiated for:', userData.email);
+    
+    return {
+      user: data.user,
+      session: data.session,
+      error: null
+    };
+    
+  } catch (error) {
+    logger.error('Critical registration error:', error);
+    return {
+      user: null,
+      session: null,
+      error: { 
+        message: 'A network error occurred. Please check your connection and try again.',
+        code: 'NETWORK_ERROR'
+      }
+    };
+  }
+}
+
+// Enhanced logout function
+export async function logout(): Promise<{ error: AuthError | null }> {
+  try {
+    logger.info('🚪 Attempting logout...');
+    
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      logger.error('Logout error:', error);
+      return {
+        error: { 
+          message: handleSupabaseError(error, 'logout'),
+          code: error.message 
+        }
+      };
+    }
+
+    logger.info('✅ Logout successful');
+    
+    return { error: null };
+    
+  } catch (error) {
+    logger.error('Critical logout error:', error);
+    return {
+      error: { 
+        message: 'Failed to logout properly. Please refresh the page.',
+        code: 'LOGOUT_ERROR'
+      }
+    };
+  }
+}
+
+// Enhanced password reset function
+export async function resetPassword(email: string): Promise<{ error: AuthError | null }> {
+  try {
+    logger.info('🔄 Attempting password reset for:', email);
+    
+    if (!email) {
+      return {
+        error: { message: 'Email is required for password reset' }
+      };
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+      redirectTo: `${window.location.origin}/auth/reset-password`
+    });
+    
+    if (error) {
+      logger.error('Password reset error:', error);
+      return {
+        error: { 
+          message: handleSupabaseError(error, 'password reset'),
+          code: error.message 
+        }
+      };
+    }
+
+    logger.info('✅ Password reset email sent to:', email);
+    
+    return { error: null };
+    
+  } catch (error) {
+    logger.error('Critical password reset error:', error);
+    return {
+      error: { 
+        message: 'Failed to send password reset email. Please try again.',
+        code: 'RESET_ERROR'
+      }
+    };
+  }
+}
+
+// Function to check if user is already registered
+export async function checkUserRegistration(email: string): Promise<{ exists: boolean; confirmed: boolean; error: AuthError | null }> {
+  try {
+    // Try to sign up with a temporary password to check if user exists
+    const { data, error } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
+      password: 'temporary-check-password-' + Math.random(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
+    });
+
+    if (error) {
+      if (error.message.includes('already registered')) {
+        return { exists: true, confirmed: true, error: null };
+      }
+      
+      return { 
+        exists: false, 
+        confirmed: false, 
+        error: { 
+          message: handleSupabaseError(error, 'user check'),
+          code: error.message 
+        }
+      };
+    }
+
+    // If no error, user doesn't exist or needs confirmation
+    return { 
+      exists: data.user ? true : false, 
+      confirmed: data.session ? true : false, 
+      error: null 
+    };
+    
+  } catch (error) {
+    logger.error('Error checking user registration:', error);
+    return { 
+      exists: false, 
+      confirmed: false, 
+      error: { 
+        message: 'Unable to verify user status. Please try again.',
+        code: 'CHECK_ERROR'
+      }
+    };
+  }
+}
+
+// Backward compatibility aliases
+export const signUp = register;
+
+// Stub functions for backward compatibility (admin/testing features)
+export function getAccessRequests() {
+  return []; // Return empty array for now
+}
+
+export function approveAccessRequest(userId: string) {
+  logger.info('Approving access request', { userId });
+  return `User ${userId} has been approved for testing access.`;
+}
+
+export function declineAccessRequest(userId: string) {
+  logger.info('Declining access request', { userId });
+  return `User ${userId} access request has been declined.`;
+}
+
+export function getTestUsers() {
+  return [
+    { email: "john@techinnovations.dev", name: "John Developer" },
+    { email: "user1@example.com", name: "User One" },
+    { email: "user2@example.com", name: "User Two" }
+  ];
+}
+
+// Current user function for backward compatibility
+export async function getCurrentUser(): Promise<any> {
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (error || !session) {
       return null;
     }
 
@@ -27,433 +309,44 @@ export async function getCurrentUser(): Promise<User | null> {
       .eq('id', session.user.id)
       .single();
 
-    if (profileError) {
-      // Check if it's a network error
-      if (profileError.message?.includes('Failed to fetch')) {
-        logger.error('Network error fetching profile:', profileError);
-        throw new Error('Network error. Please check your internet connection.');
-      }
-      
-      logger.error('Profile error:', profileError);
-      throw profileError;
+    if (profileError || !profile) {
+      return null;
     }
-
-    if (!profile) return null;
 
     return {
       id: profile.id,
       email: profile.email,
       firstName: profile.first_name,
-      middleName: profile.middle_name,
       lastName: profile.last_name,
-      name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
+      name: `${profile.first_name} ${profile.last_name}`.trim(),
       company: profile.company,
       jobTitle: profile.job_title,
       industry: profile.industry,
       profileImage: profile.profile_image,
-      coverImage: profile.cover_image,
       bio: profile.bio,
       interests: profile.interests,
       socialLinks: profile.social_links || {},
       onboardingComplete: profile.onboarding_complete,
-      registrationComplete: profile.registration_complete,
-      registrationStatus: profile.registration_status,
-      registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
       createdAt: new Date(profile.created_at),
-      updatedAt: new Date(profile.updated_at),
-      twoFactorEnabled: false,
-      publicProfile: profile.public_profile || {
-        enabled: true,
-        defaultSharedLinks: {},
-        allowedFields: {
-          email: false,
-          phone: false,
-          company: true,
-          jobTitle: true,
-          bio: true,
-          interests: true,
-          location: true
-        }
-      }
+      updatedAt: new Date(profile.updated_at)
     };
   } catch (error) {
     logger.error('Error getting current user:', error);
-    throw error;
-  }
-}
-
-// Login using Supabase authentication
-export async function login(credentials: LoginCredentials): Promise<{ 
-  success: boolean; 
-  requiresOnboarding?: boolean;
-  emailConfirmationRequired?: boolean;
-  emailNotFound?: boolean;
-  error?: string;
-}> {
-  try {
-    logger.info('Attempting login', { email: credentials.email });
-
-    // Try direct Supabase auth
-    if ('accessKey' in credentials) {
-      // Handle testing access key login
-      if (!credentials.accessKey?.trim()) {
-        return {
-          success: false,
-          error: 'Access key is required'
-        };
-      }
-
-      // Clear any existing auth data
-      await supabase.auth.signOut();
-
-      // Use test credentials for access key login
-      const testEmail = `test-${credentials.accessKey}@example.com`;
-      const testPassword = credentials.accessKey;
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: testEmail,
-        password: testPassword
-      });
-
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          return {
-            success: false,
-            error: 'Invalid access key'
-          };
-        }
-        throw error;
-      }
-
-      if (!data.session) {
-        return {
-          success: false,
-          error: 'No session returned'
-        };
-      }
-
-      // Get user profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('onboarding_complete, registration_status')
-        .eq('id', data.session.user.id)
-        .single();
-
-      logger.info('Test login successful', { userId: data.user?.id });
-      
-      return { 
-        success: true,
-        requiresOnboarding: !profile?.onboarding_complete
-      };
-    } else {
-      // Handle regular email/password login
-      if (!credentials.email?.trim() || !credentials.password?.trim()) {
-        return {
-          success: false,
-          error: 'Email and password are required'
-        };
-      }
-
-      // First check if the email exists in auth.users
-      try {
-        // Get the user directly from Supabase Auth
-        const { data: userData, error: userError } = await supabase.auth.signInWithPassword({
-          email: credentials.email,
-          password: credentials.password
-        });
-
-        if (userError) {
-          logger.error('Login error from Supabase:', userError);
-          
-          if (userError.message.includes('Failed to fetch')) {
-            return {
-              success: false,
-              error: 'Network error. Please check your internet connection and try again.'
-            };
-          }
-          
-          if (userError.message.includes('Email not confirmed')) {
-            localStorage.setItem('confirmEmail', credentials.email);
-            return {
-              success: false,
-              emailConfirmationRequired: true
-            };
-          }
-
-          if (userError.message.includes('Invalid login credentials')) {
-            // Check if the email exists in profiles
-            const { data: profileCheck, error: profileError } = await supabase
-              .from('profiles')
-              .select('id, email')
-              .ilike('email', credentials.email.toLowerCase().trim())
-              .limit(1);
-
-            if (profileError) {
-              logger.error('Profile check error:', profileError);
-            }
-
-            // If profile exists but credentials are invalid, it's a password issue
-            if (profileCheck && profileCheck.length > 0) {
-              logger.info('Profile found but password is incorrect');
-              return {
-                success: false,
-                error: 'Invalid password'
-              };
-            } else {
-              // If no profile found, the email doesn't exist
-              logger.warn('Email not found in profiles:', { email: credentials.email });
-              return {
-                success: false,
-                emailNotFound: true
-              };
-            }
-          }
-
-          throw userError;
-        }
-
-        if (!userData.session) {
-          return {
-            success: false,
-            error: 'No session returned'
-          };
-        }
-
-        // Get user profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_complete, registration_status')
-          .eq('id', userData.session.user.id)
-          .single();
-
-        logger.info('Login successful', { userId: userData.user?.id });
-        
-        return { 
-          success: true,
-          requiresOnboarding: !profile?.onboarding_complete
-        };
-      } catch (error) {
-        logger.error('Error during login:', error);
-        
-        if (error instanceof Error) {
-          if (error.message.includes('Failed to fetch')) {
-            return {
-              success: false,
-              error: 'Network error. Please check your internet connection and try again.'
-            };
-          }
-          
-          return {
-            success: false,
-            error: error.message
-          };
-        }
-        
-        return {
-          success: false,
-          error: 'An unexpected error occurred. Please try again.'
-        };
-      }
-    }
-  } catch (error) {
-    logger.error('Login error:', error);
-    
-    if (error instanceof Error) {
-      if (error.message.includes('Failed to fetch')) {
-        return {
-          success: false,
-          error: 'Network error. Please check your internet connection and try again.'
-        };
-      }
-      
-      return {
-        success: false,
-        error: error.message
-      };
-    }
-    
-    return {
-      success: false,
-      error: 'An unexpected error occurred. Please try again.'
-    };
-  }
-}
-
-// Logout function
-export async function logout(): Promise<void> {
-  try {
-    logger.info('Logging out user');
-    
-    // Sign out from Supabase
-    await supabase.auth.signOut();
-    
-    // Clear any local storage items
-    localStorage.removeItem('redirectUrl');
-    localStorage.removeItem('confirmEmail');
-    localStorage.removeItem('onboarding_progress');
-    
-    logger.info('Logout successful');
-  } catch (error) {
-    logger.error('Logout error:', error);
-    throw error;
-  }
-}
-
-// Sign up
-export async function signUp(data: RegistrationData): Promise<boolean> {
-  try {
-    logger.info('Starting user registration', { email: data.email });
-
-    // Create Supabase user with email verification
-    const { data: authData, error: signUpError } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        data: {
-          first_name: data.firstName,
-          middle_name: data.middleName,
-          last_name: data.lastName,
-          name: `${data.firstName} ${data.middleName ? data.middleName + ' ' : ''}${data.lastName}`.trim(),
-          company: data.company,
-          onboarding_complete: false,
-          registration_complete: false,
-          registration_status: 'pending'
-        },
-        emailRedirectTo: data.emailRedirectTo || `${window.location.origin}/confirmed`
-      }
-    });
-
-    if (signUpError) {
-      if (signUpError.message.includes('Failed to fetch')) {
-        throw new Error('Network error. Please check your internet connection and try again.');
-      }
-      
-      // Handle rate limit errors
-      if (signUpError.message.includes('security purposes') || 
-          signUpError.message.includes('rate limit') ||
-          signUpError.message.includes('over_email_send_rate_limit')) {
-        throw new Error('For security purposes, you can only request this after 50 seconds.');
-      }
-      
-      throw signUpError;
-    }
-    
-    if (!authData.user) throw new Error('No user data returned');
-
-    // Store email temporarily for verification
-    localStorage.setItem('confirmEmail', data.email);
-
-    logger.info('User registration successful', { userId: authData.user.id });
-    return true;
-  } catch (error) {
-    logger.error('Registration error:', error);
-    throw error;
+    return null;
   }
 }
 
 // Password validation helper
 export function validatePassword(password: string) {
-  const minLength = 8;
+  const minLength = 6; // Reduced from 8 for better UX
   const hasUppercase = /[A-Z]/.test(password);
   const hasLowercase = /[a-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
-  const hasSpecial = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(password);
 
   if (password.length < minLength) {
-    return { isValid: false, message: 'Password must be at least 8 characters long' };
-  }
-  if (!hasUppercase) {
-    return { isValid: false, message: 'Password must contain at least one uppercase letter' };
-  }
-  if (!hasLowercase) {
-    return { isValid: false, message: 'Password must contain at least one lowercase letter' };
-  }
-  if (!hasNumber) {
-    return { isValid: false, message: 'Password must contain at least one number' };
-  }
-  if (!hasSpecial) {
-    return { isValid: false, message: 'Password must contain at least one special character' };
+    return { isValid: false, message: `Password must be at least ${minLength} characters long` };
   }
 
+  // Basic validation - just check length for now to improve UX
   return { isValid: true, message: '' };
-}
-
-// Get test users
-export function getTestUsers() {
-  return [
-    { email: "john@techinnovations.dev", name: "John Developer" },
-    { email: "user1@example.com", name: "User One" },
-    { email: "user2@example.com", name: "User Two" }
-  ];
-}
-
-// Get access requests
-export function getAccessRequests() {
-  return []; // Example empty access requests list
-}
-
-// Approve access request
-export function approveAccessRequest(userId: string) {
-  logger.info('Approving access request', { userId });
-  return `User ${userId} has been approved for testing access.`;
-}
-
-// Decline access request
-export function declineAccessRequest(userId: string) {
-  logger.info('Declining access request', { userId });
-  return `User ${userId} access request has been declined.`;
-}
-
-// Check if user is already registered and get their status
-export async function checkUserRegistration(email: string): Promise<{
-  exists: boolean;
-  confirmed: boolean;
-  createdAt?: Date;
-  timeSinceRegistration?: number; // in minutes
-}> {
-  try {
-    logger.info('Checking user registration status', { email });
-
-    // Try to sign up with the same email to see if it already exists
-    // This will fail with a specific error if the user already exists
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password: 'temporary_password_for_check',
-      options: {
-        emailRedirectTo: `${window.location.origin}/confirmed`
-      }
-    });
-
-    // If no error, this means the user doesn't exist (which shouldn't happen in this flow)
-    if (!error) {
-      // Clean up the temporary user
-      if (data.user) {
-        await supabase.auth.admin.deleteUser(data.user.id);
-      }
-      return { exists: false, confirmed: false };
-    }
-
-    // Check if the error indicates user already exists
-    if (error.message.includes('already exists') || error.message.includes('already registered')) {
-      // Try to get user info by attempting a password reset (this will work if user exists)
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/confirmed`
-      });
-
-      // If reset email was sent successfully, user exists
-      if (!resetError) {
-        return {
-          exists: true,
-          confirmed: false, // We can't determine this without admin access
-          timeSinceRegistration: undefined
-        };
-      }
-    }
-
-    // If we get here, user doesn't exist
-    return { exists: false, confirmed: false };
-  } catch (error) {
-    logger.error('Error checking user registration:', error);
-    throw error;
-  }
 }
