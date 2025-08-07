@@ -130,10 +130,10 @@ export function EmailConfirm() {
             userId: session?.user?.id
           });
           
-          // Redirect to confirmed page after a short delay
+          // Automatically redirect to onboarding after a short delay
           setTimeout(() => {
-            navigate('/confirmed');
-          }, 1500);
+            navigate('/app/onboarding');
+          }, 2000);
         }
       } catch (err) {
         logger.error('Verification error:', err);
@@ -147,7 +147,7 @@ export function EmailConfirm() {
   }, [searchParams, navigate]);
 
   const handleContinue = () => {
-    navigate('/app/register');
+    navigate('/app/onboarding');
   };
 
   const handleGoToHome = () => {
@@ -257,10 +257,10 @@ export function EmailConfirm() {
               )}
             </button>
             <button
-              onClick={() => navigate('/app/register')}
+              onClick={() => navigate('/app/onboarding')}
               className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
             >
-              Complete Registration
+              Start Your Journey
             </button>
             <button
               onClick={handleGoToHome}
@@ -316,7 +316,7 @@ export function EmailConfirm() {
           transition={{ delay: 0.4 }}
           className="text-gray-600 mb-8"
         >
-          Thank you for verifying your email address. Your account is now active. Please complete your registration to get started.
+          Thank you for verifying your email address. Your account is now active. Let's get you set up with your personalized experience!
         </motion.p>
         
         <motion.div
@@ -329,7 +329,7 @@ export function EmailConfirm() {
             onClick={handleContinue}
             className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            🚀 Complete Registration
+            🚀 Start Your Journey
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
           
