@@ -25,7 +25,6 @@ import { Confirmed } from './pages/Confirmed';
 import { ResetPassword } from './pages/ResetPassword';
 import { Demo } from './pages/Demo';
 import { ConnectionErrorBanner } from './components/ConnectionErrorBanner';
-import { MobileAppBanner } from './components/MobileAppBanner';
 import { isMobileApp } from './lib/mobileUtils';
 
 function App() {
@@ -37,7 +36,6 @@ function App() {
     return (
       <AuthProvider>
         <SessionGuard>
-          {!isRunningInMobileApp && <MobileAppBanner />}
           <ConnectionErrorBanner />
           <Routes>
             {/* Public Routes - No authentication required */}
@@ -63,71 +61,34 @@ function App() {
             
             {/* Protected App Routes - Authentication required */}
             <Route path="/app" element={<Layout />}>
-              <Route index element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              } />
-              <Route
-                path="contacts"
-                element={
-                  <ProtectedRoute>
-                    <Contacts />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="contact/:id"
-                element={
-                  <ProtectedRoute>
-                    <ContactProfile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="profile"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="settings"
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                }
-              />
+              <Route index element={<ProtectedRoute><Home /></ProtectedRoute>} />
+              <Route path="contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
+              <Route path="contact/:id" element={<ProtectedRoute><ContactProfile /></ProtectedRoute>} />
+              <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             </Route>
-
-            {/* Catch all - redirect to waitlist */}
+            
+            {/* Redirect any unmatched routes */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </SessionGuard>
       </AuthProvider>
     );
   } catch (error) {
-    console.error('❌ Error in App component:', error);
+    console.error('❌ Error rendering App:', error);
+    
     return (
-      <div style={{ 
-        padding: '20px', 
-        fontFamily: 'Arial, sans-serif',
-        backgroundColor: '#fee',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexDirection: 'column'
-      }}>
-        <h1 style={{ color: '#c33', marginBottom: '20px' }}>
-          ❌ App Error
-        </h1>
-        <p style={{ color: '#666', textAlign: 'center' }}>
-          There was an error rendering the app:<br/>
-          {error instanceof Error ? error.message : String(error)}
-        </p>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Something went wrong</h1>
+          <p className="text-gray-600 mb-4">We're having trouble loading the application.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md"
+          >
+            Reload Page
+          </button>
+        </div>
       </div>
     );
   }
