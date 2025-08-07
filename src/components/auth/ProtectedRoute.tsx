@@ -36,21 +36,17 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If user is not logged in and trying to access any route other than /waitlist, redirect to /waitlist
+  // Check if user is authenticated
   const isAuthenticated = !!user || !!session;
 
-  if (!isAuthenticated && location.pathname !== '/waitlist') {
-    return <Navigate to="/waitlist" replace />;
+  // If user is not authenticated, redirect to login
+  if (!isAuthenticated) {
+    return <Navigate to="/app/login" replace />;
   }
 
   // If user is logged in but onboarding not complete, redirect to onboarding (except when already there)
   if (user && !user.onboardingComplete && location.pathname !== '/app/onboarding') {
     return <Navigate to="/app/onboarding" replace />;
-  }
-
-  // If user is authenticated and on /waitlist, redirect to home or dashboard (optional)
-  if (isAuthenticated && location.pathname === '/waitlist') {
-    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

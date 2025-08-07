@@ -22,10 +22,7 @@ export default defineConfig({
     host: true,
     port: 3000,
     strictPort: true,
-    hmr: {
-      clientPort: 443
-    },
-    // Add this to enable SPA fallback:
+    // Remove problematic HMR configuration
     historyApiFallback: true,
   }
 });

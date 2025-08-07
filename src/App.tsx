@@ -37,7 +37,7 @@ function App() {
         {!isRunningInMobileApp && <MobileAppBanner />}
         <ConnectionErrorBanner />
         <Routes>
-          {/* Public Routes */}
+          {/* Public Routes - No authentication required */}
           <Route path="/" element={<Waitlist />} />
           <Route path="/waitlist" element={<Waitlist />} />
           <Route path="/share/:code" element={<PublicProfile />} />
@@ -47,24 +47,24 @@ function App() {
           <Route path="/verify" element={<EmailConfirmation />} />
           <Route path="/confirm" element={<EmailConfirm />} />
           <Route path="/confirmed" element={<Confirmed />} />
-          <Route path="/app/reset-password" element={<ResetPassword />} />
           <Route path="/demo" element={<Demo />} />
           
-          {/* Production Channel Routes */}
+          {/* Auth Routes - No authentication required */}
+          <Route path="/app/login" element={<Login />} />
+          <Route path="/app/register" element={<Register />} />
+          <Route path="/app/reset-password" element={<ResetPassword />} />
+          <Route path="/app/terms" element={<TermsConditions />} />
+          <Route path="/app/test-terms" element={<TestTerms />} />
+          <Route path="/app/privacy" element={<PrivacyPolicy />} />
+          <Route path="/app/onboarding" element={<Onboarding />} />
+          
+          {/* Protected App Routes - Authentication required */}
           <Route path="/app" element={<Layout />}>
             <Route index element={
               <ProtectedRoute>
                 <Home />
               </ProtectedRoute>
             } />
-            <Route path="login" element={<Login />} />
-            <Route path="register" element={<Register />} />
-            <Route path="onboarding" element={<Onboarding />} />
-            <Route path="test-terms" element={<TestTerms />} />
-            <Route path="terms" element={<TermsConditions />} />
-            <Route path="privacy" element={<PrivacyPolicy />} />
-            
-            {/* Protected Routes */}
             <Route
               path="contacts"
               element={

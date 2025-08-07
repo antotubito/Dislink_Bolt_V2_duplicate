@@ -510,13 +510,12 @@ export function Waitlist() {
                 
                 {/* Floating elements */}
                 <motion.div 
-                  className="absolute -right-8 top-20 bg-white p-3 rounded-xl shadow-lg border border-indigo-100"
+                  className="absolute -right-8 top-1/2 bg-white p-3 rounded-xl shadow-lg border border-indigo-100"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 3 }}
+                  transition={{ delay: 0.4, repeat: Infinity, duration: 3 }}
                 >
                   <QrCode className="h-8 w-8 text-indigo-600" />
                 </motion.div>
@@ -525,7 +524,6 @@ export function Waitlist() {
                   className="absolute -left-8 top-1/3 bg-white p-3 rounded-xl shadow-lg border border-red-100"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, 10, 0] }}
                   transition={{ repeat: Infinity, duration: 4, delay: 1 }}
@@ -537,7 +535,6 @@ export function Waitlist() {
                   className="absolute -right-12 bottom-1/4 bg-white p-3 rounded-xl shadow-lg border border-amber-100"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.8 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, -8, 0] }}
                   transition={{ repeat: Infinity, duration: 3.5, delay: 0.5 }}
@@ -810,7 +807,6 @@ export function Waitlist() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <motion.button
                   whileHover={{ scale: 1.05 }}
-                  onClick={scrollToWaitlistForm}
                   onClick={scrollToWaitlistForm}
                   className="w-full sm:w-auto px-8 py-4 bg-white text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full hover:bg-gray-100 font-bold text-lg shadow-lg border-2 border-white"
                 >

@@ -30,7 +30,8 @@ export function SessionGuard({ children }: SessionGuardProps) {
     '/confirm',
     '/confirmed',
     '/share',
-    '/app/reset-password'
+    '/app/reset-password',
+    '/demo'
   ];
 
   useEffect(() => {
@@ -39,7 +40,24 @@ export function SessionGuard({ children }: SessionGuardProps) {
         location.pathname === path || location.pathname.startsWith(`${path}/`)
       );
 
-      if (!loading && !isPublicPath) {
+      // For public paths, just check if user is authenticated for optional features
+      if (isPublicPath) {
+        if (!loading) {
+          try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session && !user) {
+              await refreshUser();
+            }
+          } catch (error) {
+            logger.error('Error checking session on public path:', error);
+          }
+        }
+        setIsCheckingSession(false);
+        return;
+      }
+
+      // For protected paths, require authentication
+      if (!loading) {
         try {
           // Check if we have a valid session
           const { data: { session }, error } = await supabase.auth.getSession();
@@ -50,9 +68,7 @@ export function SessionGuard({ children }: SessionGuardProps) {
                 error.message?.includes('refresh_token_not_found')) {
               await supabase.auth.signOut();
               // Store the attempted URL for redirect after login
-              if (location.pathname.startsWith('/app')) {
-                localStorage.setItem('redirectUrl', location.pathname);
-              }
+              localStorage.setItem('redirectUrl', location.pathname);
               navigate('/app/login');
               return;
             }
@@ -61,12 +77,8 @@ export function SessionGuard({ children }: SessionGuardProps) {
           
           if (!session) {
             // Store the attempted URL for redirect after login
-            if (location.pathname.startsWith('/app')) {
-              localStorage.setItem('redirectUrl', location.pathname);
-              navigate('/app/login');
-            } else {
-              navigate('/waitlist');
-            }
+            localStorage.setItem('redirectUrl', location.pathname);
+            navigate('/app/login');
           } else if (!user) {
             // We have a session but no user data, refresh the user
             await refreshUser();
