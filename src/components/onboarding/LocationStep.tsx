@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Globe, ArrowLeft } from 'lucide-react';
+import { MapPin, Globe, ArrowLeft, AlertCircle } from 'lucide-react';
 import { CityAutocomplete } from '../common/CityAutocomplete';
 import { AnimatedButton } from './AnimatedButton';
 import type { Location } from '../../types/location';
@@ -89,9 +89,16 @@ export function LocationStep({
   }, [currentLocation, hometown, onUpdate]);
 
   const handleContinue = () => {
-    // Validate that at least current location is provided
+    setError(null);
+    
+    // Validate that both locations are provided
     if (!currentLocation.trim()) {
       setError('Please enter your current location');
+      return;
+    }
+    
+    if (!hometown.trim()) {
+      setError('Please enter your hometown');
       return;
     }
     
@@ -114,6 +121,7 @@ export function LocationStep({
   const handleHometownSelect = (data: { name: string; location: Location | null }) => {
     setHometown(data.name);
     setSelectedHometown(data.location);
+    setError(null);
   };
 
   return (
@@ -124,38 +132,70 @@ export function LocationStep({
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+          className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-2"
         >
-          {error}
+          <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+          <span>{error}</span>
         </motion.div>
       )}
 
       {/* Location inputs */}
       <div className="space-y-6">
-        <CityAutocomplete
-          label="Where are you currently located?"
-          value={currentLocation}
-          onSelect={handleCurrentLocationSelect}
-          placeholder={isDetectingLocation ? "Detecting your location..." : "Search your city..."}
-          required
-          errorMessage={error}
-          storageKey="onboarding"
-          fieldName="location"
-          disabled={isDetectingLocation}
-        />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-indigo-600" />
+            <label className="text-sm font-medium text-gray-700">
+              Where are you currently located?
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+          </div>
+          <CityAutocomplete
+            value={currentLocation}
+            onSelect={handleCurrentLocationSelect}
+            placeholder={isDetectingLocation ? "Detecting your location..." : "Search your current city..."}
+            required
+            errorMessage={error && !currentLocation.trim() ? error : undefined}
+            storageKey="onboarding"
+            fieldName="location"
+            disabled={isDetectingLocation}
+            className="w-full"
+          />
+        </div>
 
-        <CityAutocomplete
-          label="Where are you from originally? (Optional)"
-          value={hometown}
-          onSelect={handleHometownSelect}
-          placeholder="Search your hometown..."
-          storageKey="onboarding"
-          fieldName="from"
-        />
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Globe className="h-5 w-5 text-indigo-600" />
+            <label className="text-sm font-medium text-gray-700">
+              Where are you from originally?
+              <span className="text-red-500 ml-1">*</span>
+            </label>
+          </div>
+          <CityAutocomplete
+            value={hometown}
+            onSelect={handleHometownSelect}
+            placeholder="Search your hometown..."
+            required
+            errorMessage={error && !hometown.trim() ? error : undefined}
+            storageKey="onboarding"
+            fieldName="from"
+            className="w-full"
+          />
+        </div>
 
-        <p className="text-sm text-gray-500 mt-2">
-          Your location helps us connect you with people nearby and provide relevant local information.
-        </p>
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="flex items-start gap-2">
+            <MapPin className="h-5 w-5 text-blue-600 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-blue-900 mb-1">Why we ask for your location?</h4>
+              <ul className="text-sm text-blue-700 space-y-1">
+                <li>• Connect with people in your area</li>
+                <li>• Find local events and opportunities</li>
+                <li>• Get relevant local recommendations</li>
+                <li>• Build meaningful relationships nearby</li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Navigation buttons */}
@@ -169,6 +209,7 @@ export function LocationStep({
         </AnimatedButton>
         <AnimatedButton
           onClick={handleContinue}
+          disabled={!currentLocation.trim() || !hometown.trim()}
         >
           Continue
         </AnimatedButton>

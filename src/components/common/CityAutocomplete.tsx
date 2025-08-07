@@ -471,32 +471,61 @@ export function CityAutocomplete({
   const customStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      borderColor: error || errorMessage ? '#FCA5A5' : state.isFocused ? '#6366F1' : '#D1D5DB',
-      boxShadow: error || errorMessage
-        ? '0 0 0 1px #EF4444' 
-        : state.isFocused 
-          ? '0 0 0 1px #6366F1' 
-          : 'none',
+      minHeight: '44px',
       borderRadius: '0.5rem',
-      padding: '1px',
+      borderColor: state.isFocused 
+        ? '#6366F1' 
+        : errorMessage || error 
+        ? '#EF4444' 
+        : '#D1D5DB',
+      boxShadow: state.isFocused 
+        ? '0 0 0 1px #6366F1' 
+        : errorMessage || error 
+        ? '0 0 0 1px #EF4444' 
+        : 'none',
       '&:hover': {
-        borderColor: error || errorMessage ? '#FCA5A5' : '#6366F1',
+        borderColor: state.isFocused 
+          ? '#6366F1' 
+          : errorMessage || error 
+          ? '#EF4444' 
+          : '#9CA3AF',
       },
-      opacity: disabled ? 0.7 : 1,
-      cursor: disabled ? 'not-allowed' : 'default',
+      backgroundColor: disabled ? '#F9FAFB' : '#FFFFFF',
+      cursor: disabled ? 'not-allowed' : 'text',
+    }),
+    input: (base: any) => ({
+      ...base,
+      margin: '0px',
+      padding: '0px',
+    }),
+    valueContainer: (base: any) => ({
+      ...base,
+      padding: '8px 12px',
     }),
     placeholder: (base: any) => ({
       ...base,
       color: '#9CA3AF',
+      fontSize: '14px',
     }),
-    input: (base: any) => ({
+    singleValue: (base: any) => ({
       ...base,
-      padding: '0.25rem 0',
+      color: '#111827',
+      fontSize: '14px',
+      fontWeight: '500',
     }),
     option: (base: any, state: any) => ({
       ...base,
-      backgroundColor: state.isFocused ? '#F3F4F6' : 'white',
-      color: '#111827',
+      backgroundColor: state.isSelected 
+        ? '#6366F1' 
+        : state.isFocused 
+        ? '#F3F4F6' 
+        : '#FFFFFF',
+      color: state.isSelected 
+        ? '#FFFFFF' 
+        : '#111827',
+      cursor: 'pointer',
+      padding: '12px 16px',
+      fontSize: '14px',
       '&:active': {
         backgroundColor: '#E5E7EB',
       },
@@ -504,63 +533,79 @@ export function CityAutocomplete({
     menu: (base: any) => ({
       ...base,
       zIndex: 50,
-      borderRadius: '0.5rem',
-      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      borderRadius: '0.75rem',
+      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      border: '1px solid #E5E7EB',
+      marginTop: '4px',
     }),
     menuList: (base: any) => ({
       ...base,
-      maxHeight: '300px', // Taller menu to show more results
+      maxHeight: '320px',
+      padding: '8px 0',
     }),
     noOptionsMessage: (base: any) => ({
       ...base,
       color: '#6B7280',
+      padding: '16px',
+      textAlign: 'center',
     }),
     loadingMessage: (base: any) => ({
       ...base,
       color: '#6B7280',
+      padding: '16px',
+      textAlign: 'center',
+    }),
+    indicatorSeparator: () => ({
+      display: 'none',
     }),
   };
 
   // Custom components for react-select
   const customComponents = {
     DropdownIndicator: () => (
-      <div className="px-2">
+      <div className="px-3">
         <MapPin className="h-5 w-5 text-gray-400" />
       </div>
     ),
     LoadingIndicator: () => (
-      <div className="px-2">
+      <div className="px-3">
         <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
       </div>
     ),
     ClearIndicator: (props: any) => (
       <div 
-        className="px-2 cursor-pointer text-gray-400 hover:text-gray-500"
+        className="px-3 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
         onClick={props.clearValue}
       >
         <X className="h-5 w-5" />
       </div>
     ),
     NoOptionsMessage: ({ children }: any) => (
-      <div className="p-2 text-center text-gray-500">
-        {inputValue.length < 2 
-          ? 'Type at least 2 characters to search' 
-          : children || noOptionsMessage}
+      <div className="p-4 text-center text-gray-500">
+        <div className="flex flex-col items-center gap-2">
+          <MapPin className="h-8 w-8 text-gray-300" />
+          <div>
+            {inputValue.length < 2 
+              ? 'Type at least 2 characters to search' 
+              : children || noOptionsMessage}
+          </div>
+        </div>
       </div>
     ),
     MenuList: (props: any) => (
       <div 
         onScroll={handleMenuScroll}
-        className="max-h-[300px] overflow-y-auto"
+        className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
       >
         {props.children}
         {isLoadingMore && (
-          <div className="text-center py-2">
+          <div className="text-center py-4">
             <Loader2 className="h-5 w-5 text-gray-400 animate-spin mx-auto" />
+            <p className="text-xs text-gray-500 mt-2">Loading more results...</p>
           </div>
         )}
         {hasMoreResults && !isLoadingMore && lastSearchTerm && (
-          <div className="text-center py-2 text-xs text-gray-500">
+          <div className="text-center py-3 text-xs text-gray-500 border-t border-gray-100">
             Scroll for more results
           </div>
         )}
