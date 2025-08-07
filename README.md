@@ -4,7 +4,7 @@ Dislink is a modern web & mobile app designed to help you manage meaningful prof
 
 ## 🚀 About
 
-Dislink empowers professionals to build and maintain strong networks by combining intuitive design with context-rich contact management. It’s your personal relationship assistant — built for real-world connections.
+Dislink empowers professionals to build and maintain strong networks by combining intuitive design with context-rich contact management. It's your personal relationship assistant — built for real-world connections.
 
 ## 🧩 Features
 
@@ -32,4 +32,5 @@ npm run dev
 
 # Build for production
 npm run build
+```
 
