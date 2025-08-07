@@ -19,7 +19,15 @@ export interface AuthError {
 }
 
 // Enhanced login function with better error handling
-export async function login(credentials: LoginCredentials): Promise<{ user: any; session: any; error: AuthError | null }> {
+export async function login(credentials: LoginCredentials): Promise<{ 
+  user: any; 
+  session: any; 
+  error: AuthError | null;
+  success: boolean;
+  requiresOnboarding?: boolean;
+  emailConfirmationRequired?: boolean;
+  emailNotFound?: boolean;
+}> {
   try {
     logger.info('🔐 Attempting login for:', credentials.email);
     
@@ -28,7 +36,8 @@ export async function login(credentials: LoginCredentials): Promise<{ user: any;
       return {
         user: null,
         session: null,
-        error: { message: 'Email and password are required' }
+        error: { message: 'Email and password are required' },
+        success: false
       };
     }
 
@@ -40,13 +49,49 @@ export async function login(credentials: LoginCredentials): Promise<{ user: any;
 
     if (error) {
       logger.error('Login error:', error);
+      
+      // Handle specific error cases
+      if (error.message.includes('Email not confirmed')) {
+        return {
+          user: null,
+          session: null,
+          error: null,
+          success: false,
+          emailConfirmationRequired: true
+        };
+      }
+      
+      if (error.message.includes('Invalid login credentials')) {
+        // Check if user exists but password is wrong vs user doesn't exist
+        try {
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('id')
+            .ilike('email', credentials.email.trim().toLowerCase())
+            .limit(1);
+            
+          if (!profiles || profiles.length === 0) {
+            return {
+              user: null,
+              session: null,
+              error: null,
+              success: false,
+              emailNotFound: true
+            };
+          }
+        } catch (profileError) {
+          logger.error('Error checking profile existence:', profileError);
+        }
+      }
+      
       return {
         user: null,
         session: null,
         error: { 
           message: handleSupabaseError(error, 'login'),
           code: error.message 
-        }
+        },
+        success: false
       };
     }
 
@@ -54,8 +99,25 @@ export async function login(credentials: LoginCredentials): Promise<{ user: any;
       return {
         user: null,
         session: null,
-        error: { message: 'Login failed: No user data received' }
+        error: { message: 'Login failed: No user data received' },
+        success: false
       };
+    }
+
+    // Check if user has completed onboarding
+    let requiresOnboarding = false;
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('onboarding_complete')
+        .eq('id', data.user.id)
+        .single();
+        
+      if (!profileError && profile) {
+        requiresOnboarding = !profile.onboarding_complete;
+      }
+    } catch (profileError) {
+      logger.warn('Could not check onboarding status:', profileError);
     }
 
     logger.info('✅ Login successful for:', credentials.email);
@@ -63,7 +125,9 @@ export async function login(credentials: LoginCredentials): Promise<{ user: any;
     return {
       user: data.user,
       session: data.session,
-      error: null
+      error: null,
+      success: true,
+      requiresOnboarding
     };
     
   } catch (error) {
@@ -74,7 +138,8 @@ export async function login(credentials: LoginCredentials): Promise<{ user: any;
       error: { 
         message: 'A network error occurred. Please check your connection and try again.',
         code: 'NETWORK_ERROR'
-      }
+      },
+      success: false
     };
   }
 }

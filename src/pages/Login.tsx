@@ -9,50 +9,31 @@ import { logger } from '../lib/logger';
 
 export function Login() {
   const navigate = useNavigate();
-  const { refreshUser, connectionStatus } = useAuth();
+  const { user, loading, connectionStatus } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [error, setError] = useState<string | null | React.ReactNode>(null);
   const [resetSent, setResetSent] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
 
+  // Redirect if user is already authenticated
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error checking session:', error);
-          return;
-        }
-        
-        if (session?.user) {
-          // Check if user has completed onboarding
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('onboarding_complete')
-            .eq('id', session.user.id)
-            .single();
-            
-          if (profileError) {
-            console.error('Error fetching profile:', profileError);
-            return;
-          }
-            
-          if (profile?.onboarding_complete) {
-            navigate('/app');
-          } else {
-            navigate('/app/onboarding');
-          }
-        }
-      } catch (err) {
-        console.error('Session check error:', err);
+    if (!loading && user) {
+      logger.info('🔄 User already authenticated, redirecting');
+      
+      const redirectUrl = localStorage.getItem('redirectUrl');
+      if (redirectUrl) {
+        localStorage.removeItem('redirectUrl');
+        navigate(redirectUrl);
+      } else if (!user.onboardingComplete) {
+        navigate('/app/onboarding');
+      } else {
+        navigate('/app');
       }
-    };
-    checkSession();
-  }, [navigate]);
+    }
+  }, [user, loading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,48 +52,30 @@ export function Login() {
       return;
     }
 
-    setLoading(true);
+    setIsLoggingIn(true);
 
     try {
       // Check connection status first
       if (connectionStatus === 'disconnected') {
         setError('You appear to be offline. Please check your internet connection and try again.');
-        setLoading(false);
+        setIsLoggingIn(false);
         return;
       }
       
-      // Log the login attempt for debugging
-      logger.info('Attempting login with email', { 
-        email,
-        emailLength: email.length,
-        passwordLength: password.length
-      });
+      logger.info('🔐 Starting login process for:', email);
       
       const result = await login({ email, password });
       
       if (result.success) {
-        logger.info('Login successful, refreshing user data');
-        await refreshUser();
-        
-        // Check for redirect URL
-        const redirectUrl = localStorage.getItem('redirectUrl');
-        
-        if (redirectUrl) {
-          localStorage.removeItem('redirectUrl');
-          navigate(redirectUrl);
-        } else if (result.requiresOnboarding) {
-          // Explicitly redirect to onboarding if required
-          navigate('/app/onboarding');
-        } else {
-          // Otherwise go to main app
-          navigate('/app');
-        }
+        logger.info('✅ Login successful - auth state change will handle redirect');
+        // The AuthProvider's auth state change handler will manage the redirect
+        // No need to manually navigate here as it will cause race conditions
       } else if (result.emailConfirmationRequired) {
-        logger.info('Email confirmation required');
+        logger.info('📧 Email confirmation required');
         setShowEmailConfirmation(true);
         localStorage.setItem('confirmEmail', email);
       } else if (result.emailNotFound) {
-        logger.warn('Email not found during login attempt');
+        logger.warn('📧 Email not found during login attempt');
         setError(
           <div className="text-sm">
             No account found with this email.{' '}
@@ -123,11 +86,11 @@ export function Login() {
           </div>
         );
       } else if (result.error) {
-        logger.error('Login error from result:', result.error);
-        setError(result.error);
+        logger.error('❌ Login error:', result.error);
+        setError(result.error.message);
       }
     } catch (err) {
-      logger.error('Login error:', err);
+      logger.error('❌ Critical login error:', err);
       
       if (err instanceof Error) {
         if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
@@ -141,12 +104,12 @@ export function Login() {
         setError('An unexpected error occurred. Please try again.');
       }
     } finally {
-      setLoading(false);
+      setIsLoggingIn(false);
     }
   };
 
   const handleResendConfirmation = async () => {
-    setLoading(true);
+    setIsLoggingIn(true);
     setError(null);
 
     try {
@@ -172,7 +135,7 @@ export function Login() {
       console.error('Error resending confirmation:', err);
       setError('Failed to resend confirmation email. Please try again.');
     } finally {
-      setLoading(false);
+      setIsLoggingIn(false);
     }
   };
 
@@ -184,7 +147,7 @@ export function Login() {
       return;
     }
 
-    setLoading(true);
+    setIsLoggingIn(true);
     setError(null);
 
     try {
@@ -207,7 +170,7 @@ export function Login() {
       console.error('Password reset error:', err);
       setError('If an account exists with this email, you will receive password reset instructions.');
     } finally {
-      setLoading(false);
+      setIsLoggingIn(false);
     }
   };
 
@@ -231,10 +194,10 @@ export function Login() {
           <div className="space-y-4">
             <button
               onClick={handleResendConfirmation}
-              disabled={loading}
+              disabled={isLoggingIn}
               className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              {loading ? (
+              {isLoggingIn ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
                   Resending...
@@ -380,10 +343,10 @@ export function Login() {
 
           <button
             type="submit"
-            disabled={loading || connectionStatus === 'disconnected'}
+            disabled={isLoggingIn || connectionStatus === 'disconnected'}
             className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
-            {loading ? (
+            {isLoggingIn ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
                 Signing in...
