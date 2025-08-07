@@ -190,20 +190,14 @@ export function Onboarding() {
   };
 
   const validateBasicInfo = () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.birthday) {
-      setError('All fields are required');
+    if (!formData.birthday) {
+      setError('Birthday is required');
       return false;
     }
 
     const age = calculateAge(formData.birthday);
     if (age < 12) {
       setError('You must be at least 12 years old to use this app');
-      return false;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
       return false;
     }
 
@@ -246,38 +240,34 @@ export function Onboarding() {
   const renderBasicsStep = () => (
     <OnboardingStep
       title="Nice to meet you! 👋"
-      description="First, tell us a bit about yourself"
+      description="Tell us a bit more about yourself"
       icon={User}
       step={currentStepIndex}
       totalSteps={totalSteps}
       error={error}
     >
       <div className="space-y-6">
-        <AnimatedInput
-          label="First Name"
-          icon={User}
-          placeholder="Your first name"
-          value={formData.firstName}
-          onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-          required
-        />
-        <AnimatedInput
-          label="Last Name"
-          icon={User}
-          placeholder="Your last name"
-          value={formData.lastName}
-          onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-          required
-        />
-        <AnimatedInput
-          label="Email"
-          icon={Mail}
-          type="email"
-          placeholder="your@email.com"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          required
-        />
+        {/* Display user info as read-only */}
+        <div className="space-y-4">
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <User className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Your Name</span>
+            </div>
+            <p className="text-gray-900 font-medium">
+              {formData.firstName} {formData.lastName}
+            </p>
+          </div>
+          
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Mail className="h-4 w-4 text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Your Email</span>
+            </div>
+            <p className="text-gray-900 font-medium">{formData.email}</p>
+          </div>
+        </div>
+
         <div>
           <AnimatedInput
             label="When's your birthday?"
@@ -292,6 +282,7 @@ export function Onboarding() {
             You must be at least 12 years old to use Dislink
           </p>
         </div>
+        
         <div className="flex space-x-3">
           <AnimatedButton
             variant="secondary"
