@@ -2,6 +2,7 @@ import { logger } from './logger';
 import type { Need, NeedReply } from '../types/need';
 import { ANTONIO_TUBITO } from './contacts';
 import { formatDistanceToNow } from 'date-fns';
+import { supabase } from './supabase';
 
 // Mock data for needs
 const MOCK_NEEDS: Need[] = [
@@ -128,13 +129,49 @@ const MOCK_REPLIES: Record<string, NeedReply[]> = {
  */
 export async function listNeeds(): Promise<Need[]> {
   try {
-    // In a real implementation, this would fetch needs from the database
-    // Filter out expired and satisfied needs
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      return []; // Return empty array for non-authenticated users
+    }
+
+    // Fetch needs from database
+    const { data, error } = await supabase
+      .from('daily_needs')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      logger.error('Error listing needs:', error);
+      return [];
+    }
+
+    // Transform database data to Need type
+    const needs: Need[] = (data || []).map(need => ({
+      id: need.id,
+      userId: need.user_id,
+      title: need.title,
+      description: need.description,
+      category: need.category as Need['category'],
+      priority: need.priority as Need['priority'],
+      isSatisfied: need.is_satisfied,
+      satisfiedAt: need.satisfied_at ? new Date(need.satisfied_at) : undefined,
+      expiresAt: need.expires_at ? new Date(need.expires_at) : undefined,
+      tags: need.tags || [],
+      metadata: need.metadata || {},
+      createdAt: new Date(need.created_at)
+    }));
+
+    // Filter out expired needs
     const now = new Date();
-    return MOCK_NEEDS.filter(need => {
-      // Keep needs that are not satisfied and not expired
-      return !need.isSatisfied && (!need.expiresAt || new Date(need.expiresAt) > now);
-    });
+    const activeNeeds = needs.filter(need => 
+      !need.isSatisfied && (!need.expiresAt || need.expiresAt > now)
+    );
+
+    logger.info(`Fetched ${activeNeeds.length} active needs from database`);
+    return activeNeeds;
   } catch (error) {
     logger.error('Error listing needs:', error);
     return [];
@@ -146,33 +183,58 @@ export async function listNeeds(): Promise<Need[]> {
  */
 export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'createdAt'>): Promise<Need> {
   try {
-    // In a real implementation, this would create a need in the database
-    
-    // Set default expiration if not provided (24 hours)
-    if (!needData.expiresAt) {
-      const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 24);
-      needData.expiresAt = expiresAt;
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
     }
-    
-    // Set default isSatisfied if not provided
-    if (needData.isSatisfied === undefined) {
-      needData.isSatisfied = false;
+
+    logger.info('Creating new need', { 
+      title: needData.title,
+      category: needData.category,
+      priority: needData.priority 
+    });
+
+    // Insert need into database
+    const { data, error } = await supabase
+      .from('daily_needs')
+      .insert({
+        user_id: session.user.id,
+        title: needData.title,
+        description: needData.description,
+        category: needData.category,
+        priority: needData.priority || 'medium',
+        is_satisfied: needData.isSatisfied || false,
+        satisfied_at: needData.satisfiedAt?.toISOString(),
+        expires_at: needData.expiresAt?.toISOString(),
+        tags: needData.tags || [],
+        metadata: needData.metadata || {}
+      })
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Error creating need:', error);
+      throw error;
     }
-    
-    // For now, create a mock need
+
+    // Transform to Need type
     const newNeed: Need = {
-      id: `need-${Date.now()}`,
-      userId: ANTONIO_TUBITO.id,
-      userName: ANTONIO_TUBITO.name,
-      userImage: ANTONIO_TUBITO.profileImage,
-      ...needData,
-      createdAt: new Date()
+      id: data.id,
+      userId: data.user_id,
+      title: data.title,
+      description: data.description,
+      category: data.category as Need['category'],
+      priority: data.priority as Need['priority'],
+      isSatisfied: data.is_satisfied,
+      satisfiedAt: data.satisfied_at ? new Date(data.satisfied_at) : undefined,
+      expiresAt: data.expires_at ? new Date(data.expires_at) : undefined,
+      tags: data.tags || [],
+      metadata: data.metadata || {},
+      createdAt: new Date(data.created_at)
     };
 
-    // Add to mock data
-    MOCK_NEEDS.unshift(newNeed);
-
+    logger.info('Need created successfully', { id: newNeed.id });
     return newNeed;
   } catch (error) {
     logger.error('Error creating need:', error);

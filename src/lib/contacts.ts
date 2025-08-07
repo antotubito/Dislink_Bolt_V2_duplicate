@@ -325,11 +325,80 @@ const ANTONIO_TUBITO: User = {
 
 export async function listContacts(): Promise<Contact[]> {
   try {
-    // For development, return test data
-    return TEST_CONTACTS;
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    // Fetch contacts from database
+    const { data, error } = await supabase
+      .from('contacts')
+      .select(`
+        id,
+        name,
+        email,
+        phone,
+        company,
+        job_title,
+        profile_image,
+        cover_image,
+        bio,
+        interests,
+        social_links,
+        meeting_context,
+        meeting_date,
+        meeting_location,
+        tags,
+        tier,
+        badges,
+        shared_links,
+        notes_count,
+        follow_ups_count,
+        created_at,
+        updated_at
+      `)
+      .eq('user_id', session.user.id)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      logger.error('Error fetching contacts:', error);
+      throw error;
+    }
+
+    // Transform database data to Contact type
+    const contacts: Contact[] = (data || []).map(contact => ({
+      id: contact.id,
+      userId: session.user.id,
+      name: contact.name,
+      email: contact.email,
+      phone: contact.phone,
+      jobTitle: contact.job_title,
+      company: contact.company,
+      profileImage: contact.profile_image,
+      coverImage: contact.cover_image,
+      bio: contact.bio || {},
+      interests: contact.interests || [],
+      socialLinks: contact.social_links || {},
+      meetingDate: contact.meeting_date ? new Date(contact.meeting_date) : undefined,
+      meetingLocation: contact.meeting_location,
+      meetingContext: contact.meeting_context,
+      tags: contact.tags || [],
+      tier: contact.tier || 3,
+      badges: contact.badges || [],
+      sharedLinks: contact.shared_links || {},
+      notes: [], // Notes will be loaded separately when needed
+      followUps: [], // Follow-ups will be loaded separately when needed
+      createdAt: new Date(contact.created_at),
+      updatedAt: new Date(contact.updated_at)
+    }));
+
+    logger.info(`Fetched ${contacts.length} contacts from database`);
+    return contacts;
   } catch (error) {
     logger.error('Error listing contacts:', error);
-    throw error;
+    // Fallback to empty array instead of test data
+    return [];
   }
 }
 
@@ -352,11 +421,72 @@ export async function listRecentContacts(limit: number = 3): Promise<Contact[]> 
 
 export async function listConnectionRequests(): Promise<Contact[]> {
   try {
-    // For development, return test data
-    return TEST_REQUESTS;
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    // Fetch connection requests from database
+    const { data, error } = await supabase
+      .from('connection_requests')
+      .select(`
+        id,
+        status,
+        created_at,
+        requester_id,
+        profiles!connection_requests_requester_id_fkey (
+          id,
+          first_name,
+          last_name,
+          email,
+          company,
+          job_title,
+          profile_image,
+          bio,
+          interests,
+          social_links
+        )
+      `)
+      .eq('user_id', session.user.id)
+      .eq('status', 'pending')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      logger.error('Error fetching connection requests:', error);
+      throw error;
+    }
+
+    // Transform to Contact type (for display purposes)
+    const requests: Contact[] = (data || []).map(request => {
+      const profile = request.profiles;
+      return {
+        id: request.id,
+        userId: request.requester_id,
+        name: `${profile.first_name} ${profile.last_name}`,
+        email: profile.email,
+        jobTitle: profile.job_title,
+        company: profile.company,
+        profileImage: profile.profile_image,
+        bio: profile.bio || {},
+        interests: profile.interests || [],
+        socialLinks: profile.social_links || {},
+        tags: [],
+        tier: 3,
+        notes: [],
+        followUps: [],
+        createdAt: new Date(request.created_at),
+        updatedAt: new Date(request.created_at),
+        // Mark as request
+        requestDate: new Date(request.created_at)
+      } as Contact;
+    });
+
+    logger.info(`Fetched ${requests.length} connection requests from database`);
+    return requests;
   } catch (error) {
     logger.error('Error listing connection requests:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 }
 
@@ -379,17 +509,77 @@ export async function getContact(id: string): Promise<Contact> {
 
 export async function createContact(contactData: Omit<Contact, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'notes' | 'followUps'>): Promise<Contact> {
   try {
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    logger.info('Creating new contact', { 
+      name: contactData.name,
+      email: contactData.email,
+      company: contactData.company 
+    });
+
+    // Insert contact into database
+    const { data, error } = await supabase
+      .from('contacts')
+      .insert({
+        user_id: session.user.id,
+        name: contactData.name,
+        email: contactData.email,
+        phone: contactData.phone,
+        company: contactData.company,
+        job_title: contactData.jobTitle,
+        profile_image: contactData.profileImage,
+        cover_image: contactData.coverImage,
+        bio: contactData.bio || {},
+        interests: contactData.interests || [],
+        social_links: contactData.socialLinks || {},
+        meeting_context: contactData.meetingContext,
+        meeting_date: contactData.meetingDate?.toISOString(),
+        meeting_location: contactData.meetingLocation,
+        tags: contactData.tags || [],
+        tier: contactData.tier || 3,
+        badges: contactData.badges || [],
+        shared_links: contactData.sharedLinks || {}
+      })
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Error creating contact:', error);
+      throw error;
+    }
+
+    // Transform to Contact type
     const newContact: Contact = {
-      id: `contact-${Date.now()}`,
-      userId: 'test-user-id',
+      id: data.id,
+      userId: session.user.id,
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      jobTitle: data.job_title,
+      company: data.company,
+      profileImage: data.profile_image,
+      coverImage: data.cover_image,
+      bio: data.bio || {},
+      interests: data.interests || [],
+      socialLinks: data.social_links || {},
+      meetingDate: data.meeting_date ? new Date(data.meeting_date) : undefined,
+      meetingLocation: data.meeting_location,
+      meetingContext: data.meeting_context,
+      tags: data.tags || [],
+      tier: data.tier || 3,
+      badges: data.badges || [],
+      sharedLinks: data.shared_links || {},
       notes: [],
       followUps: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      ...contactData
+      createdAt: new Date(data.created_at),
+      updatedAt: new Date(data.updated_at)
     };
 
-    TEST_CONTACTS.unshift(newContact);
+    logger.info('Contact created successfully', { id: newContact.id });
     return newContact;
   } catch (error) {
     logger.error('Error creating contact:', error);
@@ -449,18 +639,37 @@ export async function updateContactSharing(contactId: string, sharedLinks: Recor
 
 export async function addNote(contactId: string, content: string): Promise<Note> {
   try {
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    logger.info('Adding note to contact', { contactId, contentLength: content.length });
+
+    // Insert note into database
+    const { data, error } = await supabase
+      .from('contact_notes')
+      .insert({
+        contact_id: contactId,
+        user_id: session.user.id,
+        content: content
+      })
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Error adding note:', error);
+      throw error;
+    }
+
     const newNote: Note = {
-      id: `note-${Date.now()}`,
-      content,
-      createdAt: new Date(),
+      id: data.id,
+      content: data.content,
+      createdAt: new Date(data.created_at)
     };
 
-    const contact = TEST_CONTACTS.find(c => c.id === contactId);
-    if (!contact) throw new Error('Contact not found');
-
-    contact.notes.unshift(newNote);
-    contact.updatedAt = new Date();
-
+    logger.info('Note added successfully', { noteId: newNote.id });
     return newNote;
   } catch (error) {
     logger.error('Error adding note:', error);
@@ -486,20 +695,47 @@ export async function deleteNote(contactId: string, noteId: string): Promise<voi
 
 export async function addFollowUp(contactId: string, data: { dueDate: Date; description: string }): Promise<FollowUp> {
   try {
-    const newFollowUp: FollowUp = {
-      id: `followup-${Date.now()}`,
-      description: data.description,
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    logger.info('Adding follow-up to contact', { 
+      contactId, 
       dueDate: data.dueDate,
-      completed: false,
-      createdAt: new Date(),
+      description: data.description.substring(0, 50) + '...' 
+    });
+
+    // Insert follow-up into database
+    const { data: followUpData, error } = await supabase
+      .from('follow_ups')
+      .insert({
+        contact_id: contactId,
+        user_id: session.user.id,
+        title: data.description,
+        description: data.description,
+        due_date: data.dueDate.toISOString(),
+        completed: false
+      })
+      .select()
+      .single();
+
+    if (error) {
+      logger.error('Error adding follow-up:', error);
+      throw error;
+    }
+
+    const newFollowUp: FollowUp = {
+      id: followUpData.id,
+      description: followUpData.description,
+      dueDate: new Date(followUpData.due_date),
+      completed: followUpData.completed,
+      completedAt: followUpData.completed_at ? new Date(followUpData.completed_at) : undefined,
+      createdAt: new Date(followUpData.created_at)
     };
 
-    const contact = TEST_CONTACTS.find(c => c.id === contactId);
-    if (!contact) throw new Error('Contact not found');
-
-    contact.followUps.push(newFollowUp);
-    contact.updatedAt = new Date();
-
+    logger.info('Follow-up added successfully', { followUpId: newFollowUp.id });
     return newFollowUp;
   } catch (error) {
     logger.error('Error adding follow-up:', error);
@@ -627,7 +863,7 @@ export async function validateQRCode(data: string): Promise<User | null> {
 
     // For testing, return Dislink Team profile when scanning test QR code
     if (qrData.i === 'test-qr-code') {
-      return DISLINK_TEAM;
+      return ANTONIO_TUBITO; // Use ANTONIO_TUBITO for testing
     }
 
     // In a real implementation, this would validate the QR code format
@@ -667,6 +903,12 @@ export async function validateQRCode(data: string): Promise<User | null> {
 
 export async function createConnectionRequest(user: User | any): Promise<void> {
   try {
+    // Get current user
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
+    }
+
     // Generate a unique request ID using timestamp
     const timestamp = Date.now();
     const requestId = `request-${timestamp}`;
@@ -690,7 +932,7 @@ export async function createConnectionRequest(user: User | any): Promise<void> {
     
     const newRequest = {
       id: requestId,
-      userId: 'test-user-id',
+      userId: session.user.id,
       name: user.name,
       email: user.email,
       firstName: user.firstName,
@@ -711,6 +953,21 @@ export async function createConnectionRequest(user: User | any): Promise<void> {
       createdAt: now,
       updatedAt: now
     };
+
+    // Insert into database
+    const { error: insertError } = await supabase
+      .from('connection_requests')
+      .insert({
+        user_id: session.user.id,
+        requester_id: user.id,
+        status: 'pending',
+        created_at: now.toISOString()
+      });
+
+    if (insertError) {
+      logger.error('Error creating connection request in database:', insertError);
+      throw insertError;
+    }
 
     // Add to the beginning of requests array (newest first)
     TEST_REQUESTS.unshift(newRequest);
