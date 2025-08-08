@@ -113,6 +113,9 @@ const retryConnection = async (maxRetries = 3, delay = 1000): Promise<boolean> =
   return false;
 };
 
+// Export retryConnection function
+export { retryConnection };
+
 // Safe session getter that waits for Supabase to be ready
 export const getSafeSession = async (): Promise<{ data: { session: any }, error: any }> => {
   // Wait for Supabase to be ready before checking session
