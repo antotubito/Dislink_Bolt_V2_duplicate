@@ -334,22 +334,22 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-cosmic-dawn bg-cosmic-waves py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-8">
-        <div className="mx-auto w-20 h-20 bg-cosmic-constellation rounded-full flex items-center justify-center mb-6 animate-cosmic-glow shadow-cosmic-lg">
-          <Sparkles className="h-10 w-10 text-white animate-twinkle" />
+        <div className="mx-auto w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
+          <Sparkles className="h-10 w-10 text-indigo-600" />
         </div>
-        <h1 className="text-3xl font-bold text-cosmic-glow">Welcome back! ✨</h1>
-        <p className="mt-2 text-xl text-gray-600">Great to see you among the stars again</p>
+        <h1 className="text-3xl font-bold text-gray-900">Welcome back! 👋</h1>
+        <p className="mt-2 text-xl text-gray-600">Great to see you again</p>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-cosmic-lg border border-cosmic-100"
+        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl"
       >
         {connectionStatus === 'disconnected' && (
-          <div className="mb-4 rounded-lg bg-red-50 p-4 border border-red-200">
+          <div className="mb-4 rounded-md bg-red-50 p-4">
             <div className="flex">
               <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
               <div className="text-sm text-red-700">
@@ -360,16 +360,16 @@ export function Login() {
         )}
 
         {!loading && user && (
-          <div className="mb-4 rounded-lg bg-cosmic-50 p-4 border border-cosmic-200">
+          <div className="mb-4 rounded-md bg-blue-50 p-4">
             <div className="flex items-start">
-              <CheckCircle className="h-5 w-5 text-cosmic-500 mr-2 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
               <div className="flex-1">
-                <div className="text-sm text-cosmic-700">
+                <div className="text-sm text-blue-700">
                   <p className="font-medium">You're already signed in as {user.firstName} {user.lastName}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <button
                       onClick={() => navigate(user.onboardingComplete ? '/app' : '/app/onboarding')}
-                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-cosmic-dusk text-white hover:bg-cosmic-600 transition-all duration-200 shadow-cosmic"
+                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
                     >
                       <ArrowRight className="h-3 w-3 mr-1" />
                       {user.onboardingComplete ? 'Go to App' : 'Complete Onboarding'}
@@ -379,7 +379,7 @@ export function Login() {
                         await supabase.auth.signOut();
                         window.location.reload(); // Refresh to clear state
                       }}
-                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200"
+                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200"
                     >
                       Sign Out
                     </button>
@@ -392,7 +392,7 @@ export function Login() {
         
         <form onSubmit={handleLogin} className="space-y-6">
           {error && (
-            <div className="rounded-lg bg-red-50 p-4 border border-red-200">
+            <div className="rounded-md bg-red-50 p-4">
               <div className="flex">
                 <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
                 <div className="text-sm text-red-700">{error}</div>
@@ -405,13 +405,13 @@ export function Login() {
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="email"
                 id="email"
                 required
                 disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-cosmic focus:border-cosmic-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 transition-all duration-200"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -427,13 +427,13 @@ export function Login() {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="password"
                 id="password"
                 required
                 disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-cosmic focus:border-cosmic-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 transition-all duration-200"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -447,7 +447,7 @@ export function Login() {
                 type="button"
                 disabled={!loading && !!user}
                 onClick={handleForgotPassword}
-                className="font-medium text-cosmic-600 hover:text-cosmic-500 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors duration-200"
+                className="font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400 disabled:cursor-not-allowed"
               >
                 Forgot your password?
               </button>
@@ -457,7 +457,7 @@ export function Login() {
           <button
             type="submit"
             disabled={isLoggingIn || connectionStatus === 'disconnected' || (!loading && !!user)}
-            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-cosmic text-base font-medium text-white bg-cosmic-dusk hover:bg-cosmic-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cosmic disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 animate-cosmic-glow"
+            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {!loading && user ? (
               'Already Signed In'
@@ -477,7 +477,7 @@ export function Login() {
             Don't have an account yet?{' '}
             <Link
               to="/app/register"
-              className="font-medium text-cosmic-glow hover:text-cosmic-500 transition-colors duration-200"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Create one now
             </Link>
@@ -487,7 +487,7 @@ export function Login() {
         <div className="mt-6 text-center">
           <Link
             to="/waitlist"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-cosmic-600 transition-colors duration-200"
+            className="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Home

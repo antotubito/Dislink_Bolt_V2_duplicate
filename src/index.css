@@ -1,212 +1,113 @@
-/* Import Inter font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Cosmic Background Utilities */
-@layer utilities {
-  /* Cosmic Gradients */
-  .bg-cosmic-dawn {
-    background: linear-gradient(135deg, #F0F4FF 0%, #E0EAFF 50%, #C7D9FF 100%);
+/* Base Styles */
+@layer base {
+  /* ... (keep existing base styles) */
+
+  /* Improved Animation Settings */
+  .page-transition-enter {
+    opacity: 0;
   }
   
-  .bg-cosmic-dusk {
-    background: linear-gradient(135deg, #4F7CFF 0%, #3B5CDB 50%, #2A4BB7 100%);
+  .page-transition-enter-active {
+    opacity: 1;
+    transition: opacity 200ms ease-in-out;
   }
   
-  .bg-cosmic-night {
-    background: linear-gradient(135deg, #1E3A8A 0%, #172B5C 50%, #0D1117 100%);
+  .page-transition-exit {
+    opacity: 1;
   }
   
-  .bg-starlight-glow {
-    background: linear-gradient(135deg, #FFFDF7 0%, #FFF9E6 30%, #FFE194 70%, #FFB020 100%);
+  .page-transition-exit-active {
+    opacity: 0;
+    transition: opacity 200ms ease-in-out;
+  }
+
+  /* Prevent Content Jump */
+  .overflow-fix {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+    @apply antialiased;
+  }
+
+  /* Prevent Layout Shift */
+  body {
+    @apply min-h-screen overflow-x-hidden;
+  }
+
+  /* Force Hardware Acceleration */
+  .hw-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
   
-  .bg-nebula-dream {
-    background: linear-gradient(135deg, #FDF7FF 0%, #EDD8FF 30%, #CB94FF 70%, #B366FF 100%);
+  /* Mobile App Specific Styles */
+  .transparent-background {
+    background-color: transparent !important;
   }
   
-  .bg-aurora-shimmer {
-    background: linear-gradient(135deg, #F0FDFF 0%, #BFF0FF 30%, #4DD4FF 70%, #00BFFF 100%);
+  /* Safe area insets for mobile devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
   }
   
-  .bg-electric-pulse {
-    background: linear-gradient(135deg, #F0FFFF 0%, #B8FFFD 30%, #39FFF4 70%, #00FFE6 100%);
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
   
-  .bg-magenta-burst {
-    background: linear-gradient(135deg, #FFF0FF 0%, #FFB8FF 30%, #FF39FF 70%, #FF00FF 100%);
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
   }
   
-  /* Multi-color Cosmic Gradients */
-  .bg-cosmic-constellation {
-    background: linear-gradient(135deg, 
-      #4F7CFF 0%, 
-      #B366FF 25%, 
-      #FFB020 50%, 
-      #00BFFF 75%, 
-      #4F7CFF 100%
-    );
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
   }
   
-  .bg-galaxy-spiral {
-    background: radial-gradient(ellipse at center,
-      #B366FF 0%,
-      #4F7CFF 30%,
-      #2A4BB7 60%,
-      #0D1117 100%
-    );
+  /* Status bar styles for iOS */
+  .ios-status-bar-padding {
+    padding-top: 20px; /* Default status bar height */
+    padding-top: env(safe-area-inset-top); /* Use safe area if available */
   }
   
-  .bg-stellar-field {
-    background: radial-gradient(circle at 20% 20%, rgba(179, 102, 255, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 40%, rgba(79, 124, 255, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(255, 176, 32, 0.3) 0%, transparent 50%),
-                linear-gradient(135deg, #0D1117 0%, #172B5C 100%);
+  /* Bottom navigation padding for iOS */
+  .ios-bottom-padding {
+    padding-bottom: 34px; /* Default home indicator height */
+    padding-bottom: env(safe-area-inset-bottom); /* Use safe area if available */
   }
   
-  /* Animated Cosmic Backgrounds */
-  .bg-cosmic-waves {
-    background: linear-gradient(45deg, 
-      rgba(79, 124, 255, 0.1), 
-      rgba(179, 102, 255, 0.1), 
-      rgba(0, 191, 255, 0.1),
-      rgba(255, 176, 32, 0.1)
-    );
-    background-size: 400% 400%;
-    animation: cosmic-waves 12s ease-in-out infinite;
+  /* Highlight effect for waitlist form */
+  .highlight-form {
+    animation: highlight-pulse 2s ease-in-out;
   }
   
-  .bg-starfield {
-    background-image: 
-      radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.8), transparent),
-      radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.6), transparent),
-      radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.9), transparent),
-      radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.7), transparent),
-      radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.5), transparent);
-    background-size: 200px 100px;
-    background-repeat: repeat;
+  @keyframes highlight-pulse {
+    0% { 
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 0 10px rgba(99, 102, 241, 0.1);
+      transform: scale(1.02);
+    }
+    100% { 
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+      transform: scale(1);
+    }
   }
   
-  /* Cosmic Box Shadows */
-  .shadow-cosmic {
-    box-shadow: 0 10px 25px -5px rgba(79, 124, 255, 0.1), 0 10px 10px -5px rgba(79, 124, 255, 0.04);
-  }
-  
-  .shadow-cosmic-lg {
-    box-shadow: 0 25px 50px -12px rgba(79, 124, 255, 0.25), 0 0 0 1px rgba(79, 124, 255, 0.05);
-  }
-  
-  .shadow-starlight {
-    box-shadow: 0 10px 25px -5px rgba(255, 176, 32, 0.1), 0 10px 10px -5px rgba(255, 176, 32, 0.04);
-  }
-  
-  .shadow-nebula {
-    box-shadow: 0 10px 25px -5px rgba(179, 102, 255, 0.1), 0 10px 10px -5px rgba(179, 102, 255, 0.04);
-  }
-  
-  .shadow-electric {
-    box-shadow: 0 10px 25px -5px rgba(0, 255, 230, 0.1), 0 10px 10px -5px rgba(0, 255, 230, 0.04);
-  }
-  
-  /* Text Effects */
-  .text-cosmic-glow {
-    background: linear-gradient(135deg, #4F7CFF, #B366FF);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .text-starlight-glow {
-    background: linear-gradient(135deg, #FFB020, #E69500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  .text-electric-glow {
-    background: linear-gradient(135deg, #00FFE6, #00BFFF);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  
-  /* Cosmic Borders */
-  .border-cosmic-glow {
-    border: 1px solid transparent;
-    background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, #4F7CFF, #B366FF) border-box;
-  }
-  
-  .border-starlight-glow {
-    border: 1px solid transparent;
-    background: linear-gradient(white, white) padding-box,
-                linear-gradient(135deg, #FFB020, #E69500) border-box;
+  /* Radial gradient utility */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
   }
 }
 
-/* Cosmic Keyframes */
-@keyframes cosmic-waves {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Global Cosmic Styling */
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #FAFBFC; /* Cosmic white */
-}
-
-/* Custom scrollbar with cosmic theme */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #F4F6F8;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #4F7CFF, #B366FF);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #3B5CDB, #9333EA);
-}
-
-/* Enhanced focus states with cosmic glow */
-.focus\:ring-cosmic:focus {
-  --tw-ring-color: rgba(79, 124, 255, 0.3);
-  --tw-ring-shadow: 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-}
-
-.focus\:ring-starlight:focus {
-  --tw-ring-color: rgba(255, 176, 32, 0.3);
-  --tw-ring-shadow: 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-}
-
-.focus\:ring-electric:focus {
-  --tw-ring-color: rgba(0, 255, 230, 0.3);
-  --tw-ring-shadow: 0 0 0 calc(3px + var(--tw-ring-offset-width)) var(--tw-ring-color);
-  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
-}
-
-/* Highlighted form animation */
-.highlight-form {
-  animation: cosmic-glow 2s ease-in-out;
-}
+/* ... (keep rest of the file unchanged) */
