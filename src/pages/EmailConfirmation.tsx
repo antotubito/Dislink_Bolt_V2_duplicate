@@ -167,7 +167,7 @@ export function EmailConfirmation() {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirm`
+          emailRedirectTo: `${window.location.origin}/confirmed`
         }
       });
 

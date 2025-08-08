@@ -42,6 +42,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sessionChecked, setSessionChecked] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connecting');
 
+  // Helper function to transform profile to User object
+  const createUserFromProfile = (profile: any): User => {
+    return {
+      id: profile.id,
+      email: profile.email,
+      firstName: profile.first_name,
+      middleName: profile.middle_name,
+      lastName: profile.last_name,
+      name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
+      company: profile.company,
+      jobTitle: profile.job_title,
+      industry: profile.industry,
+      profileImage: profile.profile_image,
+      coverImage: profile.cover_image,
+      bio: profile.bio,
+      interests: profile.interests,
+      socialLinks: profile.social_links || {},
+      onboardingComplete: profile.onboarding_complete,
+      registrationComplete: profile.registration_complete,
+      registrationStatus: profile.registration_status,
+      registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
+      createdAt: new Date(profile.created_at),
+      updatedAt: new Date(profile.updated_at),
+      twoFactorEnabled: false,
+      publicProfile: profile.public_profile || {
+        enabled: true,
+        defaultSharedLinks: {},
+        allowedFields: {
+          email: false,
+          phone: false,
+          company: true,
+          jobTitle: true,
+          bio: true,
+          interests: true,
+          location: true
+        }
+      }
+    };
+  };
+
   // Define public paths that don't require authentication
   const publicPaths = [
     '/',
@@ -258,260 +298,225 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    let isMounted = true;
-
-    const initializeAuth = async () => {
-      // Check if current path is public
-      const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
-      
-      if (isPublicPath) {
-        // For public paths, skip auth check entirely and render immediately
-        logger.info('🎯 Public path detected in AuthProvider, skipping auth check');
-        if (isMounted) {
-          setLoading(false);
-          setSessionChecked(true);
-        }
-        return;
-      }
-      
-      // Only check auth for protected paths
-      logger.info('🎯 Protected path detected in AuthProvider, checking auth');
-      
-      try {
-        // Wait for Supabase to be ready before checking session
-        await waitForSupabaseReady();
-        
-        // Get current session safely
-        const { data: { session }, error: sessionError } = await getSafeSession();
-        
-        if (sessionError) {
-          logger.error('Session initialization error:', sessionError);
-          if (isMounted) {
-            setUser(null);
-            setLoading(false);
-            setSessionChecked(true);
-          }
-          return;
-        }
-
-        if (!session) {
-          logger.info('No session found during initialization');
-          if (isMounted) {
-            setUser(null);
-            setLoading(false);
-            setSessionChecked(true);
-          }
-          return;
-        }
-
-        // Session exists, get user profile
-        logger.info('Session found, fetching user profile');
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-
-        if (profileError) {
-          logger.error('Profile fetch error during initialization:', profileError);
-          if (isMounted) {
-            setUser(null);
-            setLoading(false);
-            setSessionChecked(true);
-          }
-          return;
-        }
-
-        if (profile && isMounted) {
-          const userData: User = {
-            id: profile.id,
-            email: profile.email,
-            firstName: profile.first_name,
-            middleName: profile.middle_name,
-            lastName: profile.last_name,
-            name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
-            company: profile.company,
-            jobTitle: profile.job_title,
-            industry: profile.industry,
-            profileImage: profile.profile_image,
-            coverImage: profile.cover_image,
-            bio: profile.bio,
-            interests: profile.interests,
-            socialLinks: profile.social_links || {},
-            onboardingComplete: profile.onboarding_complete,
-            registrationComplete: profile.registration_complete,
-            registrationStatus: profile.registration_status,
-            registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
-            createdAt: new Date(profile.created_at),
-            updatedAt: new Date(profile.updated_at),
-            twoFactorEnabled: false,
-            publicProfile: profile.public_profile || {
-              enabled: true,
-              defaultSharedLinks: {},
-              allowedFields: {
-                email: false,
-                phone: false,
-                company: true,
-                jobTitle: true,
-                bio: true,
-                interests: true,
-                location: true
-              }
-            }
-          };
-          
-          setUser(userData);
-          setError(null);
-          setConnectionStatus('connected');
-          
-          // Initialize user preferences
-          await initUserPreferences(profile.id);
-          
-          logger.info('✅ User initialized successfully');
-        }
-      } catch (error) {
-        logger.error('Critical error during auth initialization:', error);
-        if (isMounted) {
-          setUser(null);
-          setError('Failed to initialize authentication');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-          setSessionChecked(true);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    return () => {
-      isMounted = false;
-    };
+    // Skip auth check for public paths - let the auth state listener handle everything
+    const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
+    
+    if (isPublicPath) {
+      logger.info('🎯 Public path detected, auth state listener will handle session restoration');
+      setLoading(false);
+      setSessionChecked(true);
+    } else {
+      logger.info('🎯 Protected path detected, auth state listener will check session');
+      // Auth state listener will handle session initialization and loading state
+    }
   }, [location.pathname]);
 
-  // Subscribe to auth state changes
+  // Subscribe to auth state changes - Enhanced version for better session sync
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      logger.info('🔐 Auth state changed:', event, session ? 'Session exists' : 'No session');
-      
-      if (event === 'SIGNED_IN') {
-        // User just signed in - refresh user data and handle redirect
-        logger.info('🔐 User signed in, processing...');
-        
-        if (session?.user) {
-          try {
-            // Add a small delay to ensure everything is ready
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            // Get user profile
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', session.user.id)
-              .single();
+    let isMounted = true;
 
-            if (!profileError && profile) {
-              const userData: User = {
-                id: profile.id,
-                email: profile.email,
-                firstName: profile.first_name,
-                middleName: profile.middle_name,
-                lastName: profile.last_name,
-                name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
-                company: profile.company,
-                jobTitle: profile.job_title,
-                industry: profile.industry,
-                profileImage: profile.profile_image,
-                coverImage: profile.cover_image,
-                bio: profile.bio,
-                interests: profile.interests,
-                socialLinks: profile.social_links || {},
-                onboardingComplete: profile.onboarding_complete,
-                registrationComplete: profile.registration_complete,
-                registrationStatus: profile.registration_status,
-                registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
-                createdAt: new Date(profile.created_at),
-                updatedAt: new Date(profile.updated_at),
-                twoFactorEnabled: false,
-                publicProfile: profile.public_profile || {
-                  enabled: true,
-                  defaultSharedLinks: {},
-                  allowedFields: {
-                    email: false,
-                    phone: false,
-                    company: true,
-                    jobTitle: true,
-                    bio: true,
-                    interests: true,
-                    location: true
-                  }
+    // First, get the current session on app load
+    const initializeSession = async () => {
+      try {
+        logger.info('🔐 Initializing auth session on app load...');
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          logger.error('Session initialization error:', error);
+          if (isMounted) {
+            setUser(null);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (session?.user) {
+          logger.info('✅ Session found on app load, restoring user');
+          
+          // Get user profile for complete user data
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (!profileError && profile && isMounted) {
+            const userData: User = {
+              id: profile.id,
+              email: profile.email,
+              firstName: profile.first_name,
+              middleName: profile.middle_name,
+              lastName: profile.last_name,
+              name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
+              company: profile.company,
+              jobTitle: profile.job_title,
+              industry: profile.industry,
+              profileImage: profile.profile_image,
+              coverImage: profile.cover_image,
+              bio: profile.bio,
+              interests: profile.interests,
+              socialLinks: profile.social_links || {},
+              onboardingComplete: profile.onboarding_complete,
+              registrationComplete: profile.registration_complete,
+              registrationStatus: profile.registration_status,
+              registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
+              createdAt: new Date(profile.created_at),
+              updatedAt: new Date(profile.updated_at),
+              twoFactorEnabled: false,
+              publicProfile: profile.public_profile || {
+                enabled: true,
+                defaultSharedLinks: {},
+                allowedFields: {
+                  email: false,
+                  phone: false,
+                  company: true,
+                  jobTitle: true,
+                  bio: true,
+                  interests: true,
+                  location: true
                 }
-              };
-              
-              // Update user state immediately
-              setUser(userData);
-              setError(null);
-              setConnectionStatus('connected');
-              setLoading(false);
-              
-              // Initialize user preferences
-              await initUserPreferences(profile.id);
-              
-              logger.info('✅ User data refreshed after sign in');
-              
-              // Handle post-login redirect - only if on login page
-              if (location.pathname === '/app/login') {
-                logger.info('🔄 Handling redirect from login page');
-                
-                // Use requestAnimationFrame to ensure state updates are processed
-                requestAnimationFrame(() => {
-                  const redirectUrl = localStorage.getItem('redirectUrl');
-                  if (redirectUrl) {
-                    localStorage.removeItem('redirectUrl');
-                    logger.info('🔄 Redirecting to stored URL:', redirectUrl);
-                    navigate(redirectUrl);
-                  } else if (!profile.onboarding_complete) {
-                    logger.info('🔄 Redirecting to onboarding');
-                    navigate('/app/onboarding');
-                  } else {
-                    logger.info('🔄 Redirecting to app home');
-                    navigate('/app');
-                  }
-                });
-              } else {
-                logger.info('🔄 Not on login page, staying on current page:', location.pathname);
               }
-            } else {
-              logger.error('Failed to fetch profile after sign in:', profileError);
-              setError('Failed to load user profile');
-            }
-          } catch (error) {
-            logger.error('Error refreshing user after sign in:', error);
-            setError('Failed to complete sign in');
+            };
+            
+            setUser(userData);
+            setError(null);
+            setConnectionStatus('connected');
+            await initUserPreferences(profile.id);
+            
+            logger.info('✅ User session restored successfully');
           }
         } else {
-          logger.warn('SIGNED_IN event but no session user provided');
+          logger.info('No session found on app load');
+          if (isMounted) {
+            setUser(null);
+          }
         }
-      } else if (event === 'TOKEN_REFRESHED') {
-        // Token refreshed - just log it, don't redirect
-        logger.info('🔐 Token refreshed');
-      } else if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
-        logger.info('🔐 User signed out');
+        
+        if (isMounted) {
+          setLoading(false);
+        }
+      } catch (error) {
+        logger.error('Critical error during session initialization:', error);
+        if (isMounted) {
+          setUser(null);
+          setLoading(false);
+        }
+      }
+    };
+
+    // Initialize session on mount
+    initializeSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+      
+      logger.info('🔐 Auth state changed:', event, session ? 'Session exists' : 'No session');
+      
+      if (session?.user) {
+        // User signed in or session restored
+        logger.info('✅ User authenticated, updating state...');
+        
+        try {
+          // Get user profile for complete user data
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (!profileError && profile) {
+            const userData: User = {
+              id: profile.id,
+              email: profile.email,
+              firstName: profile.first_name,
+              middleName: profile.middle_name,
+              lastName: profile.last_name,
+              name: `${profile.first_name} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name}`.trim(),
+              company: profile.company,
+              jobTitle: profile.job_title,
+              industry: profile.industry,
+              profileImage: profile.profile_image,
+              coverImage: profile.cover_image,
+              bio: profile.bio,
+              interests: profile.interests,
+              socialLinks: profile.social_links || {},
+              onboardingComplete: profile.onboarding_complete,
+              registrationComplete: profile.registration_complete,
+              registrationStatus: profile.registration_status,
+              registrationCompletedAt: profile.registration_completed_at ? new Date(profile.registration_completed_at) : undefined,
+              createdAt: new Date(profile.created_at),
+              updatedAt: new Date(profile.updated_at),
+              twoFactorEnabled: false,
+              publicProfile: profile.public_profile || {
+                enabled: true,
+                defaultSharedLinks: {},
+                allowedFields: {
+                  email: false,
+                  phone: false,
+                  company: true,
+                  jobTitle: true,
+                  bio: true,
+                  interests: true,
+                  location: true
+                }
+              }
+            };
+            
+            setUser(userData);
+            setError(null);
+            setConnectionStatus('connected');
+            setLoading(false);
+            await initUserPreferences(profile.id);
+            
+            // Handle navigation for sign-in events
+            if (event === 'SIGNED_IN') {
+              // Only redirect if on login page
+              if (location.pathname === '/app/login') {
+                const redirectUrl = localStorage.getItem('redirectUrl');
+                if (redirectUrl) {
+                  localStorage.removeItem('redirectUrl');
+                  logger.info('🔄 Redirecting to stored URL:', redirectUrl);
+                  navigate(redirectUrl);
+                } else if (!profile.onboarding_complete) {
+                  logger.info('🔄 Redirecting to onboarding');
+                  navigate('/app/onboarding');
+                } else {
+                  logger.info('🔄 Redirecting to app home');
+                  navigate('/app');
+                }
+              }
+            }
+          } else {
+            logger.error('Failed to fetch profile after auth state change:', profileError);
+            setUser(null);
+            setError('Failed to load user profile');
+          }
+        } catch (error) {
+          logger.error('Error processing auth state change:', error);
+          setUser(null);
+          setError('Failed to process authentication');
+        }
+      } else {
+        // User signed out or no session
+        logger.info('🔐 User signed out, clearing state...');
         setUser(null);
         setError(null);
-        // Initialize user preferences with null user ID
+        setLoading(false);
         await initUserPreferences(null);
         
-        // Only redirect if not already on a public path
+        // Only redirect to login if not already on a public path
         const isPublicPath = publicPaths.some(path => location.pathname.startsWith(path));
-        if (!isPublicPath) {
+        if (!isPublicPath && event === 'SIGNED_OUT') {
+          logger.info('🔄 Redirecting to login after sign out');
           navigate('/app/login');
         }
       }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [location.pathname, navigate]);

@@ -126,6 +126,10 @@ export function Confirmed() {
     navigate('/app/onboarding');
   };
 
+  const handleStartJourney = () => {
+    navigate('/app/onboarding');
+  };
+
   const handleGoToHome = () => {
     navigate('/');
   };
@@ -169,10 +173,11 @@ export function Confirmed() {
           
           <div className="flex flex-col space-y-3">
             <button
-              onClick={handleContinue}
-              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              onClick={handleStartJourney}
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Start Your Journey
+              🚀 Start Journey
+              <ArrowRight className="ml-2 h-5 w-5" />
             </button>
             <button
               onClick={handleGoToHome}
@@ -223,7 +228,7 @@ export function Confirmed() {
           transition={{ delay: 0.4 }}
           className="text-gray-600 mb-8"
         >
-          Thank you for verifying your email address. Your account is now active. Let's get you set up with your personalized experience!
+          Thank you for verifying your email address. Your account is now active and ready! Next, we'll help you personalize your Dislink experience with a quick onboarding process.
         </motion.p>
         
         <motion.div
@@ -233,7 +238,7 @@ export function Confirmed() {
           className="flex flex-col space-y-3"
         >
           <button
-            onClick={handleContinue}
+            onClick={handleStartJourney}
             className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             🚀 Start Your Journey

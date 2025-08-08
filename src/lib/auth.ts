@@ -176,7 +176,7 @@ export async function register(userData: RegisterData): Promise<{ user: any; ses
           lastName: userData.lastName.trim(),
           full_name: `${userData.firstName.trim()} ${userData.lastName.trim()}`
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`
+        emailRedirectTo: `${window.location.origin}/confirmed`
       }
     });
 
@@ -257,7 +257,7 @@ export async function resetPassword(email: string): Promise<{ error: AuthError |
     }
 
     const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-      redirectTo: `${window.location.origin}/auth/reset-password`
+      redirectTo: `${window.location.origin}/app/reset-password`
     });
     
     if (error) {
@@ -293,7 +293,7 @@ export async function checkUserRegistration(email: string): Promise<{ exists: bo
       email: email.trim().toLowerCase(),
       password: 'temporary-check-password-' + Math.random(),
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`
+        emailRedirectTo: `${window.location.origin}/confirmed`
       }
     });
 
