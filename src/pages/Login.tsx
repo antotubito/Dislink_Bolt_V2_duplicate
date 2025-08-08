@@ -103,12 +103,33 @@ export function Login() {
       
       logger.info('🔐 Starting login process for:', email);
       
+      // Try the enhanced login function first
       const result = await login({ email, password });
       
-      if (result.success) {
-        logger.info('✅ Login successful - AuthProvider will handle redirect');
-        // AuthProvider will handle the redirect via onAuthStateChange
-        // Just set pending redirect as a fallback
+      if (result.success && result.session) {
+        logger.info('✅ Login successful with session - navigating immediately');
+        
+        // Direct navigation after successful login with session
+        const redirectUrl = localStorage.getItem('redirectUrl');
+        if (redirectUrl) {
+          localStorage.removeItem('redirectUrl');
+          logger.info('🔄 Redirecting to stored URL:', redirectUrl);
+          navigate(redirectUrl);
+        } else if (result.requiresOnboarding) {
+          logger.info('🔄 Redirecting to onboarding');
+          navigate('/app/onboarding');
+        } else {
+          logger.info('🔄 Redirecting to app home');
+          navigate('/app');
+        }
+        
+        // Clear any pending redirect since we've handled it
+        setPendingRedirect(false);
+        return;
+        
+      } else if (result.success) {
+        logger.info('✅ Login successful but no session yet - waiting for AuthProvider');
+        // Fallback: AuthProvider will handle the redirect via onAuthStateChange
         setPendingRedirect(true);
         
       } else if (result.emailConfirmationRequired) {
@@ -128,20 +149,68 @@ export function Login() {
         );
       } else if (result.error) {
         logger.error('❌ Login error:', result.error);
-        setError(result.error.message);
+        
+        // If the enhanced login failed, try direct Supabase approach as backup
+        logger.info('🔄 Trying direct Supabase sign-in as backup...');
+        
+        const { data, error: directError } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+
+        if (directError) {
+          logger.error('❌ Direct login also failed:', directError.message);
+          setError(result.error.message);
+        } else if (data.session) {
+          logger.info('✅ Direct login successful with session');
+          
+          // Direct navigation after successful direct login
+          const redirectUrl = localStorage.getItem('redirectUrl');
+          if (redirectUrl) {
+            localStorage.removeItem('redirectUrl');
+            navigate(redirectUrl);
+          } else {
+            navigate('/app');
+          }
+          return;
+        }
       }
     } catch (err) {
       logger.error('❌ Critical login error:', err);
       
-      if (err instanceof Error) {
-        if (err.message.includes('Failed to fetch') || err.message.includes('Network Error')) {
-          setError('Network error. Please check your internet connection and try again.');
-        } else if (err.message.includes('Invalid login credentials')) {
-          setError('Invalid email or password');
-        } else {
-          setError(err.message);
+      // Final fallback: try direct Supabase sign-in
+      try {
+        logger.info('🔄 Final fallback: direct Supabase sign-in...');
+        
+        const { data, error: directError } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+
+        if (directError) {
+          logger.error('❌ All login methods failed:', directError.message);
+          if (directError.message.includes('Failed to fetch') || directError.message.includes('Network Error')) {
+            setError('Network error. Please check your internet connection and try again.');
+          } else if (directError.message.includes('Invalid login credentials')) {
+            setError('Invalid email or password');
+          } else {
+            setError(directError.message);
+          }
+        } else if (data.session) {
+          logger.info('✅ Final fallback login successful with session');
+          
+          // Navigate after successful fallback login
+          const redirectUrl = localStorage.getItem('redirectUrl');
+          if (redirectUrl) {
+            localStorage.removeItem('redirectUrl');
+            navigate(redirectUrl);
+          } else {
+            navigate('/app');
+          }
+          return;
         }
-      } else {
+      } catch (fallbackErr) {
+        logger.error('❌ All login attempts failed:', fallbackErr);
         setError('An unexpected error occurred. Please try again.');
       }
     } finally {
@@ -210,6 +279,55 @@ export function Login() {
     } catch (err) {
       console.error('Password reset error:', err);
       setError('If an account exists with this email, you will receive password reset instructions.');
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleDirectSignIn = async () => {
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password for direct sign-in test');
+      return;
+    }
+
+    setIsLoggingIn(true);
+    setError(null);
+
+    try {
+      logger.info('🔐 Testing direct Supabase sign-in for:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+
+      if (error) {
+        logger.error('❌ Direct login error:', error.message);
+        setError(`Direct login failed: ${error.message}`);
+        return;
+      }
+
+      if (data.session) {
+        logger.info('✅ Direct login successful with session - navigating immediately');
+        
+        // Save session info for debugging
+        console.log('Session:', data.session);
+        console.log('User:', data.user);
+        
+        // Navigate immediately
+        const redirectUrl = localStorage.getItem('redirectUrl');
+        if (redirectUrl) {
+          localStorage.removeItem('redirectUrl');
+          navigate(redirectUrl);
+        } else {
+          navigate('/app');
+        }
+      } else {
+        setError('Direct login succeeded but no session received');
+      }
+    } catch (err) {
+      logger.error('❌ Direct login critical error:', err);
+      setError('Direct login failed with critical error');
     } finally {
       setIsLoggingIn(false);
     }
@@ -432,6 +550,25 @@ export function Login() {
               'Sign In'
             )}
           </button>
+
+          {/* Development Test Button */}
+          {process.env.NODE_ENV === 'development' && (
+            <button
+              type="button"
+              onClick={handleDirectSignIn}
+              disabled={isLoggingIn || connectionStatus === 'disconnected' || (!loading && !!user)}
+              className="w-full flex justify-center items-center px-6 py-3 border border-cosmic-secondary rounded-xl shadow-sm text-base font-medium text-cosmic-secondary bg-white hover:bg-cosmic-secondary/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cosmic-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoggingIn ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-cosmic-secondary mr-2" />
+                  Testing Direct Sign-In...
+                </div>
+              ) : (
+                '🧪 Test Direct Supabase Sign-In'
+              )}
+            </button>
+          )}
         </form>
 
         <div className="mt-6 text-center">
