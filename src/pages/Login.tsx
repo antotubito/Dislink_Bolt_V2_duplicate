@@ -46,57 +46,32 @@ export function Login() {
   // Handle pending redirect after successful login
   useEffect(() => {
     if (pendingRedirect && !isLoggingIn) {
-      const checkSessionAndRedirect = async () => {
-        try {
-          logger.info('🔄 Checking session for pending redirect...');
-          
-          // Wait a bit for auth state to propagate
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          const { data: { session }, error } = await getSafeSession();
-          
-          if (session && !error) {
-            logger.info('✅ Session confirmed, proceeding with redirect');
-            
-            // Get user profile to check onboarding status
-          const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('onboarding_complete')
-            .eq('id', session.user.id)
-            .single();
-            
-            const redirectUrl = localStorage.getItem('redirectUrl');
-            if (redirectUrl) {
-              localStorage.removeItem('redirectUrl');
-              logger.info('🔄 Redirecting to stored URL:', redirectUrl);
-              navigate(redirectUrl);
-            } else if (profileError || !profile?.onboarding_complete) {
-              logger.info('🔄 Redirecting to onboarding');
-              navigate('/app/onboarding');
-            } else {
-              logger.info('🔄 Redirecting to app home');
-              navigate('/app');
-            }
-            
-            setPendingRedirect(false);
+      // Simple timeout fallback - but let AuthProvider handle the primary redirect
+      const timeoutId = setTimeout(() => {
+        if (pendingRedirect) {
+          logger.info('🔄 Fallback redirect triggered after timeout');
+          const redirectUrl = localStorage.getItem('redirectUrl');
+          if (redirectUrl) {
+            localStorage.removeItem('redirectUrl');
+            navigate(redirectUrl);
           } else {
-            logger.warn('⚠️ No session found during pending redirect, will retry...');
-            // Retry after another delay
-            setTimeout(() => {
-              if (pendingRedirect) {
-                checkSessionAndRedirect();
+            navigate('/app');
           }
-            }, 2000);
-        }
-        } catch (error) {
-          logger.error('❌ Error during pending redirect:', error);
           setPendingRedirect(false);
-      }
-    };
+        }
+      }, 3000); // 3 second fallback
       
-      checkSessionAndRedirect();
+      return () => clearTimeout(timeoutId);
     }
   }, [pendingRedirect, isLoggingIn, navigate]);
+
+  // Clear pending redirect when user is authenticated
+  useEffect(() => {
+    if (user && pendingRedirect) {
+      logger.info('✅ User authenticated, clearing pending redirect');
+      setPendingRedirect(false);
+    }
+  }, [user, pendingRedirect]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,25 +106,10 @@ export function Login() {
       const result = await login({ email, password });
       
       if (result.success) {
-        logger.info('✅ Login successful - setting up redirect');
-        
-        // Set pending redirect to handle the redirection
+        logger.info('✅ Login successful - AuthProvider will handle redirect');
+        // AuthProvider will handle the redirect via onAuthStateChange
+        // Just set pending redirect as a fallback
         setPendingRedirect(true);
-        
-        // Also set a fallback timeout to ensure redirect happens
-        setTimeout(() => {
-          if (pendingRedirect) {
-            logger.info('🔄 Fallback redirect triggered');
-            const redirectUrl = localStorage.getItem('redirectUrl');
-        if (redirectUrl) {
-          localStorage.removeItem('redirectUrl');
-          navigate(redirectUrl);
-        } else {
-          navigate('/app');
-        }
-            setPendingRedirect(false);
-          }
-        }, 5000); // 5 second fallback
         
       } else if (result.emailConfirmationRequired) {
         logger.info('📧 Email confirmation required');

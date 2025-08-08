@@ -402,7 +402,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           try {
             // Add a small delay to ensure everything is ready
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 300));
             
             // Get user profile
             const { data: profile, error: profileError } = await supabase
@@ -449,21 +449,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 }
               };
               
+              // Update user state immediately
               setUser(userData);
               setError(null);
               setConnectionStatus('connected');
+              setLoading(false);
               
               // Initialize user preferences
               await initUserPreferences(profile.id);
               
               logger.info('✅ User data refreshed after sign in');
               
-              // Handle post-login redirect with improved logic
-              logger.info('🔄 Current location:', location.pathname);
-              
-              // Small delay to ensure state updates are processed
-              setTimeout(() => {
-                if (location.pathname === '/app/login') {
+              // Handle post-login redirect - only if on login page
+              if (location.pathname === '/app/login') {
+                logger.info('🔄 Handling redirect from login page');
+                
+                // Use requestAnimationFrame to ensure state updates are processed
+                requestAnimationFrame(() => {
                   const redirectUrl = localStorage.getItem('redirectUrl');
                   if (redirectUrl) {
                     localStorage.removeItem('redirectUrl');
@@ -476,15 +478,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     logger.info('🔄 Redirecting to app home');
                     navigate('/app');
                   }
-                } else {
-                  logger.info('🔄 Not on login page, skipping redirect. Current path:', location.pathname);
-                }
-              }, 100);
+                });
+              } else {
+                logger.info('🔄 Not on login page, staying on current page:', location.pathname);
+              }
             } else {
               logger.error('Failed to fetch profile after sign in:', profileError);
+              setError('Failed to load user profile');
             }
           } catch (error) {
             logger.error('Error refreshing user after sign in:', error);
+            setError('Failed to complete sign in');
           }
         } else {
           logger.warn('SIGNED_IN event but no session user provided');

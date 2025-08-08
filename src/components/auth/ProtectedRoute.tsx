@@ -17,9 +17,24 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       try {
         logger.info('🔐 ProtectedRoute: Checking session for:', location.pathname);
         
-        // Wait for Supabase to be ready before checking session
-        await waitForSupabaseReady();
+        // If AuthProvider is still loading, wait for it
+        if (loading) {
+          logger.info('🔐 ProtectedRoute: AuthProvider still loading, waiting...');
+          return;
+        }
         
+        // If we have a user from AuthProvider, trust it
+        if (user) {
+          logger.info('🔐 ProtectedRoute: User found in AuthProvider');
+          if (isMounted) {
+            setHasValidSession(true);
+            setSessionChecking(false);
+          }
+          return;
+        }
+        
+        // Only do direct session check if AuthProvider doesn't have user
+        await waitForSupabaseReady();
         const { data: { session }, error } = await getSafeSession();
         
         if (error) {
@@ -49,10 +64,12 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      logger.info('🔐 ProtectedRoute: Auth state changed:', event);
       if (isMounted) {
+        logger.info('🔐 ProtectedRoute: Auth state changed:', event);
         setHasValidSession(!!session);
-        setSessionChecking(false);
+        if (event === 'SIGNED_OUT') {
+          setSessionChecking(false);
+        }
       }
     });
 
@@ -60,21 +77,21 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [location.pathname]);
+  }, [user, loading, location.pathname]);
 
   // Show loading while checking session or while AuthProvider is loading
   if (loading || sessionChecking) {
     return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-cosmic-neutral">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Verifying authentication...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cosmic-secondary mx-auto mb-4"></div>
+          <p className="text-cosmic-primary/70">Verifying authentication...</p>
         </div>
       </div>
     );
   }
 
-  // If no valid session, redirect to login with current path stored
+  // If no valid session and no user, redirect to login with current path stored
   if (!hasValidSession && !user) {
     logger.info('🔐 ProtectedRoute: No valid session, redirecting to login');
     
