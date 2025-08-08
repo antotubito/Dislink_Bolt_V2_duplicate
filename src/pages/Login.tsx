@@ -6,10 +6,12 @@ import { motion } from 'framer-motion';
 import { login } from '../lib/auth';
 import { supabase, getSafeSession } from '../lib/supabase';
 import { logger } from '../lib/logger';
+import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Login() {
   const navigate = useNavigate();
   const { user, loading, connectionStatus } = useAuth();
+  const { currentPalette } = useCosmicTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -334,19 +336,19 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-cosmic-neutral py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-8">
-        <div className="mx-auto w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
-          <Sparkles className="h-10 w-10 text-indigo-600" />
+        <div className="mx-auto w-20 h-20 bg-cosmic-secondary/10 rounded-full flex items-center justify-center mb-6 cosmic-glow">
+          <Sparkles className="h-10 w-10 text-cosmic-secondary" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Welcome back! 👋</h1>
-        <p className="mt-2 text-xl text-gray-600">Great to see you again</p>
+        <h1 className="text-3xl font-bold text-cosmic-primary">Welcome back! 👋</h1>
+        <p className="mt-2 text-xl text-cosmic-primary/70">Great to see you again</p>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl"
+        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl border border-cosmic-secondary/10"
       >
         {connectionStatus === 'disconnected' && (
           <div className="mb-4 rounded-md bg-red-50 p-4">
@@ -447,7 +449,7 @@ export function Login() {
                 type="button"
                 disabled={!loading && !!user}
                 onClick={handleForgotPassword}
-                className="font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400 disabled:cursor-not-allowed"
+                className="font-medium text-cosmic-secondary hover:text-cosmic-accent disabled:text-gray-400 disabled:cursor-not-allowed"
               >
                 Forgot your password?
               </button>
@@ -457,7 +459,7 @@ export function Login() {
           <button
             type="submit"
             disabled={isLoggingIn || connectionStatus === 'disconnected' || (!loading && !!user)}
-            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white cosmic-gradient hover:cosmic-glow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cosmic-secondary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {!loading && user ? (
               'Already Signed In'
@@ -473,11 +475,11 @@ export function Login() {
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-cosmic-primary/70">
             Don't have an account yet?{' '}
             <Link
               to="/app/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-cosmic-secondary hover:text-cosmic-accent"
             >
               Create one now
             </Link>
@@ -487,7 +489,7 @@ export function Login() {
         <div className="mt-6 text-center">
           <Link
             to="/waitlist"
-            className="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600"
+            className="inline-flex items-center text-sm text-cosmic-primary/60 hover:text-cosmic-secondary"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Home

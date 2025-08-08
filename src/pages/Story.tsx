@@ -3,8 +3,10 @@ import { ArrowLeft, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
+import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Story() {
+  const { currentPalette } = useCosmicTheme();
   const [likes, setLikes] = useState(0);
   const [hasLiked, setHasLiked] = useState(false);
   const [isLiking, setIsLiking] = useState(false);
@@ -60,16 +62,16 @@ export function Story() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-cosmic-neutral py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-xl shadow-lg">
+        <div className="bg-white rounded-xl shadow-lg border border-cosmic-secondary/10">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200">
+          <div className="px-6 py-4 border-b border-cosmic-secondary/20">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-gray-900">Our Story</h1>
+              <h1 className="text-2xl font-bold text-cosmic-primary">Our Story</h1>
               <Link
                 to="/"
-                className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
+                className="inline-flex items-center text-sm text-cosmic-primary/60 hover:text-cosmic-secondary"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Back to Home

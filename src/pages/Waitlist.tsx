@@ -6,7 +6,7 @@
  * 
  * NOT the authenticated app dashboard - that's Home.tsx
  */
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowRight, Mail, Link as LinkIcon, Check, 
@@ -18,11 +18,14 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { Footer } from '../components/Footer';
 import { WaitlistForm } from '../components/waitlist/WaitlistForm';
+import { useCosmicTheme } from '../lib/cosmicThemes';
+import { CosmicThemeSelectorCompact } from '../components/cosmic/CosmicThemeSelector';
 
 export function Waitlist() {
   console.log('🎯 Waitlist component rendering...');
   
   const navigate = useNavigate();
+  const { currentPalette } = useCosmicTheme();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [showTesterModal, setShowTesterModal] = useState(false);
   const [testerEmail, setTesterEmail] = useState('');
@@ -154,8 +157,8 @@ export function Waitlist() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50 flex flex-col">
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+    <div className="min-h-screen bg-gradient-to-br from-cosmic-neutral via-white to-cosmic-neutral flex flex-col">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-cosmic-neutral/80 backdrop-blur-md shadow-sm">
         <motion.nav 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -168,19 +171,22 @@ export function Waitlist() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
+              <div className="cosmic-gradient p-2 rounded-lg">
                 <LinkIcon className="h-6 w-6 text-white" />
               </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="ml-2 text-xl font-bold text-cosmic-primary">
                 Dislink
               </span>
             </motion.div>
             <div className="flex items-center space-x-4">
+              {/* Cosmic Theme Selector */}
+              <CosmicThemeSelectorCompact />
+              
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/story')}
-                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+                className="text-cosmic-primary hover:text-cosmic-secondary font-medium text-sm transition-colors"
               >
                 Our Story
               </motion.button>
@@ -188,7 +194,7 @@ export function Waitlist() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSignIn}
-                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+                className="text-cosmic-primary hover:text-cosmic-secondary font-medium text-sm transition-colors"
               >
                 Sign In
               </motion.button>
@@ -196,9 +202,9 @@ export function Waitlist() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRegister}
-                className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
+                className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white cosmic-gradient hover:cosmic-glow transition-all duration-200"
               >
-                Register
+                Get Started
               </motion.button>
             </div>
           </div>
@@ -221,7 +227,7 @@ export function Waitlist() {
               <div className="absolute inset-0">
                 {/* Primary gradient orbs */}
                 <motion.div
-                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/30 via-purple-400/20 to-transparent rounded-full"
+                  className="absolute top-1/4 left-1/4 w-96 h-96 cosmic-gradient-radial opacity-30 rounded-full"
                   animate={{
                     scale: [1, 1.1, 1],
                     rotate: [0, 180, 360],
@@ -233,7 +239,7 @@ export function Waitlist() {
                   }}
                 />
                 <motion.div
-                  className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-bl from-purple-400/25 via-indigo-400/15 to-transparent rounded-full"
+                  className="absolute top-1/3 right-1/4 w-80 h-80 cosmic-gradient-soft opacity-25 rounded-full"
                   animate={{
                     scale: [1.1, 1, 1.1],
                     rotate: [360, 180, 0],
@@ -247,7 +253,7 @@ export function Waitlist() {
                 
                 {/* Floating geometric shapes */}
                 <motion.div
-                  className="absolute top-1/6 right-1/3 w-4 h-4 bg-indigo-500/40 rounded-full"
+                  className="absolute top-1/6 right-1/3 w-4 h-4 bg-cosmic-secondary/40 rounded-full"
                   animate={{
                     y: [0, -20, 0],
                     x: [0, 15, 0],
@@ -260,7 +266,7 @@ export function Waitlist() {
                   }}
                 />
                 <motion.div
-                  className="absolute bottom-1/3 left-1/6 w-6 h-6 bg-purple-500/30 rotate-45"
+                  className="absolute bottom-1/3 left-1/6 w-6 h-6 bg-cosmic-accent/30 rotate-45"
                   animate={{
                     y: [0, 15, 0],
                     x: [0, -10, 0],
@@ -291,7 +297,7 @@ export function Waitlist() {
                 
                 {/* Additional floating elements for more movement */}
                 <motion.div
-                  className="absolute top-1/4 left-1/5 w-2 h-2 bg-purple-400/30 rounded-full"
+                  className="absolute top-1/4 left-1/5 w-2 h-2 bg-cosmic-pop/30 rounded-full"
                   animate={{
                     x: [0, -25, 0],
                     y: [0, 20, 0],
@@ -305,7 +311,7 @@ export function Waitlist() {
                   }}
                 />
                 <motion.div
-                  className="absolute bottom-1/4 right-1/5 w-5 h-5 bg-indigo-300/25 rotate-45"
+                  className="absolute bottom-1/4 right-1/5 w-5 h-5 bg-cosmic-secondary/25 rotate-45"
                   animate={{
                     x: [0, 12, 0],
                     y: [0, -18, 0],
@@ -320,7 +326,7 @@ export function Waitlist() {
                   }}
                 />
                 <motion.div
-                  className="absolute top-1/2 left-1/8 w-3 h-3 bg-purple-300/35 rounded-full"
+                  className="absolute top-1/2 left-1/8 w-3 h-3 bg-cosmic-accent/35 rounded-full"
                   animate={{
                     x: [0, 18, 0],
                     y: [0, -12, 0],
@@ -361,7 +367,7 @@ export function Waitlist() {
                 delay: 0.2
               }}
             >
-              <div className="p-5 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-200">
+              <div className="p-5 cosmic-gradient rounded-2xl shadow-lg cosmic-glow transform hover:scale-105 transition-transform duration-200">
                 <LinkIcon className="h-16 w-16 text-white" />
               </div>
             </motion.div>
@@ -374,13 +380,13 @@ export function Waitlist() {
                 transition={{ delay: 0.3 }}
               >
                 Your Network, <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-cosmic-secondary cosmic-text-glow">
                   Reimagined
                 </span>
               </motion.h1>
               
               <motion.p 
-                className="text-xl text-gray-600 max-w-2xl mx-auto mb-8"
+                className="text-xl text-cosmic-primary/80 max-w-2xl mx-auto mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
@@ -402,10 +408,10 @@ export function Waitlist() {
       </div>
 
       {/* How It Works Section */}
-      <div className="py-20 bg-white relative overflow-hidden">
+      <div className="py-20 bg-cosmic-neutral relative overflow-hidden">
         {/* Background decoration */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-100 rounded-full opacity-50 blur-3xl"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-100 rounded-full opacity-50 blur-3xl"></div>
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-cosmic-secondary/10 rounded-full opacity-50 blur-3xl"></div>
+        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-cosmic-accent/10 rounded-full opacity-50 blur-3xl"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -415,8 +421,8 @@ export function Waitlist() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">How It Works</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto px-4">
+              <h2 className="text-4xl font-bold text-cosmic-primary mb-4">How It Works</h2>
+              <p className="text-xl text-cosmic-primary/70 max-w-3xl mx-auto px-4">
                 Dislink makes relationship building simple, meaningful, and effective with these powerful features
               </p>
             </motion.div>
