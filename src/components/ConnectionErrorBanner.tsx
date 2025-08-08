@@ -1,7 +1,7 @@
 import React from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useAuth } from './auth/AuthProvider';
+import { useAuth } from '../hooks/useAuth';
 
 export function ConnectionErrorBanner() {
   const { error, connectionStatus, reconnectSupabase } = useAuth();

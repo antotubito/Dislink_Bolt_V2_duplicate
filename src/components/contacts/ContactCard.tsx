@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Filter, ChevronRight, MoreVertical, Clock, Building2, Mail, Calendar, MapPin, Tag, Check, X, MessageCircle, UserPlus, Users, Circle, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../auth/AuthProvider';
+import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import type { Contact } from '../../types/contact';
 import { LocationSelectionModal } from './LocationSelectionModal';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../components/auth/AuthProvider';
+import { useAuth } from '../hooks/useAuth';
 import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { login } from '../lib/auth';

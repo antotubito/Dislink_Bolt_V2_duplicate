@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CityAutocompleteDemo } from '../components/common/CityAutocompleteDemo';
 import { userPreferences } from '../lib/userPreferences';
 import { Location } from '../types/location';
-import { useAuth } from '../components/auth/AuthProvider';
+import { useAuth } from '../hooks/useAuth';
 import { CosmicThemeSelector, CosmicThemeSelectorCard } from '../components/cosmic/CosmicThemeSelector';
 import { useCosmicTheme } from '../lib/cosmicThemes';
 import { motion } from 'framer-motion';

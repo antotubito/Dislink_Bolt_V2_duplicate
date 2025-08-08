@@ -16,7 +16,7 @@ interface AuthContextType {
   connectionStatus: 'connected' | 'disconnected' | 'connecting';
 }
 
-const AuthContext = createContext<AuthContextType>({
+export const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   error: null,
@@ -26,10 +26,6 @@ const AuthContext = createContext<AuthContextType>({
   reconnectSupabase: async () => false,
   connectionStatus: 'connecting'
 });
-
-export function useAuth() {
-  return useContext(AuthContext);
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();

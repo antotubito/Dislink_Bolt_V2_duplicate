@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, ArrowLeft, Coffee, Music, Dumbbell, Utensils, Plane, Palette, BookOpen, Briefcase, Lightbulb, Globe, Lock, AlertTriangle, CheckCircle, X, MessageCircle } from 'lucide-react';
 import { ChatBubble } from './ChatBubble';
 import { ChatInput } from './ChatInput';
-import { useAuth } from '../auth/AuthProvider';
+import { useAuth } from '../../hooks/useAuth';
 import { getNeedReplies, sendNeedReply } from '../../lib/needs';
 import type { Need, NeedReply } from '../../types/need';
 import { formatDistanceToNow } from 'date-fns';

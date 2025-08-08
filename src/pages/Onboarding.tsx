@@ -11,7 +11,7 @@ import { AnimatedButton } from '../components/onboarding/AnimatedButton';
 import { SocialLinksStep } from '../components/onboarding/SocialLinksStep';
 import { LocationStep } from '../components/onboarding/LocationStep';
 import { updateProfile } from '../lib/profile';
-import { useAuth } from '../components/auth/AuthProvider';
+import { useAuth } from '../hooks/useAuth';
 import { FaceVerification } from '../components/verification/FaceVerification';
 import { supabase } from '../lib/supabase';
 import { JobTitleInput } from '../components/profile/JobTitleInput';

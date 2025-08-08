@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { Link as LinkIcon, LogOut, Users, Settings, Home, UserCircle2, Bell, QrCode, Menu, X, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from './auth/AuthProvider';
+import { useAuth } from '../hooks/useAuth';
 import { logout } from '../lib/auth';
 import { NotificationDropdown } from './notifications/NotificationDropdown';
 import { Footer } from './Footer';

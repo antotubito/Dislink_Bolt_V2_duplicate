@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../components/auth/AuthProvider';
+import { useAuth } from '../hooks/useAuth';
 import { ProfileView } from '../components/profile/ProfileView';
 import { ProfileEdit } from '../components/profile/ProfileEdit';
 import { ProfileActions } from '../components/profile/ProfileActions';

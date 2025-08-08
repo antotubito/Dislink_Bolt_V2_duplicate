@@ -4,7 +4,7 @@ import { MapPin, X, Loader2, AlertCircle, Globe, ChevronDown, Clock, Star } from
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Location } from '../../types/location';
 import { logger } from '../../lib/logger';
-import { useAuth } from '../auth/AuthProvider';
+import { useAuth } from '../../hooks/useAuth';
 import { searchCities, debouncedSearchCities, getPopularCities, getLocalizedCityName, getEnglishCityName } from '../../lib/nominatimService';
 
 interface CityAutocompleteProps {

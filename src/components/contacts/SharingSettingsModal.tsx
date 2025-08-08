@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Eye, EyeOff, Link as LinkIcon, Save, Check } from 'lucide-react';
 import { SOCIAL_CATEGORIES } from '../../config/social';
 import type { Contact } from '../../types/contact';
-import { useAuth } from '../auth/AuthProvider';
+import { useAuth } from '../../hooks/useAuth';
 
 interface SharingSettingsModalProps {
   isOpen: boolean;
