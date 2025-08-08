@@ -442,12 +442,12 @@ export function Onboarding() {
           transition={{ delay: 0.3 }}
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to Dislink! 🎉
-          </h2>
-          
+          Welcome to Dislink! 🎉
+        </h2>
+        
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
             Your profile is all set up and ready to go. You're now part of a community of amazing people building meaningful connections!
-          </p>
+        </p>
         </motion.div>
 
         {/* What's Next Section */}
@@ -541,13 +541,13 @@ export function Onboarding() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0 }}
           >
-            <AnimatedButton
-              onClick={handleFinish}
+          <AnimatedButton
+            onClick={handleFinish}
               className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-            >
+          >
               <Sparkles className="h-5 w-5 mr-2" />
               Start Your Journey
-            </AnimatedButton>
+          </AnimatedButton>
           </motion.div>
         </motion.div>
       </div>
