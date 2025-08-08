@@ -18,12 +18,13 @@ export function Confirmed() {
       try {
         // Get parameters from URL
         const token = searchParams.get('token_hash') || searchParams.get('token');
+        const code = searchParams.get('code');
         const type = searchParams.get('type') || 'signup';
         const email = searchParams.get('email') || localStorage.getItem('confirmEmail');
         
         // If no token in URL, assume already confirmed and just show success
-        if (!token) {
-          logger.info('No token in URL, assuming already confirmed');
+        if (!token && !code) {
+          logger.info('No token or code in URL, assuming already confirmed');
           setLoading(false);
           return;
         }
@@ -36,6 +37,7 @@ export function Confirmed() {
         
         logger.info('Email confirmation parameters:', { 
           token: token ? `${token.substring(0, 5)}...` : 'missing',
+          code: code ? `${code.substring(0, 5)}...` : 'missing',
           type,
           email: email ? `${email.substring(0, 3)}...` : 'missing',
           allParams
@@ -43,6 +45,7 @@ export function Confirmed() {
         
         setDebugInfo({
           token: token ? `${token.substring(0, 5)}...` : 'missing',
+          code: code ? `${code.substring(0, 5)}...` : 'missing',
           type,
           email: email ? `${email.substring(0, 3)}...` : 'missing',
           allParams,
@@ -52,8 +55,25 @@ export function Confirmed() {
         // Try different verification approaches
         let verificationSuccessful = false;
         
-        // Approach 1: Use token_hash with email
-        if (email) {
+        // Approach 1: Handle 'code' parameter (newer Supabase format)
+        if (code) {
+          logger.info('Attempting verification with code parameter');
+          try {
+            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+            
+            if (!error && data.session) {
+              verificationSuccessful = true;
+              logger.info('Verification successful with code parameter');
+            } else {
+              logger.warn('Verification failed with code parameter:', error);
+            }
+          } catch (codeError) {
+            logger.warn('Error with code verification:', codeError);
+          }
+        }
+        
+        // Approach 2: Use token_hash with email (if code approach failed)
+        if (!verificationSuccessful && token && email) {
           logger.info('Attempting verification with email and token_hash');
           const { data: data1, error: error1 } = await supabase.auth.verifyOtp({
             token_hash: token,
@@ -69,8 +89,8 @@ export function Confirmed() {
           }
         }
         
-        // Approach 2: Use token_hash without email if first approach failed
-        if (!verificationSuccessful) {
+        // Approach 3: Use token_hash without email if previous approaches failed
+        if (!verificationSuccessful && token) {
           logger.info('Attempting verification with token_hash only');
           const { data: data2, error: error2 } = await supabase.auth.verifyOtp({
             token_hash: token,

@@ -7,6 +7,19 @@
   NODE_VERSION = "18"
   NPM_VERSION = "9"
 
+# Handle email confirmation redirects from Supabase
+[[redirects]]
+  from = "/?code=*"
+  to = "/confirmed?code=:code"
+  status = 302
+
+# Handle auth callback redirects
+[[redirects]]
+  from = "/?token_hash=*&type=*"
+  to = "/confirmed?token_hash=:token_hash&type=:type"
+  status = 302
+
+# SPA routing - catch all other routes
 [[redirects]]
   from = "/*"
   to = "/index.html"
