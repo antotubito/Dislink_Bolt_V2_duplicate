@@ -11,6 +11,7 @@ export function Confirmed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   // On mount, try to verify the email if there are URL parameters
   useEffect(() => {
@@ -22,7 +23,29 @@ export function Confirmed() {
         const type = searchParams.get('type') || 'signup';
         const email = searchParams.get('email') || localStorage.getItem('confirmEmail');
         
-        // If no token in URL, assume already confirmed and just show success
+        // Check for error parameters first
+        const urlError = searchParams.get('error');
+        const urlErrorCode = searchParams.get('error_code');
+        const errorDescription = searchParams.get('error_description');
+        
+        if (urlError || urlErrorCode) {
+          logger.error('Email confirmation error from URL:', { urlError, urlErrorCode, errorDescription });
+          
+          setErrorCode(urlErrorCode);
+          
+          if (urlErrorCode === 'otp_expired' || errorDescription?.includes('expired')) {
+            setError('The email confirmation link has expired. Please request a new one.');
+          } else if (urlError === 'access_denied') {
+            setError('Email confirmation was denied or cancelled. Please try again.');
+          } else {
+            setError(errorDescription || urlError || 'Email confirmation failed. Please try again.');
+          }
+          
+          setLoading(false);
+          return;
+        }
+        
+        // If no token or code in URL, assume already confirmed and just show success
         if (!token && !code) {
           logger.info('No token or code in URL, assuming already confirmed');
           setLoading(false);
@@ -206,6 +229,16 @@ export function Confirmed() {
               <Home className="h-4 w-4 mr-2" />
               Go to Home Page
             </button>
+            
+            {/* Show resend option for expired links */}
+            {errorCode === 'otp_expired' && (
+              <button
+                onClick={() => navigate('/app/register')}
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              >
+                📧 Get New Confirmation Email
+              </button>
+            )}
           </div>
         </motion.div>
       </div>

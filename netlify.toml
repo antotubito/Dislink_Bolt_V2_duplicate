@@ -19,6 +19,12 @@
   to = "/confirmed?token_hash=:token_hash&type=:type"
   status = 302
 
+# Handle error redirects with OTP issues
+[[redirects]]
+  from = "/?error=*&error_code=*&error_description=*"
+  to = "/confirmed?error=:error&error_code=:error_code&error_description=:error_description"
+  status = 302
+
 # SPA routing - catch all other routes
 [[redirects]]
   from = "/*"
