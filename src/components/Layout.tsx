@@ -8,6 +8,7 @@ import { NotificationDropdown } from './notifications/NotificationDropdown';
 import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
 import { QRModal } from './qr/QRModal';
+import { CosmicThemeSelectorCompact } from './cosmic/CosmicThemeSelector';
 
 export function Layout() {
   const navigate = useNavigate();
@@ -192,6 +193,11 @@ export function Layout() {
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                     </span>
                   </button>
+                </div>
+
+                {/* Cosmic Theme Selector */}
+                <div className="ml-3">
+                  <CosmicThemeSelectorCompact />
                 </div>
 
                 {/* Notifications */}

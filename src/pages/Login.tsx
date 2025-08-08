@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../components/auth/AuthProvider';
-import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer, CheckCircle, ArrowRight, Star } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { login } from '../lib/auth';
 import { supabase, getSafeSession } from '../lib/supabase';
@@ -57,11 +57,11 @@ export function Login() {
             logger.info('✅ Session confirmed, proceeding with redirect');
             
             // Get user profile to check onboarding status
-            const { data: profile, error: profileError } = await supabase
-              .from('profiles')
-              .select('onboarding_complete')
-              .eq('id', session.user.id)
-              .single();
+          const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('onboarding_complete')
+            .eq('id', session.user.id)
+            .single();
             
             const redirectUrl = localStorage.getItem('redirectUrl');
             if (redirectUrl) {
@@ -83,14 +83,14 @@ export function Login() {
             setTimeout(() => {
               if (pendingRedirect) {
                 checkSessionAndRedirect();
-              }
-            }, 2000);
           }
+            }, 2000);
+        }
         } catch (error) {
           logger.error('❌ Error during pending redirect:', error);
           setPendingRedirect(false);
-        }
-      };
+      }
+    };
       
       checkSessionAndRedirect();
     }
@@ -139,12 +139,12 @@ export function Login() {
           if (pendingRedirect) {
             logger.info('🔄 Fallback redirect triggered');
             const redirectUrl = localStorage.getItem('redirectUrl');
-            if (redirectUrl) {
-              localStorage.removeItem('redirectUrl');
-              navigate(redirectUrl);
-            } else {
-              navigate('/app');
-            }
+        if (redirectUrl) {
+          localStorage.removeItem('redirectUrl');
+          navigate(redirectUrl);
+        } else {
+          navigate('/app');
+        }
             setPendingRedirect(false);
           }
         }, 5000); // 5 second fallback
@@ -158,7 +158,7 @@ export function Login() {
         setError(
           <div className="text-sm">
             No account found with this email.{' '}
-            <Link to="/app/register" className="text-nebula-400 hover:text-nebula-300 transition-colors duration-200">
+            <Link to="/app/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
               Create an account
             </Link>
             {' '}or try a different email.
@@ -334,25 +334,25 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-constellation-field py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-8">
-        <div className="mx-auto w-20 h-20 bg-cosmic-gradient rounded-full flex items-center justify-center mb-6 animate-constellation-twinkle">
-          <Sparkles className="h-10 w-10 text-white" />
+        <div className="mx-auto w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
+          <Sparkles className="h-10 w-10 text-indigo-600" />
         </div>
-        <h1 className="text-3xl font-bold text-cosmic-gradient">Welcome back to the cosmic web! 👋</h1>
-        <p className="mt-2 text-xl text-cosmic-200">Great to see you again</p>
+        <h1 className="text-3xl font-bold text-gray-900">Welcome back! 👋</h1>
+        <p className="mt-2 text-xl text-gray-600">Great to see you again</p>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-cosmic-300/30"
+        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl"
       >
         {connectionStatus === 'disconnected' && (
-          <div className="mb-4 rounded-md bg-constellation-100 p-4 border border-constellation-200">
+          <div className="mb-4 rounded-md bg-red-50 p-4">
             <div className="flex">
-              <AlertCircle className="h-5 w-5 text-constellation-700 mr-2" />
-              <div className="text-sm text-constellation-800">
+              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+              <div className="text-sm text-red-700">
                 You appear to be offline. Please check your internet connection and try again.
               </div>
             </div>
@@ -360,16 +360,16 @@ export function Login() {
         )}
 
         {!loading && user && (
-          <div className="mb-4 rounded-md bg-stardust-100 p-4 border border-stardust-200">
+          <div className="mb-4 rounded-md bg-blue-50 p-4">
             <div className="flex items-start">
-              <CheckCircle className="h-5 w-5 text-stardust-700 mr-2 mt-0.5 animate-starlight-pulse" />
+              <CheckCircle className="h-5 w-5 text-blue-400 mr-2 mt-0.5" />
               <div className="flex-1">
-                <div className="text-sm text-stardust-800">
+                <div className="text-sm text-blue-700">
                   <p className="font-medium">You're already signed in as {user.firstName} {user.lastName}</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <button
                       onClick={() => navigate(user.onboardingComplete ? '/app' : '/app/onboarding')}
-                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-cosmic-600 text-white hover:bg-cosmic-700 animate-cosmic-float"
+                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200"
                     >
                       <ArrowRight className="h-3 w-3 mr-1" />
                       {user.onboardingComplete ? 'Go to App' : 'Complete Onboarding'}
@@ -379,7 +379,7 @@ export function Login() {
                         await supabase.auth.signOut();
                         window.location.reload(); // Refresh to clear state
                       }}
-                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-cosmic-200 text-cosmic-800 hover:bg-cosmic-300"
+                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200"
                     >
                       Sign Out
                     </button>
@@ -392,26 +392,26 @@ export function Login() {
         
         <form onSubmit={handleLogin} className="space-y-6">
           {error && (
-            <div className="rounded-md bg-constellation-100 p-4 border border-constellation-200">
+            <div className="rounded-md bg-red-50 p-4">
               <div className="flex">
-                <AlertCircle className="h-5 w-5 text-constellation-700 mr-2" />
-                <div className="text-sm text-constellation-800">{error}</div>
+                <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
+                <div className="text-sm text-red-700">{error}</div>
               </div>
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-cosmic-200 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="email"
                 id="email"
                 required
                 disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-xl focus:ring-cosmic-500 focus:border-cosmic-400 sm:text-sm disabled:bg-cosmic-600/20 disabled:text-cosmic-300 text-white placeholder-cosmic-300"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -423,17 +423,17 @@ export function Login() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-cosmic-200 mb-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="password"
                 id="password"
                 required
                 disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-xl focus:ring-cosmic-500 focus:border-cosmic-400 sm:text-sm disabled:bg-cosmic-600/20 disabled:text-cosmic-300 text-white placeholder-cosmic-300"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
@@ -447,7 +447,7 @@ export function Login() {
                 type="button"
                 disabled={!loading && !!user}
                 onClick={handleForgotPassword}
-                className="font-medium text-stardust-400 hover:text-stardust-300 disabled:text-cosmic-500 disabled:cursor-not-allowed transition-colors duration-200"
+                className="font-medium text-indigo-600 hover:text-indigo-500 disabled:text-gray-400 disabled:cursor-not-allowed"
               >
                 Forgot your password?
               </button>
@@ -457,7 +457,7 @@ export function Login() {
           <button
             type="submit"
             disabled={isLoggingIn || connectionStatus === 'disconnected' || (!loading && !!user)}
-            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-cosmic-gradient hover:shadow-lg hover:shadow-cosmic-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cosmic-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 animate-cosmic-float"
+            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {!loading && user ? (
               'Already Signed In'
@@ -467,20 +467,17 @@ export function Login() {
                 Signing in...
               </div>
             ) : (
-              <div className="flex items-center">
-                <Star className="h-5 w-5 mr-2 animate-constellation-twinkle" />
-                Sign In
-              </div>
+              'Sign In'
             )}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-cosmic-300">
+          <p className="text-sm text-gray-600">
             Don't have an account yet?{' '}
             <Link
               to="/app/register"
-              className="font-medium text-nebula-400 hover:text-nebula-300 transition-colors duration-200"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
             >
               Create one now
             </Link>
@@ -490,7 +487,7 @@ export function Login() {
         <div className="mt-6 text-center">
           <Link
             to="/waitlist"
-            className="inline-flex items-center text-sm text-cosmic-400 hover:text-cosmic-200 transition-colors duration-200"
+            className="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Home

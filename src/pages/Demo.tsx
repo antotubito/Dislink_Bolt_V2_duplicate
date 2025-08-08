@@ -3,9 +3,14 @@ import { CityAutocompleteDemo } from '../components/common/CityAutocompleteDemo'
 import { userPreferences } from '../lib/userPreferences';
 import { Location } from '../types/location';
 import { useAuth } from '../components/auth/AuthProvider';
+import { CosmicThemeSelector, CosmicThemeSelectorCard } from '../components/cosmic/CosmicThemeSelector';
+import { useCosmicTheme } from '../lib/cosmicThemes';
+import { motion } from 'framer-motion';
+import { Sparkles, Zap, Heart, Palette, Star } from 'lucide-react';
 
 export function Demo() {
   const { user } = useAuth();
+  const { currentTheme, currentPalette } = useCosmicTheme();
   const [language, setLanguage] = useState('en');
   const [savedLocations, setSavedLocations] = useState<Record<string, Location | null>>({});
   const [loading, setLoading] = useState(true);
@@ -47,10 +52,137 @@ export function Demo() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Component Demos</h1>
-      
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">City Autocomplete with Nominatim API</h2>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <h1 className="text-3xl font-bold text-cosmic-primary mb-2">
+          🌌 Dislink Component Demos
+        </h1>
+        <p className="text-gray-600">
+          Explore our cosmic design system and interactive components
+        </p>
+      </motion.div>
+
+      {/* Cosmic Theme Showcase */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="mb-12"
+      >
+        <div className="bg-cosmic-neutral rounded-xl p-6 mb-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 cosmic-gradient rounded-lg flex items-center justify-center">
+              <Palette className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-cosmic-primary">
+                Cosmic Theme System
+              </h2>
+              <p className="text-sm text-gray-600">
+                Three philosophical color palettes for your constellation of relationships
+              </p>
+            </div>
+          </div>
+
+          {/* Current Theme Display */}
+          <motion.div
+            key={currentTheme}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="cosmic-gradient rounded-lg p-6 mb-6 text-white"
+          >
+            <div className="flex items-center gap-3 mb-3">
+              {currentTheme === 'nebula' && <Sparkles className="h-6 w-6" />}
+              {currentTheme === 'aurora' && <Zap className="h-6 w-6" />}
+              {currentTheme === 'starlight' && <Heart className="h-6 w-6" />}
+              <div>
+                <h3 className="text-xl font-semibold">{currentPalette.name}</h3>
+                <p className="text-white/80">{currentPalette.description}</p>
+              </div>
+            </div>
+            <p className="text-white/90 italic text-sm mb-4">
+              "{currentPalette.philosophy}"
+            </p>
+            
+            {/* Color Palette Display */}
+            <div className="flex gap-3">
+              {Object.entries(currentPalette.colors).map(([key, color]) => (
+                <div
+                  key={key}
+                  className="flex flex-col items-center gap-1"
+                >
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-white/30"
+                    style={{ backgroundColor: color }}
+                  />
+                  <span className="text-xs text-white/70 capitalize">{key}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Theme Selector */}
+          <CosmicThemeSelector className="mb-6" />
+
+          {/* Cosmic Components Demo */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Primary Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-cosmic-primary text-white px-6 py-3 rounded-lg font-medium cosmic-glow"
+            >
+              Primary Action
+            </motion.button>
+
+            {/* Secondary Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-cosmic-secondary text-white px-6 py-3 rounded-lg font-medium"
+            >
+              Secondary Action
+            </motion.button>
+
+            {/* Accent Card */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="bg-cosmic-accent text-cosmic-primary p-4 rounded-lg"
+            >
+              <Star className="h-5 w-5 mb-2" />
+              <p className="font-medium">Accent Element</p>
+              <p className="text-sm opacity-80">Warm touches and highlights</p>
+            </motion.div>
+
+            {/* Pop Alert */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="bg-cosmic-pop text-white p-4 rounded-lg"
+            >
+              <Zap className="h-5 w-5 mb-2" />
+              <p className="font-medium">Pop Alert</p>
+              <p className="text-sm opacity-90">Energy moments and notifications</p>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Card Version Theme Selector */}
+        <CosmicThemeSelectorCard />
+      </motion.section>
+
+      {/* Existing Demo Content */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="mb-8"
+      >
+        <h2 className="text-xl font-semibold text-cosmic-primary mb-4">
+          City Autocomplete Component
+        </h2>
         <div className="bg-indigo-50 p-4 rounded-lg mb-4">
           <p className="text-sm text-indigo-700">
             This component uses <strong>OpenStreetMap's Nominatim API</strong> to search for cities worldwide, including small towns and villages.
@@ -60,7 +192,7 @@ export function Demo() {
         <CityAutocompleteDemo 
           onLanguageChange={handleLanguageChange}
         />
-      </div>
+      </motion.section>
       
       <div className="bg-indigo-50 p-4 rounded-lg mb-8">
         <p className="text-sm text-indigo-700">

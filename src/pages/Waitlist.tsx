@@ -154,8 +154,8 @@ export function Waitlist() {
   ];
 
   return (
-    <div className="min-h-screen bg-constellation-field flex flex-col">
-      <div className="fixed top-0 left-0 right-0 z-50 bg-cosmic-900/80 backdrop-blur-md shadow-lg border-b border-cosmic-700/30">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50 flex flex-col">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
         <motion.nav 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -168,10 +168,10 @@ export function Waitlist() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="bg-cosmic-gradient p-2 rounded-lg animate-constellation-twinkle">
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
                 <LinkIcon className="h-6 w-6 text-white" />
               </div>
-              <span className="ml-2 text-xl font-bold text-cosmic-gradient">
+              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 Dislink
               </span>
             </motion.div>
@@ -180,7 +180,7 @@ export function Waitlist() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/story')}
-                className="text-cosmic-200 hover:text-white font-medium text-sm transition-colors duration-200"
+                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
               >
                 Our Story
               </motion.button>
@@ -188,7 +188,7 @@ export function Waitlist() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSignIn}
-                className="text-cosmic-200 hover:text-white font-medium text-sm transition-colors duration-200"
+                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
               >
                 Sign In
               </motion.button>
@@ -196,7 +196,7 @@ export function Waitlist() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRegister}
-                className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-nebula-gradient hover:shadow-lg hover:shadow-nebula-500/25 transition-all duration-200 animate-cosmic-float"
+                className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
               >
                 Register
               </motion.button>
@@ -215,12 +215,13 @@ export function Waitlist() {
             id="waitlist-form"
             className="text-center relative z-10"
           >
-            {/* Animated cosmic background elements */}
+            {/* Animated background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-              {/* Cosmic gradient orbs */}
+              {/* Modern geometric background */}
               <div className="absolute inset-0">
+                {/* Primary gradient orbs */}
                 <motion.div
-                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-cosmic-400/30 via-nebula-400/20 to-transparent rounded-full"
+                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/30 via-purple-400/20 to-transparent rounded-full"
                   animate={{
                     scale: [1, 1.1, 1],
                     rotate: [0, 180, 360],
@@ -232,7 +233,7 @@ export function Waitlist() {
                   }}
                 />
                 <motion.div
-                  className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-bl from-nebula-400/25 via-stardust-400/15 to-transparent rounded-full"
+                  className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-bl from-purple-400/25 via-indigo-400/15 to-transparent rounded-full"
                   animate={{
                     scale: [1.1, 1, 1.1],
                     rotate: [360, 180, 0],
@@ -244,24 +245,13 @@ export function Waitlist() {
                   }}
                 />
                 
-                {/* Floating cosmic shapes */}
+                {/* Floating geometric shapes */}
                 <motion.div
-                  className="absolute top-1/6 right-1/3 w-4 h-4 bg-cosmic-500/40 rounded-full animate-constellation-twinkle"
+                  className="absolute top-1/6 right-1/3 w-4 h-4 bg-indigo-500/40 rounded-full"
                   animate={{
                     y: [0, -20, 0],
-                    x: [0, 10, 0],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                <motion.div
-                  className="absolute top-1/2 left-1/6 w-3 h-3 bg-nebula-500/50 rounded-full animate-starlight-pulse"
-                  animate={{
-                    y: [0, 15, 0],
-                    x: [0, -8, 0],
+                    x: [0, 15, 0],
+                    opacity: [0.4, 0.8, 0.4],
                   }}
                   transition={{
                     duration: 8,
@@ -270,137 +260,142 @@ export function Waitlist() {
                   }}
                 />
                 <motion.div
-                  className="absolute bottom-1/4 right-1/5 w-2 h-2 bg-stardust-500/60 rounded-full animate-cosmic-float"
+                  className="absolute bottom-1/3 left-1/6 w-6 h-6 bg-purple-500/30 rotate-45"
                   animate={{
-                    y: [0, -25, 0],
-                    x: [0, 15, 0],
+                    y: [0, 15, 0],
+                    x: [0, -10, 0],
+                    rotate: [45, 135, 45],
+                    opacity: [0.3, 0.6, 0.3],
                   }}
                   transition={{
                     duration: 10,
                     repeat: Infinity,
-                    ease: "easeInOut"
+                    ease: "easeInOut",
+                    delay: 1
+                  }}
+                />
+                <motion.div
+                  className="absolute top-2/3 right-1/6 w-3 h-3 bg-indigo-400/50 rounded-full"
+                  animate={{
+                    x: [0, 20, 0],
+                    y: [0, -15, 0],
+                    scale: [1, 1.2, 1],
+                  }}
+                  transition={{
+                    duration: 12,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 2
                   }}
                 />
                 
-                {/* Constellation lines */}
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 800 600">
-                  <motion.path
-                    d="M100,150 L300,200 L250,350 L150,300 Z"
-                    stroke="url(#cosmic-gradient-line)"
-                    strokeWidth="1"
-                    fill="none"
-                    opacity="0.3"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 3, repeat: Infinity, repeatType: "reverse" }}
-                  />
-                  <defs>
-                    <linearGradient id="cosmic-gradient-line" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#A259FF" />
-                      <stop offset="50%" stopColor="#FFD37E" />
-                      <stop offset="100%" stopColor="#FF6F61" />
-                    </linearGradient>
-                  </defs>
-                </svg>
+                {/* Additional floating elements for more movement */}
+                <motion.div
+                  className="absolute top-1/4 left-1/5 w-2 h-2 bg-purple-400/30 rounded-full"
+                  animate={{
+                    x: [0, -25, 0],
+                    y: [0, 20, 0],
+                    opacity: [0.3, 0.7, 0.3],
+                  }}
+                  transition={{
+                    duration: 15,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 3
+                  }}
+                />
+                <motion.div
+                  className="absolute bottom-1/4 right-1/5 w-5 h-5 bg-indigo-300/25 rotate-45"
+                  animate={{
+                    x: [0, 12, 0],
+                    y: [0, -18, 0],
+                    rotate: [45, 225, 45],
+                    opacity: [0.25, 0.5, 0.25],
+                  }}
+                  transition={{
+                    duration: 14,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 4
+                  }}
+                />
+                <motion.div
+                  className="absolute top-1/2 left-1/8 w-3 h-3 bg-purple-300/35 rounded-full"
+                  animate={{
+                    x: [0, 18, 0],
+                    y: [0, -12, 0],
+                    scale: [1, 1.3, 1],
+                  }}
+                  transition={{
+                    duration: 11,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 5
+                  }}
+                />
+                
+                {/* Subtle grid pattern */}
+                <div className="absolute inset-0 opacity-[0.02]">
+                  <div className="absolute inset-0" style={{
+                    backgroundImage: `
+                      linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '60px 60px'
+                  }} />
+                </div>
+                
+                {/* Radial gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-radial from-transparent via-white/5 to-white/20" />
               </div>
             </div>
-
-            {/* Main content */}
-            <motion.div 
-              className="space-y-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+            
+            <motion.div
+              className="flex justify-center mb-6"
+              initial={{ scale: 0, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 200, 
+                damping: 15,
+                delay: 0.2
+              }}
             >
-              <div className="space-y-6">
-                <motion.h1 
-                  className="text-5xl sm:text-6xl lg:text-7xl font-bold text-cosmic-gradient animate-cosmic-float"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                >
-                  Map Your
-                  <br />
-                  <span className="text-nebula-gradient">Cosmic Network</span>
-                </motion.h1>
-                
-                <motion.p 
-                  className="text-xl sm:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                >
-                  Discover the <span className="text-stardust-400 font-semibold">constellation of relationships</span> around you. 
-                  Build meaningful connections for both <span className="text-nebula-400 font-semibold">professional and personal growth</span> 
-                  across the cosmic web of human interaction.
-                </motion.p>
+              <div className="p-5 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-200">
+                <LinkIcon className="h-16 w-16 text-white" />
               </div>
+            </motion.div>
 
-              {/* CTA Buttons */}
-              <motion.div 
-                className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-8"
+            <div className="relative">
+              <motion.h1 
+                className="text-5xl sm:text-6xl font-bold mb-6 leading-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
+                transition={{ delay: 0.3 }}
               >
-                <motion.button
-                  onClick={scrollToWaitlistForm}
-                  className="px-8 py-4 bg-cosmic-gradient text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl hover:shadow-cosmic-500/25 transition-all duration-300 animate-cosmic-float"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 animate-constellation-twinkle" />
-                    Join the Cosmic Web
-                    <ArrowRight className="h-5 w-5" />
-                  </div>
-                </motion.button>
-                
-                <motion.button
-                  onClick={() => navigate('/story')}
-                  className="px-8 py-4 bg-white/10 backdrop-blur-lg text-cosmic-200 text-lg font-semibold rounded-full border border-cosmic-300/30 hover:bg-white/20 hover:text-white transition-all duration-300"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-5 w-5 animate-nebula-drift" />
-                    Explore Our Story
-                  </div>
-                </motion.button>
-              </motion.div>
-
-              {/* Stats */}
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-3 gap-8 pt-16"
+                Your Network, <br className="hidden sm:inline" />
+                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                  Reimagined
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl text-gray-600 max-w-2xl mx-auto mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 1 }}
+                transition={{ delay: 0.4 }}
               >
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-cosmic-300/30">
-                  <motion.div 
-                    className="text-3xl font-bold text-stardust-400 animate-starlight-pulse"
-                  >
-                    ∞
-                  </motion.div>
-                  <div className="text-cosmic-200 font-medium">Connections Possible</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-nebula-300/30">
-                  <motion.div 
-                    className="text-3xl font-bold text-nebula-400 animate-constellation-twinkle"
-                  >
-                    24/7
-                  </motion.div>
-                  <div className="text-cosmic-200 font-medium">Always Available</div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-constellation-300/30">
-                  <motion.div 
-                    className="text-3xl font-bold text-constellation-400 animate-aurora-dance"
-                  >
-                    100%
-                  </motion.div>
-                  <div className="text-cosmic-200 font-medium">Meaningful Relationships</div>
-                </div>
-              </motion.div>
+                Dislink helps you follow up, stay in touch, and grow your meaningful relationships effortlessly.
+              </motion.p>
+            </div>
+
+            <motion.div 
+              className="flex justify-center mb-12"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <WaitlistForm onSuccess={() => setSuccess(true)} />
             </motion.div>
           </motion.div>
         </div>
@@ -618,11 +613,11 @@ export function Waitlist() {
       </div>
 
       {/* Testimonial Section */}
-      <div className="py-20 bg-gradient-to-br from-cosmic-50 via-white to-nebula-50 relative overflow-hidden">
+      <div className="py-20 bg-white relative overflow-hidden">
         {/* Background decoration */}
-        <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-cosmic-50 to-transparent"></div>
-        <div className="absolute -top-40 -left-40 w-96 h-96 bg-cosmic-200/30 rounded-full opacity-30 blur-3xl animate-cosmic-float"></div>
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-nebula-200/30 rounded-full opacity-30 blur-3xl animate-nebula-drift"></div>
+        <div className="absolute top-0 left-0 w-full h-20 bg-gradient-to-b from-gray-50 to-transparent"></div>
+        <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-100 rounded-full opacity-30 blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-100 rounded-full opacity-30 blur-3xl"></div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
@@ -632,9 +627,9 @@ export function Waitlist() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-4xl font-bold text-cosmic-gradient mb-4">What Our Cosmic Explorers Say</h2>
-              <p className="text-xl text-cosmic-700 max-w-3xl mx-auto px-4">
-                Hear from people who are already <span className="text-nebula-600 font-semibold">mapping their stellar connections</span> across the cosmic web
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">What Our Early Testers Say</h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto px-4">
+                Hear from people who are already transforming their relationship building experience
               </p>
             </motion.div>
           </div>
@@ -651,24 +646,24 @@ export function Waitlist() {
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 * index, duration: 0.5 }}
                     viewport={{ once: true }}
-                    whileHover={{ y: -8, boxShadow: "0 20px 25px -5px rgba(11, 30, 61, 0.1), 0 10px 10px -5px rgba(162, 89, 255, 0.04)" }}
+                    whileHover={{ y: -8, boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}
                     className="flex-1"
                   >
-                    <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-cosmic-200/50 h-full flex flex-col relative overflow-hidden">
+                    <div className="bg-white p-8 rounded-2xl shadow-lg border border-indigo-100 h-full flex flex-col relative overflow-hidden">
                       {/* Background decoration */}
-                      <div className="absolute -top-12 -right-12 w-24 h-24 bg-cosmic-100 rounded-full opacity-50 animate-starlight-pulse"></div>
-                      <div className="absolute -bottom-12 -left-12 w-24 h-24 bg-nebula-100 rounded-full opacity-50 animate-constellation-twinkle"></div>
+                      <div className="absolute -top-12 -right-12 w-24 h-24 bg-indigo-100 rounded-full opacity-50"></div>
+                      <div className="absolute -bottom-12 -left-12 w-24 h-24 bg-purple-100 rounded-full opacity-50"></div>
                       
-                      <div className="mb-6 text-cosmic-500 relative z-10 flex justify-center">
-                        <div className="p-3 bg-cosmic-100 rounded-full animate-cosmic-float">
-                          <Quote className="h-6 w-6 text-cosmic-600" />
+                      <div className="mb-6 text-indigo-500 relative z-10 flex justify-center">
+                        <div className="p-3 bg-indigo-100 rounded-full">
+                          <Quote className="h-6 w-6 text-indigo-500" />
                         </div>
                       </div>
-                      <p className="text-cosmic-700 mb-8 flex-grow italic relative z-10 text-center">"{testimonial.quote}"</p>
+                      <p className="text-gray-700 mb-8 flex-grow italic relative z-10 text-center">"{testimonial.quote}"</p>
                       <div className="relative z-10">
-                        <div className="pt-6 border-t border-cosmic-100">
-                          <p className="font-semibold text-cosmic-900 text-nebula-gradient text-center">{testimonial.author}</p>
-                          <p className="text-sm text-cosmic-600 text-center">{testimonial.company}</p>
+                        <div className="pt-6 border-t border-gray-100">
+                          <p className="font-semibold text-gray-900 bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent text-center">{testimonial.author}</p>
+                          <p className="text-sm text-gray-600 text-center">{testimonial.company}</p>
                         </div>
                       </div>
                     </div>
@@ -682,17 +677,16 @@ export function Waitlist() {
 
       {/* CTA Section */}
       {/* Waitlist Signup Section */}
-      <div className="py-20 bg-cosmic-900 relative overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-80 h-80 bg-nebula-400/20 rounded-full opacity-30 blur-3xl animate-cosmic-float"></div>
-        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-stardust-400/20 rounded-full opacity-30 blur-3xl animate-nebula-drift"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-constellation-400/10 rounded-full opacity-20 blur-3xl animate-starlight-pulse"></div>
+      <div className="py-20 bg-white relative overflow-hidden">
+        <div className="absolute -top-40 -left-40 w-80 h-80 bg-indigo-200 rounded-full opacity-20 blur-3xl"></div>
+        <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
         
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 md:p-12 shadow-xl border border-cosmic-300/30 text-center"
+            className="bg-white rounded-2xl p-8 md:p-12 shadow-xl border border-gray-100 text-center"
           >
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -700,12 +694,11 @@ export function Waitlist() {
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-cosmic-gradient mb-4">
-                Join the Cosmic Web
+              <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
+                Get Early Access
               </h2>
-              <p className="text-lg text-cosmic-200 mb-8 max-w-xl mx-auto">
-                Be the first to experience <span className="text-stardust-400 font-semibold">stellar connections</span> on mobile. 
-                Join our exclusive constellation of early adopters.
+              <p className="text-lg text-gray-600 mb-8 max-w-xl mx-auto">
+                Be the first to experience Dislink on mobile. Join our exclusive waitlist for early access.
               </p>
             </motion.div>
             
@@ -715,14 +708,14 @@ export function Waitlist() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="bg-stardust-50 p-6 rounded-xl border border-stardust-200 max-w-md mx-auto"
+                  className="bg-green-50 p-6 rounded-xl border border-green-100 max-w-md mx-auto"
                 >
-                  <div className="mx-auto w-16 h-16 bg-stardust-100 rounded-full flex items-center justify-center mb-4 animate-starlight-pulse">
-                    <CheckCircle className="h-8 w-8 text-stardust-700" />
+                  <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-cosmic-900 mb-2">Welcome to the Cosmic Web!</h3>
-                  <p className="text-cosmic-700">
-                    Thanks for joining our constellation. We'll keep you updated on our cosmic journey and let you know when Dislink is ready to map your relationships.
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">You're in!</h3>
+                  <p className="text-gray-600">
+                    Thanks for joining our waitlist. We'll keep you posted on our progress and let you know when Dislink is ready for you.
                   </p>
                 </motion.div>
               ) : (
@@ -733,13 +726,13 @@ export function Waitlist() {
                   className="max-w-md mx-auto"
                 >
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
                       type="email"
-                      placeholder="Enter your stellar email"
+                      placeholder="Enter your email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full pl-12 pr-36 py-4 border-2 border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-full focus:ring-4 focus:ring-cosmic-500/30 focus:border-cosmic-400 transition-all duration-200 text-white placeholder-cosmic-300 shadow-sm"
+                      className="block w-full pl-12 pr-36 py-4 border-2 border-gray-200 rounded-full focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 shadow-sm"
                       required
                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -750,26 +743,33 @@ export function Waitlist() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         style={{ transformOrigin: 'center' }}
-                        className="px-6 py-2 bg-cosmic-gradient text-white rounded-full shadow-md hover:shadow-lg hover:shadow-cosmic-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cosmic-500 disabled:opacity-50 transition-all duration-200 animate-constellation-twinkle"
+                        className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-colors duration-200"
                       >
                         {loading ? (
                           <div className="flex items-center">
                             <motion.div
-                              className="w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"
                               animate={{ rotate: 360 }}
                               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                              className="h-4 w-4 border-2 border-white border-t-transparent rounded-full"
                             />
-                            Joining...
                           </div>
                         ) : (
-                          <div className="flex items-center">
-                            <Star className="h-4 w-4 mr-1" />
-                            Join Now
-                          </div>
+                          'Join Waitlist'
                         )}
                       </motion.button>
                     </div>
                   </div>
+                  
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-3 flex items-center text-sm text-red-600 bg-red-50 p-2 rounded-lg"
+                    >
+                      <div className="h-4 w-4 mr-2 text-red-500">⚠</div>
+                      {error}
+                    </motion.div>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

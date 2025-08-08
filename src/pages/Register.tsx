@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../components/auth/AuthProvider';
-import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer, ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { signUp } from '../lib/auth';
 import type { RegistrationData } from '../types/user';
 import { sessionManager } from '../lib/sessionManager';
 import { logger } from '../lib/logger';
 import { supabase } from '../lib/supabase';
-import { User, Star } from 'lucide-react';
 
 export function Register() {
   const navigate = useNavigate();
-  const { refreshUser, connectionStatus, user } = useAuth();
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [acceptTerms, setAcceptTerms] = useState(false);
+  const { refreshUser, connectionStatus } = useAuth();
+  const [formData, setFormData] = useState<RegistrationData & { confirmPassword: string }>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null | React.ReactNode>(null);
   const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
-  const [isRegistering, setIsRegistering] = useState(false);
 
   // Check for existing session
   useEffect(() => {
@@ -45,7 +44,7 @@ export function Register() {
     };
   }, [cooldownTime]);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -56,56 +55,49 @@ export function Register() {
     }
 
     // Validate form data
-    if (!firstName.trim() || !lastName.trim()) {
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
       setError('Please enter your full name');
       return;
     }
 
-    if (!email.trim() || !email.includes('@')) {
+    if (!formData.email.trim() || !formData.email.includes('@')) {
       setError('Please enter a valid email address');
       return;
     }
 
-    if (password.length < 8) {
+    if (formData.password.length < 8) {
       setError('Password must be at least 8 characters long');
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    if (!acceptTerms) {
-      setError('You must agree to the Terms of Service and Privacy Policy');
-      return;
-    }
-
-    setIsRegistering(true);
+    setLoading(true);
 
     try {
       // Check connection status first
       if (connectionStatus === 'disconnected') {
         setError('You appear to be offline. Please check your internet connection and try again.');
-        setIsRegistering(false);
+        setLoading(false);
         return;
       }
       
       // Store email temporarily for verification
-      localStorage.setItem('confirmEmail', email);
+      localStorage.setItem('confirmEmail', formData.email);
       
       logger.info('Submitting registration form', { 
-        email: email,
-        firstName: firstName,
-        lastName: lastName
+        email: formData.email,
+        firstName: formData.firstName,
+        lastName: formData.lastName
       });
       
       // Create account with explicit redirect URL
       await signUp({
-        email,
-        password,
-        firstName,
-        lastName
+        ...formData,
+        emailRedirectTo: `${window.location.origin}/confirmed`
       });
       
       logger.info('Registration successful, showing verification prompt');
@@ -162,7 +154,7 @@ export function Register() {
       // Clear stored email on error
       localStorage.removeItem('confirmEmail');
     } finally {
-      setIsRegistering(false);
+      setLoading(false);
     }
   };
 
@@ -176,16 +168,16 @@ export function Register() {
     setError(null);
     
     try {
-      const userEmail = email;
-      if (!userEmail) {
+      const email = formData.email;
+      if (!email) {
         throw new Error('Email address is missing');
       }
       
-      logger.info('Resending verification email', { email: userEmail });
+      logger.info('Resending verification email', { email });
       
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email: userEmail,
+        email,
         options: {
           emailRedirectTo: `${window.location.origin}/confirmed`
         }
@@ -242,7 +234,7 @@ export function Register() {
             Check Your Email! ✨
           </h2>
           <p className="text-gray-600 mb-6">
-            We've sent a verification link to <strong>{email}</strong>. 
+            We've sent a verification link to <strong>{formData.email}</strong>. 
             Click the link to activate your account and start connecting!
           </p>
           
@@ -293,210 +285,156 @@ export function Register() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-constellation-field py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-8">
-        <div className="mx-auto w-20 h-20 bg-nebula-gradient rounded-full flex items-center justify-center mb-6 animate-constellation-twinkle">
-          <Sparkles className="h-10 w-10 text-white" />
+        <div className="mx-auto w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
+          <Sparkles className="h-10 w-10 text-indigo-600" />
         </div>
-        <h1 className="text-3xl font-bold text-nebula-gradient">Join the Cosmic Web! ✨</h1>
-        <p className="mt-2 text-xl text-cosmic-200">Create your stellar profile</p>
+        <h1 className="text-3xl font-bold text-gray-900">Hey there! 👋</h1>
+        <p className="mt-2 text-xl text-gray-600">Let's get you started with Dislink</p>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white/10 backdrop-blur-lg p-8 rounded-2xl shadow-xl border border-cosmic-300/30"
+        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl"
       >
-        {!loading && user && (
-          <div className="mb-4 rounded-md bg-stardust-100 p-4 border border-stardust-200">
-            <div className="flex items-start">
-              <CheckCircle className="h-5 w-5 text-stardust-700 mr-2 mt-0.5 animate-starlight-pulse" />
-              <div className="flex-1">
-                <div className="text-sm text-stardust-800">
-                  <p className="font-medium">You're already signed in as {user.firstName} {user.lastName}</p>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <button
-                      onClick={() => navigate(user.onboardingComplete ? '/app' : '/app/onboarding')}
-                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-cosmic-600 text-white hover:bg-cosmic-700 animate-cosmic-float"
-                    >
-                      <ArrowRight className="h-3 w-3 mr-1" />
-                      {user.onboardingComplete ? 'Go to App' : 'Complete Onboarding'}
-                    </button>
-                    <button
-                      onClick={async () => {
-                        await supabase.auth.signOut();
-                        window.location.reload();
-                      }}
-                      className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-cosmic-200 text-cosmic-800 hover:bg-cosmic-300"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <form onSubmit={handleRegister} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="rounded-md bg-constellation-100 p-4 border border-constellation-200">
-              <div className="flex">
-                <AlertCircle className="h-5 w-5 text-constellation-700 mr-2" />
-                <div className="text-sm text-constellation-800">{error}</div>
-              </div>
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="text-sm text-red-700">{error}</div>
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-cosmic-200 mb-1">
-                First Name
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                First Name <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
                 <input
                   type="text"
                   id="firstName"
                   required
-                  disabled={!loading && !!user}
-                  className="block w-full pl-10 pr-3 py-2 border border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-xl focus:ring-cosmic-500 focus:border-cosmic-400 sm:text-sm disabled:bg-cosmic-600/20 disabled:text-cosmic-300 text-white placeholder-cosmic-300"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
                   placeholder="Your first name"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-cosmic-200 mb-1">
-                Last Name
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                Last Name <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
-                <input
-                  type="text"
-                  id="lastName"
-                  required
-                  disabled={!loading && !!user}
-                  className="block w-full pl-10 pr-3 py-2 border border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-xl focus:ring-cosmic-500 focus:border-cosmic-400 sm:text-sm disabled:bg-cosmic-600/20 disabled:text-cosmic-300 text-white placeholder-cosmic-300"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Your last name"
-                />
-              </div>
+              <input
+                type="text"
+                id="lastName"
+                required
+                className="block w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                placeholder="Your last name"
+              />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-cosmic-200 mb-1">
-              Email Address
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              Email Address <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="email"
                 id="email"
                 required
-                disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-xl focus:ring-cosmic-500 focus:border-cosmic-400 sm:text-sm disabled:bg-cosmic-600/20 disabled:text-cosmic-300 text-white placeholder-cosmic-300"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="you@example.com"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-cosmic-200 mb-1">
-              Password
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              Password <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="password"
                 id="password"
                 required
-                disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-xl focus:ring-cosmic-500 focus:border-cosmic-400 sm:text-sm disabled:bg-cosmic-600/20 disabled:text-cosmic-300 text-white placeholder-cosmic-300"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create a secure password"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="Create a strong password"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-cosmic-200 mb-1">
-              Confirm Password
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              Confirm Password <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-cosmic-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="password"
                 id="confirmPassword"
                 required
-                disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-cosmic-300/50 bg-white/20 backdrop-blur-sm rounded-xl focus:ring-cosmic-500 focus:border-cosmic-400 sm:text-sm disabled:bg-cosmic-600/20 disabled:text-cosmic-300 text-white placeholder-cosmic-300"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 placeholder="Confirm your password"
               />
             </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Must be at least 8 characters with uppercase, lowercase, number, and special character
+            </p>
           </div>
 
-          <div className="flex items-center">
-            <input
-              id="acceptTerms"
-              name="acceptTerms"
-              type="checkbox"
-              required
-              disabled={!loading && !!user}
-              className="h-4 w-4 text-cosmic-600 focus:ring-cosmic-500 border-cosmic-300 rounded"
-              checked={acceptTerms}
-              onChange={(e) => setAcceptTerms(e.target.checked)}
-            />
-            <label htmlFor="acceptTerms" className="ml-2 block text-sm text-cosmic-200">
-              I agree to the{' '}
-              <Link to="/terms" className="text-stardust-400 hover:text-stardust-300 transition-colors duration-200">
-                Terms of Service
-              </Link>{' '}
-              and{' '}
-              <Link to="/privacy" className="text-stardust-400 hover:text-stardust-300 transition-colors duration-200">
-                Privacy Policy
+          <div className="text-sm">
+            <p className="text-gray-500">
+              By creating an account, you agree to our{' '}
+              <Link to="/app/terms" className="text-indigo-600 hover:text-indigo-500 font-medium">
+                Terms & Conditions
               </Link>
-            </label>
+            </p>
           </div>
 
           <button
             type="submit"
-            disabled={isRegistering || (!loading && !!user)}
-            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-nebula-gradient hover:shadow-lg hover:shadow-nebula-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nebula-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 animate-cosmic-float"
+            disabled={loading || cooldownTime > 0}
+            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
-            {!loading && user ? (
-              'Already Signed In'
-            ) : isRegistering ? (
+            {loading ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                Creating your cosmic profile...
+                Creating Account...
+              </div>
+            ) : cooldownTime > 0 ? (
+              <div className="flex items-center">
+                <Timer className="h-5 w-5 mr-2" />
+                Wait {cooldownTime}s
               </div>
             ) : (
-              <div className="flex items-center">
-                <Star className="h-5 w-5 mr-2 animate-constellation-twinkle" />
-                Create Account
-              </div>
+              'Create Account'
             )}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-cosmic-300">
+          <p className="text-sm text-gray-600">
             Already have an account?{' '}
             <Link
               to="/app/login"
-              className="font-medium text-stardust-400 hover:text-stardust-300 transition-colors duration-200"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
             >
-              Sign in here
+              Sign in
             </Link>
           </p>
         </div>
@@ -504,7 +442,7 @@ export function Register() {
         <div className="mt-6 text-center">
           <Link
             to="/waitlist"
-            className="inline-flex items-center text-sm text-cosmic-400 hover:text-cosmic-200 transition-colors duration-200"
+            className="inline-flex items-center text-sm text-gray-500 hover:text-indigo-600"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Home

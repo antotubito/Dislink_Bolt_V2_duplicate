@@ -46,69 +46,53 @@ export default {
         '3xl': '1920px',
       },
       colors: {
-        // 🌌 Cosmic Color Palette - Nebula Glow
+        // Dynamic theme colors using CSS custom properties
         cosmic: {
-          50: '#F8FAFF',   // Lightest cosmic mist
-          100: '#F1F5FF',  // Soft cosmic glow
-          200: '#E3EBFF',  // Gentle cosmic light
-          300: '#C7D6FE',  // Cosmic atmosphere
-          400: '#A5B8FC',  // Cosmic medium
-          500: '#8B9CF8',  // Cosmic bright
-          600: '#6B7EF2',  // Cosmic strong
-          700: '#4F5DE8',  // Cosmic deep
-          800: '#3B47D9',  // Cosmic darker
-          900: '#0B1E3D',  // Deep cosmic navy (PRIMARY)
+          primary: 'var(--color-cosmic-primary)',
+          secondary: 'var(--color-cosmic-secondary)',
+          accent: 'var(--color-cosmic-accent)',
+          pop: 'var(--color-cosmic-pop)',
+          neutral: 'var(--color-cosmic-neutral)',
         },
+        
+        // Static color palettes for direct access
         nebula: {
-          50: '#FDF4FF',   // Softest nebula
-          100: '#FAE8FF',  // Light nebula mist
-          200: '#F5D0FE',  // Gentle nebula
-          300: '#E6B3FF',  // Nebula medium
-          400: '#D699FF',  // Nebula bright
-          500: '#C680FF',  // Nebula strong
-          600: '#B566FF',  // Nebula deep
-          700: '#A259FF',  // Vibrant nebula violet (SECONDARY 1)
-          800: '#8A47E6',  // Nebula darker
-          900: '#7235CC',  // Deepest nebula
+          primary: '#0B1E3D',    // Deep cosmic navy
+          secondary: '#A259FF',   // Vibrant nebula violet
+          accent: '#FFD37E',      // Warm starlight gold
+          pop: '#FF6F61',         // Warm coral flare
+          neutral: '#F4F5F7',     // Soft airy gray
         },
-        stardust: {
-          50: '#FFFBF0',   // Softest starlight
-          100: '#FFF7E0',  // Light starlight
-          200: '#FFEFC2',  // Gentle starlight
-          300: '#FFE7A3',  // Starlight medium
-          400: '#FFDF85',  // Starlight bright
-          500: '#FFD766',  // Starlight strong
-          600: '#FFCF47',  // Starlight deep
-          700: '#FFD37E',  // Warm starlight gold (SECONDARY 2)
-          800: '#E6BE71',  // Starlight darker
-          900: '#CCA964',  // Deepest starlight
+        aurora: {
+          primary: '#142850',     // Rich indigo night sky
+          secondary: '#00C1D4',   // Bright aurora cyan
+          accent: '#FF9B85',      // Soft sunrise coral
+          pop: '#9D4EDD',         // Electric violet beam
+          neutral: '#F9FAFB',     // Gentle off-white
         },
-        constellation: {
-          50: '#FFF5F5',   // Softest constellation
-          100: '#FFEBEB',  // Light constellation
-          200: '#FFD6D6',  // Gentle constellation
-          300: '#FFC2C2',  // Constellation medium
-          400: '#FFADAD',  // Constellation bright
-          500: '#FF9999',  // Constellation strong
-          600: '#FF8585',  // Constellation deep
-          700: '#FF6F61',  // Warm coral flare (ACCENT POP)
-          800: '#E6645A',  // Constellation darker
-          900: '#CC5952',  // Deepest constellation
+        starlight: {
+          primary: '#1A1B41',     // Midnight indigo
+          secondary: '#D4A5FF',   // Lavender haze
+          accent: '#FFD6A5',      // Warm peach starlight
+          pop: '#48CAE4',         // Bright star cyan
+          neutral: '#FAF9F6',     // Cosmic dust white
         },
-        // 🌟 Enhanced Neutrals
+        
+        // Keep essential grays for UI consistency
         gray: {
-          50: '#F4F5F7',   // Soft airy gray (NEUTRAL LIGHT)
-          100: '#F9FAFB',  // Gentle off-white
-          200: '#FAF9F6',  // Cosmic dust white
-          300: '#E5E7EB',  // Standard gray
-          400: '#D1D5DB',  // Medium gray
-          500: '#9CA3AF',  // Text gray
-          600: '#6B7280',  // Dark text gray
-          700: '#4B5563',  // Darker gray
-          800: '#374151',  // Very dark gray
-          900: '#1F2937',  // Darkest gray
+          50: '#F9FAFB',
+          100: '#F3F4F6',
+          200: '#E5E7EB',
+          300: '#D1D5DB',
+          400: '#9CA3AF',
+          500: '#6B7280',
+          600: '#4B5563',
+          700: '#374151',
+          800: '#1F2937',
+          900: '#111827',
         },
-        // Keep existing indigo for backward compatibility
+        
+        // Legacy indigo support (will gradually replace with cosmic themes)
         indigo: {
           50: '#EEF2FF',
           100: '#E0E7FF',
@@ -129,12 +113,8 @@ export default {
         'slide-out': 'slide-out 0.5s ease-in',
         'float': 'float 6s ease-in-out infinite',
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        // ✨ Cosmic Animations
-        'constellation-twinkle': 'constellation-twinkle 3s ease-in-out infinite',
-        'cosmic-float': 'cosmic-float 8s ease-in-out infinite',
-        'starlight-pulse': 'starlight-pulse 2s ease-in-out infinite',
-        'nebula-drift': 'nebula-drift 20s linear infinite',
-        'aurora-dance': 'aurora-dance 15s ease-in-out infinite',
+        'cosmic-glow': 'cosmic-glow 3s ease-in-out infinite alternate',
+        'stellar-twinkle': 'stellar-twinkle 2s ease-in-out infinite',
       },
       keyframes: {
         'fade-in': {
@@ -157,37 +137,20 @@ export default {
           '0%, 100%': { transform: 'translateY(0px)' },
           '50%': { transform: 'translateY(-20px)' },
         },
-        // ✨ Cosmic Animation Keyframes
-        'constellation-twinkle': {
-          '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
-          '50%': { opacity: '1', transform: 'scale(1.1)' },
+        'cosmic-glow': {
+          '0%': { boxShadow: '0 0 20px rgba(162, 89, 255, 0.3)' },
+          '100%': { boxShadow: '0 0 40px rgba(162, 89, 255, 0.6)' },
         },
-        'cosmic-float': {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-15px)' },
-        },
-        'starlight-pulse': {
-          '0%, 100%': { opacity: '0.6' },
+        'stellar-twinkle': {
+          '0%, 100%': { opacity: '0.7' },
           '50%': { opacity: '1' },
         },
-        'nebula-drift': {
-          '0%': { transform: 'rotate(0deg) scale(1)' },
-          '50%': { transform: 'rotate(180deg) scale(1.05)' },
-          '100%': { transform: 'rotate(360deg) scale(1)' },
-        },
-        'aurora-dance': {
-          '0%': { transform: 'translateX(0) translateY(0) rotate(0deg)' },
-          '33%': { transform: 'translateX(30px) translateY(-20px) rotate(120deg)' },
-          '66%': { transform: 'translateX(-20px) translateY(15px) rotate(240deg)' },
-          '100%': { transform: 'translateX(0) translateY(0) rotate(360deg)' },
-        },
       },
-      // 🎨 Gradient Utilities
       backgroundImage: {
-        'cosmic-gradient': 'linear-gradient(135deg, #0B1E3D 0%, #A259FF 50%, #FFD37E 100%)',
-        'nebula-gradient': 'linear-gradient(135deg, #A259FF 0%, #FF6F61 100%)',
-        'stardust-gradient': 'linear-gradient(135deg, #FFD37E 0%, #FFCF47 100%)',
-        'constellation-field': 'radial-gradient(ellipse at top, #0B1E3D 0%, #1A1B41 50%, #000000 100%)',
+        'cosmic-gradient': 'linear-gradient(135deg, var(--color-cosmic-primary) 0%, var(--color-cosmic-secondary) 100%)',
+        'nebula-gradient': 'linear-gradient(135deg, #0B1E3D 0%, #A259FF 100%)',
+        'aurora-gradient': 'linear-gradient(135deg, #142850 0%, #00C1D4 100%)',
+        'starlight-gradient': 'linear-gradient(135deg, #1A1B41 0%, #D4A5FF 100%)',
       },
     },
   },
@@ -207,24 +170,12 @@ export default {
         '.safe-right': {
           paddingRight: 'env(safe-area-inset-right)',
         },
-        // 🌌 Cosmic Text Utilities
-        '.text-cosmic-gradient': {
-          background: 'linear-gradient(135deg, #0B1E3D 0%, #A259FF 50%, #FFD37E 100%)',
-          '-webkit-background-clip': 'text',
-          '-webkit-text-fill-color': 'transparent',
-          'background-clip': 'text',
+        '.cosmic-text-glow': {
+          textShadow: '0 0 10px var(--color-cosmic-secondary)',
         },
-        '.text-nebula-gradient': {
-          background: 'linear-gradient(135deg, #A259FF 0%, #FF6F61 100%)',
-          '-webkit-background-clip': 'text',
-          '-webkit-text-fill-color': 'transparent',
-          'background-clip': 'text',
-        },
-        '.text-stardust-gradient': {
-          background: 'linear-gradient(135deg, #FFD37E 0%, #FFCF47 100%)',
-          '-webkit-background-clip': 'text',
-          '-webkit-text-fill-color': 'transparent',
-          'background-clip': 'text',
+        '.stellar-blur': {
+          backdropFilter: 'blur(10px)',
+          background: 'rgba(255, 255, 255, 0.1)',
         },
       };
       addUtilities(newUtilities);

@@ -98,6 +98,24 @@ if (!rootElement) {
       console.error('❌ Failed to load Supabase module:', error);
       // Don't crash the app for module loading errors
     });
+
+    // Initialize Cosmic Theme System
+    import('./lib/cosmicThemes').then(({ cosmicThemeManager }) => {
+      if (!isProduction) {
+        console.log('🌌 Initializing Cosmic Theme System...');
+      }
+      
+      // Theme manager automatically loads saved theme and applies it
+      const currentTheme = cosmicThemeManager.getCurrentTheme();
+      const currentPalette = cosmicThemeManager.getCurrentPalette();
+      
+      if (!isProduction) {
+        console.log(`✨ Cosmic theme loaded: ${currentPalette.name} - ${currentPalette.description}`);
+      }
+    }).catch(error => {
+      console.error('❌ Failed to load Cosmic Theme System:', error);
+      // Don't crash the app for theme loading errors
+    });
     
   } catch (error) {
     handleCriticalError(error as Error, 'app rendering');
