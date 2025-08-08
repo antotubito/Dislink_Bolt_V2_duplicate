@@ -27,10 +27,12 @@ import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
 import { QRModal } from '../components/qr/QRModal';
 import DailyNeedSection from '../components/home/DailyNeedSection';
+import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { currentPalette } = useCosmicTheme();
   const [requests, setRequests] = useState<Contact[]>([]);
   const [recentContacts, setRecentContacts] = useState<Contact[]>([]);
   const [allContacts, setAllContacts] = useState<Contact[]>([]);
@@ -323,20 +325,21 @@ export function Home() {
       {/* Insights Section - Compact and Collapsible */}
       <div className="mb-6">
         <div 
-          className="flex items-center justify-between cursor-pointer bg-white p-3 rounded-xl shadow-sm border border-gray-200"
+          className="flex items-center justify-between cursor-pointer bg-white p-3 rounded-xl shadow-sm border border-cosmic-secondary/10 cosmic-glow"
           onClick={() => setShowInsights(!showInsights)}
         >
           <div className="flex items-center">
-            <div className="p-2 bg-indigo-100 rounded-lg mr-3">
-              <Sparkles className="h-5 w-5 text-indigo-600" />
+            <div className="p-2 cosmic-gradient rounded-lg mr-3">
+              <Sparkles className="h-5 w-5 text-white" />
             </div>
-            <h2 className="text-lg font-medium text-gray-900">Network Insights</h2>
+            <div>
+              <h2 className="text-lg font-semibold text-cosmic-primary">Your Network Insights</h2>
+              <p className="text-sm text-cosmic-primary/70">Track your connections and follow-ups</p>
+            </div>
           </div>
-          {showInsights ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
-          ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
-          )}
+          <div className="flex items-center text-cosmic-secondary">
+            {showInsights ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          </div>
         </div>
         
         <AnimatePresence>
@@ -397,7 +400,7 @@ export function Home() {
             
             <button
               onClick={() => setShowQRModal(true)}
-              className="inline-flex items-center px-3 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
+              className="inline-flex items-center px-3 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white cosmic-gradient hover:cosmic-glow transition-all duration-200"
             >
               <QrCode className="h-5 w-5 mr-1.5" />
               <span className="hidden sm:inline">Show QR</span>
@@ -431,10 +434,10 @@ export function Home() {
                       <button
                         key={filter.id}
                         onClick={() => setActiveFilter(isActive ? null : filter.id)}
-                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium ${
+                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
                           isActive
-                            ? 'bg-indigo-100 text-indigo-700 border border-indigo-200'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
+                            ? 'bg-cosmic-secondary/10 text-cosmic-secondary border border-cosmic-secondary/20'
+                            : 'bg-gray-100 text-cosmic-primary/70 hover:bg-cosmic-secondary/5 border border-gray-200'
                         }`}
                       >
                         <Icon className="h-4 w-4 mr-1.5" />
@@ -495,29 +498,29 @@ export function Home() {
       {/* Connection Requests */}
       {requests.length > 0 && (
         <div id="connection-requests" className="mb-8">
-          <div className="flex justify-between items-center mb-4 bg-gradient-to-r from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-200">
+          <div className="flex justify-between items-center mb-4 bg-gradient-to-r from-cosmic-accent/10 to-cosmic-accent/20 p-3 rounded-lg border border-cosmic-accent/30">
             <motion.div 
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               className="flex items-center"
             >
-              <div className="p-2 bg-amber-500 rounded-full mr-3 shadow-sm">
+              <div className="p-2 bg-cosmic-accent rounded-full mr-3 shadow-sm">
                 <Bell className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
+                <h2 className="text-lg font-semibold text-cosmic-primary flex items-center">
                   Connection Requests
-                  <span className="ml-2 bg-amber-200 text-amber-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                  <span className="ml-2 bg-cosmic-accent/20 text-cosmic-primary text-xs font-medium px-2.5 py-0.5 rounded-full">
                     {requests.length}
                   </span>
                 </h2>
-                <p className="text-xs text-amber-700">People waiting to connect with you</p>
+                <p className="text-xs text-cosmic-primary/70">People waiting to connect with you</p>
               </div>
             </motion.div>
           </div>
           {loading ? (
             <div className="flex justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cosmic-secondary"></div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -179,9 +179,6 @@ export function Waitlist() {
               </span>
             </motion.div>
             <div className="flex items-center space-x-4">
-              {/* Cosmic Theme Selector */}
-              <CosmicThemeSelectorCompact />
-              
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -227,131 +224,43 @@ export function Waitlist() {
               <div className="absolute inset-0">
                 {/* Primary gradient orbs */}
                 <motion.div
-                  className="absolute top-1/4 left-1/4 w-96 h-96 cosmic-gradient-radial opacity-30 rounded-full"
-                  animate={{
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 180, 360],
-                  }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
+                  className="absolute top-1/4 left-1/4 w-96 h-96 cosmic-gradient-radial opacity-20 rounded-full cosmic-float"
+                  style={{ animationDelay: '0s' }}
                 />
                 <motion.div
-                  className="absolute top-1/3 right-1/4 w-80 h-80 cosmic-gradient-soft opacity-25 rounded-full"
-                  animate={{
-                    scale: [1.1, 1, 1.1],
-                    rotate: [360, 180, 0],
-                  }}
-                  transition={{
-                    duration: 25,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
+                  className="absolute top-1/3 right-1/4 w-80 h-80 cosmic-gradient-soft opacity-15 rounded-full cosmic-float"
+                  style={{ animationDelay: '2s' }}
                 />
                 
                 {/* Floating geometric shapes */}
                 <motion.div
-                  className="absolute top-1/6 right-1/3 w-4 h-4 bg-cosmic-secondary/40 rounded-full"
-                  animate={{
-                    y: [0, -20, 0],
-                    x: [0, 15, 0],
-                    opacity: [0.4, 0.8, 0.4],
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
+                  className="absolute top-1/6 right-1/3 w-4 h-4 bg-cosmic-secondary/40 rounded-full cosmic-float"
+                  style={{ animationDelay: '1s' }}
                 />
                 <motion.div
-                  className="absolute bottom-1/3 left-1/6 w-6 h-6 bg-cosmic-accent/30 rotate-45"
-                  animate={{
-                    y: [0, 15, 0],
-                    x: [0, -10, 0],
-                    rotate: [45, 135, 45],
-                    opacity: [0.3, 0.6, 0.3],
-                  }}
-                  transition={{
-                    duration: 10,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1
-                  }}
+                  className="absolute bottom-1/3 left-1/6 w-6 h-6 bg-cosmic-accent/30 rotate-45 cosmic-scale"
+                  style={{ animationDelay: '3s' }}
                 />
                 <motion.div
-                  className="absolute top-2/3 right-1/6 w-3 h-3 bg-indigo-400/50 rounded-full"
-                  animate={{
-                    x: [0, 20, 0],
-                    y: [0, -15, 0],
-                    scale: [1, 1.2, 1],
-                  }}
-                  transition={{
-                    duration: 12,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 2
-                  }}
+                  className="absolute top-2/3 right-1/6 w-3 h-3 bg-cosmic-pop/50 rounded-full cosmic-float"
+                  style={{ animationDelay: '4s' }}
                 />
                 
                 {/* Additional floating elements for more movement */}
                 <motion.div
-                  className="absolute top-1/4 left-1/5 w-2 h-2 bg-cosmic-pop/30 rounded-full"
-                  animate={{
-                    x: [0, -25, 0],
-                    y: [0, 20, 0],
-                    opacity: [0.3, 0.7, 0.3],
-                  }}
-                  transition={{
-                    duration: 15,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 3
-                  }}
+                  className="absolute top-1/4 left-1/5 w-2 h-2 bg-cosmic-pop/30 rounded-full cosmic-scale"
+                  style={{ animationDelay: '5s' }}
                 />
                 <motion.div
-                  className="absolute bottom-1/4 right-1/5 w-5 h-5 bg-cosmic-secondary/25 rotate-45"
-                  animate={{
-                    x: [0, 12, 0],
-                    y: [0, -18, 0],
-                    rotate: [45, 225, 45],
-                    opacity: [0.25, 0.5, 0.25],
-                  }}
-                  transition={{
-                    duration: 14,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 4
-                  }}
+                  className="absolute bottom-1/4 right-1/5 w-5 h-5 bg-cosmic-secondary/25 rotate-45 cosmic-float"
+                  style={{ animationDelay: '2.5s' }}
                 />
                 <motion.div
-                  className="absolute top-1/2 left-1/8 w-3 h-3 bg-cosmic-accent/35 rounded-full"
-                  animate={{
-                    x: [0, 18, 0],
-                    y: [0, -12, 0],
-                    scale: [1, 1.3, 1],
-                  }}
-                  transition={{
-                    duration: 11,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 5
-                  }}
+                  className="absolute top-1/2 left-1/8 w-3 h-3 bg-cosmic-accent/35 rounded-full cosmic-scale"
+                  style={{ animationDelay: '1.5s' }}
                 />
                 
-                {/* Subtle grid pattern */}
-                <div className="absolute inset-0 opacity-[0.02]">
-                  <div className="absolute inset-0" style={{
-                    backgroundImage: `
-                      linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '60px 60px'
-                  }} />
-                </div>
-                
-                {/* Radial gradient overlay */}
+                {/* Subtle gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-radial from-transparent via-white/5 to-white/20" />
               </div>
             </div>
@@ -367,7 +276,7 @@ export function Waitlist() {
                 delay: 0.2
               }}
             >
-              <div className="p-5 cosmic-gradient rounded-2xl shadow-lg cosmic-glow transform hover:scale-105 transition-transform duration-200">
+              <div className="p-5 cosmic-gradient rounded-2xl shadow-lg cosmic-glow cosmic-scale transform hover:scale-105 transition-transform duration-200">
                 <LinkIcon className="h-16 w-16 text-white" />
               </div>
             </motion.div>
@@ -380,7 +289,7 @@ export function Waitlist() {
                 transition={{ delay: 0.3 }}
               >
                 Your Network, <br className="hidden sm:inline" />
-                <span className="text-cosmic-secondary cosmic-text-glow">
+                <span className="text-cosmic-secondary">
                   Reimagined
                 </span>
               </motion.h1>

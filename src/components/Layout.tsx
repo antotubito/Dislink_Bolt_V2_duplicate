@@ -8,12 +8,13 @@ import { NotificationDropdown } from './notifications/NotificationDropdown';
 import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
 import { QRModal } from './qr/QRModal';
-import { CosmicThemeSelectorCompact } from './cosmic/CosmicThemeSelector';
+import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, refreshUser } = useAuth();
+  const { currentPalette } = useCosmicTheme();
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [hideNav, setHideNav] = useState(false);
@@ -102,25 +103,25 @@ export function Layout() {
   const showAuthenticatedUI = user || isAuthenticated;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-cosmic-neutral flex flex-col">
       {/* Top Navigation */}
       <motion.nav
         initial={false}
         animate={{ y: hideNav ? -100 : 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed top-0 left-0 right-0 bg-white shadow-sm z-50"
+        className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-50 border-b border-cosmic-secondary/10"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <Link to="/app" className="flex-shrink-0 flex items-center">
-                <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-lg p-1.5">
+                <div className="cosmic-gradient rounded-lg p-1.5 cosmic-glow">
                   <LinkIcon className="h-6 w-6 text-white" />
                 </div>
-                <span className="ml-2 text-xl font-bold text-gray-900">Dislink</span>
+                <span className="ml-2 text-xl font-bold text-cosmic-primary">Dislink</span>
               </Link>
               {pageTitle && (
-                <h1 className="ml-6 text-xl font-semibold text-gray-900">{pageTitle}</h1>
+                <h1 className="ml-6 text-xl font-semibold text-cosmic-primary">{pageTitle}</h1>
               )}
             </div>
 
@@ -128,10 +129,10 @@ export function Layout() {
               <div className="hidden sm:flex sm:items-center sm:space-x-4">
                 <Link
                   to="/app"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                  className={`inline-flex items-center px-3 py-2 text-sm font-medium transition-colors ${
                     location.pathname === '/app'
-                      ? 'text-indigo-600 border-b-2 border-indigo-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300'
+                      ? 'text-cosmic-secondary border-b-2 border-cosmic-secondary'
+                      : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:border-b-2 hover:border-cosmic-accent/50'
                   }`}
                 >
                   <Home className="h-5 w-5 mr-1" />
@@ -139,10 +140,10 @@ export function Layout() {
                 </Link>
                 <Link
                   to="/app/contacts"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                  className={`inline-flex items-center px-3 py-2 text-sm font-medium transition-colors ${
                     location.pathname === '/app/contacts'
-                      ? 'text-indigo-600 border-b-2 border-indigo-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300'
+                      ? 'text-cosmic-secondary border-b-2 border-cosmic-secondary'
+                      : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:border-b-2 hover:border-cosmic-accent/50'
                   }`}
                 >
                   <Users className="h-5 w-5 mr-1" />
@@ -150,10 +151,10 @@ export function Layout() {
                 </Link>
                 <Link
                   to="/app/profile"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                  className={`inline-flex items-center px-3 py-2 text-sm font-medium transition-colors ${
                     location.pathname === '/app/profile'
-                      ? 'text-indigo-600 border-b-2 border-indigo-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300'
+                      ? 'text-cosmic-secondary border-b-2 border-cosmic-secondary'
+                      : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:border-b-2 hover:border-cosmic-accent/50'
                   }`}
                 >
                   <UserCircle2 className="h-5 w-5 mr-1" />
@@ -161,10 +162,10 @@ export function Layout() {
                 </Link>
                 <Link
                   to="/app/settings"
-                  className={`inline-flex items-center px-3 py-2 text-sm font-medium ${
+                  className={`inline-flex items-center px-3 py-2 text-sm font-medium transition-colors ${
                     location.pathname === '/app/settings'
-                      ? 'text-indigo-600 border-b-2 border-indigo-600'
-                      : 'text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300'
+                      ? 'text-cosmic-secondary border-b-2 border-cosmic-secondary'
+                      : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:border-b-2 hover:border-cosmic-accent/50'
                   }`}
                 >
                   <Settings className="h-5 w-5 mr-1" />
@@ -174,41 +175,37 @@ export function Layout() {
                 {/* Test Public Profile Link - For Testing Only */}
                 <Link
                   to="/share/test-profile"
-                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-amber-600 hover:text-amber-700 hover:border-b-2 hover:border-amber-300"
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-cosmic-accent hover:text-cosmic-pop hover:border-b-2 hover:border-cosmic-pop/50 transition-colors"
                   title="Test Public Profile View"
                 >
                   <Globe className="h-5 w-5 mr-1" />
                   Test Public Profile
                 </Link>
+                
                 {/* Quick Actions */}
                 <div className="relative ml-2">
                   <button
                     onClick={() => setShowQRModal(true)}
-                    className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-100 rounded-full relative"
+                    className="p-2 text-cosmic-primary/70 hover:text-cosmic-secondary hover:bg-cosmic-secondary/10 rounded-full relative transition-colors cosmic-glow"
                     title="Show QR Code"
                   >
                     <QrCode className="h-5 w-5" />
                     <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cosmic-secondary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-cosmic-secondary"></span>
                     </span>
                   </button>
-                </div>
-
-                {/* Cosmic Theme Selector */}
-                <div className="ml-3">
-                  <CosmicThemeSelectorCompact />
                 </div>
 
                 {/* Notifications */}
                 <div className="relative">
                   <button
                     onClick={() => setShowNotifications(!showNotifications)}
-                    className="p-2 text-gray-500 hover:text-gray-700 relative"
+                    className="p-2 text-cosmic-primary/70 hover:text-cosmic-secondary relative transition-colors"
                   >
                     <Bell className="h-5 w-5" />
                     {unreadNotifications > 0 && (
-                      <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-white" />
+                      <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-cosmic-pop ring-2 ring-white" />
                     )}
                   </button>
 
@@ -223,7 +220,7 @@ export function Layout() {
 
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white cosmic-gradient hover:cosmic-glow transition-all duration-200"
                 >
                   <LogOut className="h-5 w-5 mr-2" />
                   Logout
@@ -233,13 +230,13 @@ export function Layout() {
               <div className="flex items-center">
                 <Link
                   to="/app/login"
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-cosmic-primary/70 hover:text-cosmic-secondary px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Login
                 </Link>
                 <Link
                   to="/app/register"
-                  className="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                  className="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white cosmic-gradient hover:cosmic-glow transition-all duration-200"
                 >
                   Register
                 </Link>
@@ -273,15 +270,15 @@ export function Layout() {
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className="sm:hidden fixed inset-x-0 top-16 bg-white shadow-lg z-40"
+            className="sm:hidden fixed inset-x-0 top-16 bg-white/95 backdrop-blur-md shadow-lg z-40 border-b border-cosmic-secondary/10"
           >
             <div className="px-2 pt-2 pb-3 space-y-1">
               <Link
                 to="/app"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
                   location.pathname === '/app'
-                    ? 'text-indigo-600 bg-indigo-50'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-cosmic-secondary bg-cosmic-secondary/10'
+                    : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:bg-cosmic-secondary/10'
                 }`}
                 onClick={() => setShowMobileNav(false)}
               >
@@ -292,8 +289,8 @@ export function Layout() {
                 to="/app/contacts"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
                   location.pathname === '/app/contacts'
-                    ? 'text-indigo-600 bg-indigo-50'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-cosmic-secondary bg-cosmic-secondary/10'
+                    : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:bg-cosmic-secondary/10'
                 }`}
                 onClick={() => setShowMobileNav(false)}
               >
@@ -304,8 +301,8 @@ export function Layout() {
                 to="/app/profile"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
                   location.pathname === '/app/profile'
-                    ? 'text-indigo-600 bg-indigo-50'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-cosmic-secondary bg-cosmic-secondary/10'
+                    : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:bg-cosmic-secondary/10'
                 }`}
                 onClick={() => setShowMobileNav(false)}
               >
@@ -316,8 +313,8 @@ export function Layout() {
                 to="/app/settings"
                 className={`block px-3 py-2 rounded-md text-base font-medium ${
                   location.pathname === '/app/settings'
-                    ? 'text-indigo-600 bg-indigo-50'
-                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-cosmic-secondary bg-cosmic-secondary/10'
+                    : 'text-cosmic-primary/70 hover:text-cosmic-secondary hover:bg-cosmic-secondary/10'
                 }`}
                 onClick={() => setShowMobileNav(false)}
               >
@@ -332,9 +329,9 @@ export function Layout() {
                     setShowQRModal(true);
                     setShowMobileNav(false);
                   }} 
-                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-cosmic-primary/70 hover:text-cosmic-secondary hover:bg-cosmic-secondary/10"
                 >
-                  <QrCode className="h-5 w-5 inline-block mr-2 text-indigo-600" />
+                  <QrCode className="h-5 w-5 inline-block mr-2 text-cosmic-secondary" />
                   Show QR Code
                 </button>
               </div>
@@ -344,7 +341,7 @@ export function Layout() {
                   handleLogout();
                   setShowMobileNav(false);
                 }}
-                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-cosmic-primary/70 hover:text-cosmic-secondary hover:bg-cosmic-secondary/10"
               >
                 <LogOut className="h-5 w-5 inline-block mr-2" />
                 Logout
@@ -360,13 +357,13 @@ export function Layout() {
           initial={false}
           animate={{ y: hideNav ? 100 : 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 sm:hidden z-50"
+          className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-cosmic-secondary/20 sm:hidden z-50"
         >
           <div className="grid grid-cols-4 h-16">
             <Link
               to="/app"
               className={`flex flex-col items-center justify-center ${
-                location.pathname === '/app' ? 'text-indigo-600' : 'text-gray-600'
+                location.pathname === '/app' ? 'text-cosmic-secondary' : 'text-cosmic-primary/70'
               }`}
             >
               <Home className="h-6 w-6" />
@@ -375,7 +372,7 @@ export function Layout() {
             <Link
               to="/app/contacts"
               className={`flex flex-col items-center justify-center ${
-                location.pathname === '/app/contacts' ? 'text-indigo-600' : 'text-gray-600'
+                location.pathname === '/app/contacts' ? 'text-cosmic-secondary' : 'text-cosmic-primary/70'
               }`}
             >
               <Users className="h-6 w-6" />
@@ -387,20 +384,20 @@ export function Layout() {
               onClick={() => setShowQRModal(true)}
               className="flex flex-col items-center justify-center relative group"
             >
-              <div className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full flex items-center justify-center -mt-5 shadow-lg group-hover:shadow-indigo-500/50 transition-all duration-300">
+              <div className="w-12 h-12 bg-cosmic-secondary rounded-full flex items-center justify-center -mt-5 shadow-lg group-hover:shadow-cosmic-secondary/50 transition-all duration-300">
                 <QrCode className="h-6 w-6 text-white group-hover:scale-110 transition-transform duration-300" />
                 <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cosmic-secondary opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-cosmic-secondary"></span>
                 </span>
               </div>
-              <span className="text-xs mt-1 text-gray-600 group-hover:text-indigo-600 transition-colors duration-300">Connect</span>
+              <span className="text-xs mt-1 text-cosmic-primary/70 group-hover:text-cosmic-secondary transition-colors duration-300">Connect</span>
             </button>
             
             <Link
               to="/app/profile"
               className={`flex flex-col items-center justify-center ${
-                location.pathname === '/app/profile' ? 'text-indigo-600' : 'text-gray-600'
+                location.pathname === '/app/profile' ? 'text-cosmic-secondary' : 'text-cosmic-primary/70'
               }`}
             >
               <UserCircle2 className="h-6 w-6" />
