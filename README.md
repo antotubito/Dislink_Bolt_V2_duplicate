@@ -78,3 +78,82 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 3. Page verifies token → Shows success message
 4. User clicks "🚀 Start Your Journey" → Redirected to `/app/onboarding`
 
+## 🔑 **NETLIFY ENVIRONMENT VARIABLES**
+
+Add these **4 variables** in **Site Settings** → **Environment Variables**:
+
+### **Variable 1:**
+```
+Name: VITE_SUPABASE_URL
+Value: https://bbonxxvifycwpoeaxsor.supabase.co
+```
+
+### **Variable 2:**
+```
+Name: VITE_SUPABASE_ANON_KEY
+Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJib254eHZpZnljd3BvZWF4c29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Mjg5NDUsImV4cCI6MjA3MDAwNDk0NX0.rUuAcPIHVCfpAMEU2ADyb0F4Q3_eL0mkEyhBcbu0O70
+```
+
+### **Variable 3:**
+```
+Name: NODE_VERSION
+Value: 18
+```
+
+### **Variable 4:**
+```
+Name: NPM_VERSION
+Value: 9
+```
+
+## 🔐 **STEP 4: Configure Supabase**
+
+In your **Supabase Dashboard**:
+
+1. **Authentication** → **URL Configuration**:
+   ```
+   Site URL: https://dislinkboltv2duplicate.netlify.app
+   ```
+
+2. **Authentication** → **Redirect URLs** (add these):
+   ```
+   https://dislinkboltv2duplicate.netlify.app/**
+   https://dislinkboltv2duplicate.netlify.app/confirmed
+   http://localhost:5173/**
+   ```
+
+## 🚀 **STEP 5: Deploy!**
+
+1. **Click "Deploy site"** in Netlify
+2. **Wait for build** (should take ~4 minutes)
+3. **Check deploy logs** for any issues
+
+## 📊 **EXPECTED RESULTS**
+
+After successful deployment:
+- ✅ **Homepage**: Beautiful Dislink landing page with animations
+- ✅ **Authentication**: Login/register working
+- ✅ **Routing**: All pages accessible (`/`, `/waitlist`, `/story`, `/app/*`)
+- ✅ **Mobile**: Responsive design
+- ✅ **Email confirmation**: Proper redirects
+
+## 🎯 **WHAT'S ALREADY CONFIGURED**
+
+Your `netlify.toml` file includes:
+- ✅ **Build settings** (npm run build → dist)
+- ✅ **SPA routing** (/* → /index.html)
+- ✅ **Auth redirects** (Supabase email confirmations)
+- ✅ **Security headers** (XSS protection, etc.)
+- ✅ **Performance headers** (asset caching)
+
+## 🚨 **If Deployment Fails**
+
+Check these in the **deploy logs**:
+1. **Environment variables** are set correctly
+2. **Build command** completes successfully
+3. **Node version** is 18+
+
+**Your Dislink app is 100% ready for Netlify deployment! 🎉**
+
+Just follow the steps above and your beautiful networking app will be live!
+
