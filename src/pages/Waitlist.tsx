@@ -1,12 +1,12 @@
 /**
- * Waitlist.tsx - PUBLIC HOMEPAGE/LANDING PAGE
+ * Waitlist.tsx - COSMIC HOMEPAGE/LANDING PAGE
  * 
- * This is the main landing page that visitors see when they first visit the site.
+ * This is the main cosmic landing page - a serene night sky for mapping human connections.
  * Route: / (public route)
  * 
- * NOT the authenticated app dashboard - that's Home.tsx
+ * Features the refined cosmic design with philosophical touches.
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   ArrowRight, Mail, Link as LinkIcon, Check, 
@@ -20,7 +20,7 @@ import { Footer } from '../components/Footer';
 import { WaitlistForm } from '../components/waitlist/WaitlistForm';
 
 export function Waitlist() {
-  console.log('🎯 Waitlist component rendering...');
+  console.log('🌌 Cosmic Waitlist component rendering...');
   
   const navigate = useNavigate();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -32,11 +32,24 @@ export function Waitlist() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log('🎯 Waitlist component state initialized');
+  console.log('🌌 Cosmic state initialized');
+
+  // Create constellation stars
+  const [stars, setStars] = useState<Array<{ id: number; left: string; top: string; delay: number }>>([]);
+
+  useEffect(() => {
+    const starArray = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      delay: Math.random() * 3
+    }));
+    setStars(starArray);
+  }, []);
 
   // Function to scroll to waitlist form
   const scrollToWaitlistForm = () => {
-    console.log('🎯 Scroll to waitlist form called');
+    console.log('🌌 Navigate to cosmic connection form');
     const waitlistSection = document.getElementById('waitlist-form');
     if (waitlistSection) {
       waitlistSection.scrollIntoView({ 
@@ -44,13 +57,15 @@ export function Waitlist() {
         block: 'center'
       });
       
-      // Add a subtle highlight effect
-      waitlistSection.classList.add('highlight-form');
+      // Add cosmic highlight effect
+      waitlistSection.classList.add('cosmic-fade-in');
       setTimeout(() => {
-        waitlistSection.classList.remove('highlight-form');
-      }, 2000);
+        waitlistSection.classList.remove('cosmic-fade-in');
+      }, 800);
     }
   };
+
+  // Navigation functions
   const handleSignIn = () => {
     navigate('/app/login');
   };
@@ -66,7 +81,7 @@ export function Waitlist() {
   const handleTesterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real implementation, this would validate the tester credentials
-    console.log('Tester login attempt:', { email: testerEmail, passcode: testerPasscode });
+    console.log('Cosmic tester access:', { email: testerEmail, passcode: testerPasscode });
     navigate('/app/login');
   };
 
@@ -76,11 +91,11 @@ export function Waitlist() {
     setError(null);
 
     try {
-      // Track the email submission
-      console.log('Waitlist submission:', { 
+      // Track the cosmic connection request
+      console.log('Cosmic constellation joining:', { 
         email, 
         timestamp: new Date().toISOString(),
-        source: 'hero-form'
+        source: 'cosmic-hero-form'
       });
 
       const formData = new FormData();
@@ -98,64 +113,71 @@ export function Waitlist() {
       setSuccess(true);
       setEmail('');
       
-      // Track successful submission
-      console.log('Waitlist submission successful:', { 
+      // Track successful cosmic connection
+      console.log('Cosmic constellation joined successfully:', { 
         email, 
         timestamp: new Date().toISOString() 
       });
       
     } catch (err) {
-      console.error('Submission error:', err);
-      setError("Failed to join waitlist. Please try again.");
+      console.error('Cosmic connection error:', err);
+      setError("Failed to join the constellation. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const features = [
+  const cosmicFeatures = [
     {
       icon: Compass,
-      title: 'Context-Rich Connections',
-      description: 'Remember where, when, and how you met each person in your network'
+      title: 'Cosmic Context',
+      description: 'Remember the stellar moments when each connection entered your orbit - where, when, and how your paths crossed in the cosmos of life.'
     },
     {
       icon: Zap,
-      title: 'Smart Follow-ups',
-      description: 'Never miss an opportunity to nurture important relationships'
+      title: 'Stellar Updates',
+      description: 'Never let important connections drift into the void. Our cosmic intelligence reminds you to nurture relationships at just the right moment.'
     },
     {
-      icon: Smile,
-      title: 'Personal Touch',
-      description: 'Keep track of preferences, interests, and shared experiences'
+      icon: Globe,
+      title: 'Relationship Orbits',
+      description: 'Map the gravitational pull of your connections. See how relationships influence and enrich your personal constellation.'
     },
     {
       icon: Shield,
-      title: 'Private & Secure',
-      description: 'Your relationships and data are protected and private'
+      title: 'Constellation Care',
+      description: 'Your cosmic network is sacred and private. We protect your relationship constellation with stellar-grade security.'
     }
   ];
 
-  const testimonials = [
+  const cosmicTestimonials = [
     {
-      quote: "Dislink has completely transformed how I manage my relationships. I never forget important details about connections anymore.",
-      author: "A.M., Marketing Professional",
-      company: "Tech Innovations Inc."
+      quote: "Dislink feels like having a cosmic map of all my relationships. It's not just networking - it's constellation building.",
+      author: "Sarah Chen",
+      role: "Stellar Designer",
+      company: "Nebula Studios",
+      image: "/testimonials/sarah.jpg"
     },
     {
-      quote: "The ability to categorize contacts into relationship circles has been a game-changer for prioritizing my relationship building efforts.",
-      author: "J.D., Startup Founder",
-      company: "Growth Ventures"
+      quote: "Every connection in my orbit matters. Dislink helps me nurture the entire constellation of my relationships.",
+      author: "Marcus Rodriguez",
+      role: "Galaxy Entrepreneur", 
+      company: "Aurora Ventures",
+      image: "/testimonials/marcus.jpg"
     },
     {
-      quote: "I used to lose track of people I met at conferences. Now with Dislink, I can easily remember where and when we connected.",
-      author: "S.K., Business Developer",
-      company: "Global Solutions"
+      quote: "Like having a personal relationship observatory. I can see all my connections across the cosmic space of my life.",
+      author: "Dr. Elena Vasiliev",
+      role: "Quantum Researcher",
+      company: "Stardust Labs",
+      image: "/testimonials/elena.jpg"
     }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-50 flex flex-col">
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+    <div className="min-h-screen cosmic-bg-primary relative overflow-hidden">
+      {/* Cosmic Navigation */}
+      <div className="fixed top-0 left-0 right-0 z-50 cosmic-nav">
         <motion.nav 
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -168,10 +190,10 @@ export function Waitlist() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg">
+              <div className="cosmic-bg-accent p-2 rounded-lg cosmic-shadow-md">
                 <LinkIcon className="h-6 w-6 text-white" />
               </div>
-              <span className="ml-2 text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="ml-2 text-xl font-bold cosmic-text-secondary">
                 Dislink
               </span>
             </motion.div>
@@ -180,15 +202,15 @@ export function Waitlist() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/story')}
-                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+                className="cosmic-text-medium-contrast hover:cosmic-text-high-contrast font-medium text-sm transition-all duration-300"
               >
-                Our Story
+                Cosmic Story
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleSignIn}
-                className="text-gray-600 hover:text-gray-900 font-medium text-sm"
+                className="cosmic-text-medium-contrast hover:cosmic-text-high-contrast font-medium text-sm transition-all duration-300"
               >
                 Sign In
               </motion.button>
@@ -196,217 +218,204 @@ export function Waitlist() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleRegister}
-                className="px-4 py-2 border border-transparent rounded-full shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200"
+                className="cosmic-button"
               >
-                Register
+                Join Constellation
               </motion.button>
             </div>
           </div>
         </motion.nav>
       </div>
 
-      {/* Hero Section */}
-      <div className="flex-1 flex items-center justify-center pt-24 pb-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Constellation Stars */}
+      {stars.map((star) => (
+        <div
+          key={star.id}
+          className="constellation-star"
+          style={{
+            left: star.left,
+            top: star.top,
+            animationDelay: `${star.delay}s`
+          }}
+        />
+      ))}
+
+      {/* Cosmic Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-16">
+        <div className="max-w-6xl mx-auto text-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            id="waitlist-form"
-            className="text-center relative z-10"
+            transition={{ duration: 0.8 }}
+            className="cosmic-fade-in"
           >
-            {/* Animated background elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-              {/* Modern geometric background */}
-              <div className="absolute inset-0">
-                {/* Primary gradient orbs */}
-                <motion.div
-                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/30 via-purple-400/20 to-transparent rounded-full"
-                  animate={{
-                    scale: [1, 1.1, 1],
-                    rotate: [0, 180, 360],
-                  }}
-                  transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                />
-                <motion.div
-                  className="absolute top-1/3 right-1/4 w-80 h-80 bg-gradient-to-bl from-purple-400/25 via-indigo-400/15 to-transparent rounded-full"
-                  animate={{
-                    scale: [1.1, 1, 1.1],
-                    rotate: [360, 180, 0],
-                  }}
-                  transition={{
-                    duration: 25,
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
-                />
-                
-                {/* Floating geometric shapes */}
-                <motion.div
-                  className="absolute top-1/6 right-1/3 w-4 h-4 bg-indigo-500/40 rounded-full"
-                  animate={{
-                    y: [0, -20, 0],
-                    x: [0, 15, 0],
-                    opacity: [0.4, 0.8, 0.4],
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "easeInOut"
-                  }}
-                />
-                <motion.div
-                  className="absolute bottom-1/3 left-1/6 w-6 h-6 bg-purple-500/30 rotate-45"
-                  animate={{
-                    y: [0, 15, 0],
-                    x: [0, -10, 0],
-                    rotate: [45, 135, 45],
-                    opacity: [0.3, 0.6, 0.3],
-                  }}
-                  transition={{
-                    duration: 10,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 1
-                  }}
-                />
-                <motion.div
-                  className="absolute top-2/3 right-1/6 w-3 h-3 bg-indigo-400/50 rounded-full"
-                  animate={{
-                    x: [0, 20, 0],
-                    y: [0, -15, 0],
-                    scale: [1, 1.2, 1],
-                  }}
-                  transition={{
-                    duration: 12,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 2
-                  }}
-                />
-                
-                {/* Additional floating elements for more movement */}
-                <motion.div
-                  className="absolute top-1/4 left-1/5 w-2 h-2 bg-purple-400/30 rounded-full"
-                  animate={{
-                    x: [0, -25, 0],
-                    y: [0, 20, 0],
-                    opacity: [0.3, 0.7, 0.3],
-                  }}
-                  transition={{
-                    duration: 15,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 3
-                  }}
-                />
-                <motion.div
-                  className="absolute bottom-1/4 right-1/5 w-5 h-5 bg-indigo-300/25 rotate-45"
-                  animate={{
-                    x: [0, 12, 0],
-                    y: [0, -18, 0],
-                    rotate: [45, 225, 45],
-                    opacity: [0.25, 0.5, 0.25],
-                  }}
-                  transition={{
-                    duration: 14,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 4
-                  }}
-                />
-                <motion.div
-                  className="absolute top-1/2 left-1/8 w-3 h-3 bg-purple-300/35 rounded-full"
-                  animate={{
-                    x: [0, 18, 0],
-                    y: [0, -12, 0],
-                    scale: [1, 1.3, 1],
-                  }}
-                  transition={{
-                    duration: 11,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                    delay: 5
-                  }}
-                />
-                
-                {/* Subtle grid pattern */}
-                <div className="absolute inset-0 opacity-[0.02]">
-                  <div className="absolute inset-0" style={{
-                    backgroundImage: `
-                      linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '60px 60px'
-                  }} />
+            {/* Cosmic Logo/Icon */}
+            <div className="mb-8 flex justify-center">
+              <div className="relative">
+                <div className="w-24 h-24 cosmic-bg-accent rounded-full flex items-center justify-center cosmic-shadow-lg">
+                  <Sparkles className="h-12 w-12 text-white animate-pulse" />
                 </div>
-                
-                {/* Radial gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-radial from-transparent via-white/5 to-white/20" />
+                <div className="absolute -top-2 -right-2 w-6 h-6 cosmic-bg-secondary rounded-full flex items-center justify-center">
+                  <Star className="h-3 w-3 text-white" />
+                </div>
               </div>
             </div>
-            
-            <motion.div
-              className="flex justify-center mb-6"
-              initial={{ scale: 0, rotate: -10 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 200, 
-                damping: 15,
-                delay: 0.2
-              }}
-            >
-              <div className="p-5 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-200">
-                <LinkIcon className="h-16 w-16 text-white" />
-              </div>
-            </motion.div>
 
-            <div className="relative">
-              <motion.h1 
-                className="text-5xl sm:text-6xl font-bold mb-6 leading-tight"
+            {/* Cosmic Hero Title */}
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 cosmic-text-high-contrast">
+              <span className="cosmic-text-primary">Map Your</span>
+              <br />
+              <span className="cosmic-text-secondary">Constellation</span>
+              <br />
+              <span className="cosmic-text-accent">of Connections</span>
+            </h1>
+
+            {/* Philosophical Subtitle */}
+            <p className="text-xl sm:text-2xl mb-8 cosmic-text-medium-contrast max-w-4xl mx-auto leading-relaxed">
+              In the vast cosmos of human relationships, every connection is a star. 
+              <br className="hidden sm:block" />
+              <span className="cosmic-text-accent">Create your personal relationship constellation</span> and watch it illuminate your journey.
+            </p>
+
+            {/* Cosmic CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12" id="waitlist-form">
+              <button
+                onClick={scrollToWaitlistForm}
+                className="cosmic-button px-8 py-4 text-lg font-semibold flex items-center gap-3 cosmic-shadow-md"
+              >
+                <Sparkles className="h-5 w-5" />
+                Begin Connection
+                <ArrowRight className="h-5 w-5" />
+              </button>
+              
+              <button
+                onClick={() => navigate('/story')}
+                className="px-8 py-4 text-lg font-semibold cosmic-text-medium-contrast border border-white/20 rounded-xl hover:bg-white/10 transition-all duration-300 flex items-center gap-3"
+              >
+                <BookOpen className="h-5 w-5" />
+                Our Cosmic Story
+              </button>
+            </div>
+
+            {/* Cosmic Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-3xl mx-auto">
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ delay: 0.2 }}
+                className="text-center"
               >
-                Your Network, <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                  Reimagined
-                </span>
-              </motion.h1>
-              
-              <motion.p 
-                className="text-xl text-gray-600 max-w-2xl mx-auto mb-8"
+                <div className="cosmic-text-secondary text-3xl font-bold mb-2">∞</div>
+                <div className="cosmic-text-low-contrast">Endless Connections</div>
+              </motion.div>
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
+                className="text-center"
               >
-                Dislink helps you follow up, stay in touch, and grow your meaningful relationships effortlessly.
-              </motion.p>
+                <div className="cosmic-text-secondary text-3xl font-bold mb-2">24/7</div>
+                <div className="cosmic-text-low-contrast">Always Orbiting</div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="text-center"
+              >
+                <div className="cosmic-text-secondary text-3xl font-bold mb-2">🌌</div>
+                <div className="cosmic-text-low-contrast">Infinite Possibilities</div>
+              </motion.div>
             </div>
-
-            <motion.div 
-              className="flex justify-center mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <WaitlistForm onSuccess={() => setSuccess(true)} />
-            </motion.div>
           </motion.div>
         </div>
-      </div>
+      </section>
+
+      {/* Cosmic Waitlist Form Section */}
+      <section className="py-20 relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="cosmic-card p-8 cosmic-shadow-lg"
+          >
+            <h2 className="text-4xl font-bold cosmic-text-primary mb-4">
+              Join the Constellation
+            </h2>
+            <p className="text-xl cosmic-text-medium-contrast mb-8">
+              Be among the first cosmic explorers to map their relationship universe
+            </p>
+
+            <AnimatePresence mode="wait">
+              {success ? (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="text-center py-8"
+                >
+                  <div className="cosmic-bg-secondary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold cosmic-text-high-contrast mb-2">
+                    Welcome to the Constellation! ✨
+                  </h3>
+                  <p className="cosmic-text-medium-contrast">
+                    Your cosmic journey begins soon. We'll notify you when the stars align.
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.form
+                  initial={{ opacity: 1 }}
+                  onSubmit={handleWaitlistSubmit}
+                  className="max-w-md mx-auto"
+                >
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
+                    <input
+                      type="email"
+                      placeholder="Enter your cosmic coordinates (email)"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="cosmic-input w-full pl-12 pr-36 py-4"
+                      required
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <motion.button
+                        type="submit"
+                        disabled={loading || !email.trim()}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="cosmic-button px-6 py-2 disabled:opacity-50"
+                      >
+                        {loading ? (
+                          <div className="cosmic-spinner w-4 h-4" />
+                        ) : (
+                          'Join Constellation'
+                        )}
+                      </motion.button>
+                    </div>
+                  </div>
+                  
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-3 flex items-center text-sm cosmic-text-high-contrast bg-red-500/20 p-3 rounded-lg border border-red-500/30"
+                    >
+                      <div className="h-4 w-4 mr-2 text-red-400">⚠</div>
+                      {error}
+                    </motion.div>
+                  )}
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      </section>
 
       {/* How It Works Section */}
-      <div className="py-20 bg-white relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-100 rounded-full opacity-50 blur-3xl"></div>
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-purple-100 rounded-full opacity-50 blur-3xl"></div>
-        
+      <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <motion.div
@@ -415,31 +424,17 @@ export function Waitlist() {
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
             >
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">How It Works</h2>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto px-4">
-                Dislink makes relationship building simple, meaningful, and effective with these powerful features
+              <h2 className="text-4xl font-bold cosmic-text-primary mb-4">
+                How the Cosmic Connection Works
+              </h2>
+              <p className="text-xl cosmic-text-medium-contrast max-w-3xl mx-auto px-4">
+                Experience relationship building through the lens of cosmic wonder - simple, meaningful, and transformative
               </p>
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 relative">
-            {[
-              {
-                icon: QrCode, 
-                title: "Scan Contacts",
-                description: "Save new contacts instantly using QR codes. Share your digital profile with a single scan and never lose a connection again."
-              },
-              {
-                icon: Clock,
-                title: "Smart Follow-Ups",
-                description: "Get notified when it's time to reconnect. Our intelligent system reminds you to nurture important relationships at the right time."
-              },
-              {
-                icon: MapPin,
-                title: "Connection Map",
-                description: "Track who you met and where. Never forget the context of your connections with location and event tracking."
-              }
-            ].map((feature, index) => {
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+            {cosmicFeatures.map((feature, index) => {
               const Icon = feature.icon;
               return (
                 <motion.div
@@ -448,25 +443,22 @@ export function Waitlist() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.2 }}
-                  whileHover={{ y: -8, boxShadow: "0 15px 30px -5px rgba(79, 70, 229, 0.15), 0 10px 10px -5px rgba(79, 70, 229, 0.04)" }}
-                  className="bg-white p-8 rounded-2xl shadow-lg border border-indigo-100 transition-all duration-300 relative overflow-hidden"
+                  whileHover={{ y: -8 }}
+                  className="cosmic-card p-6 text-center cosmic-shadow-md relative overflow-hidden"
                 >
-                  {/* Background decoration */}
-                  <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-50 rounded-full opacity-50"></div>
-                  
-                  <div className="flex flex-col items-center text-center relative z-10">
-                    <div className="p-5 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl mb-6 shadow-md transform transition-transform duration-300 hover:rotate-3">
-                      <Icon className="h-10 w-10 text-indigo-600" />
+                  <div className="flex flex-col items-center relative z-10">
+                    <div className="p-4 cosmic-bg-accent rounded-2xl mb-6 cosmic-shadow-sm">
+                      <Icon className="h-8 w-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
-                    <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+                    <h3 className="text-xl font-bold cosmic-text-high-contrast mb-3">{feature.title}</h3>
+                    <p className="cosmic-text-medium-contrast leading-relaxed">{feature.description}</p>
                   </div>
                 </motion.div>
               );
             })}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* Mobile App Preview Section */}
       <div className="py-20 bg-gradient-to-br from-indigo-50 via-white to-purple-50 relative overflow-hidden">
@@ -639,7 +631,7 @@ export function Waitlist() {
             <div className="overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4"
               >
-                {testimonials.map((testimonial, index) => (
+                {cosmicTestimonials.map((testimonial, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}

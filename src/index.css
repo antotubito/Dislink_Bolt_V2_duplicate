@@ -2,112 +2,304 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base Styles */
-@layer base {
-  /* ... (keep existing base styles) */
+/* Cosmic Design System Variables */
+:root {
+  /* Cosmic Color Palette */
+  --cosmic-navy: #0B1E3D;
+  --nebula-violet: #A259FF;
+  --stardust-gold: #FFD37E;
+  --aurora-cyan: #00C1D4;
+  --constellation-coral: #FF6F61;
+  
+  /* Cosmic Gradients */
+  --cosmic-primary-gradient: linear-gradient(135deg, var(--cosmic-navy) 0%, var(--nebula-violet) 100%);
+  --cosmic-secondary-gradient: linear-gradient(135deg, var(--stardust-gold) 0%, var(--aurora-cyan) 100%);
+  --cosmic-accent-gradient: linear-gradient(135deg, var(--nebula-violet) 0%, var(--constellation-coral) 100%);
+  
+  /* Constellation Pattern */
+  --constellation-pattern: radial-gradient(circle at 20% 30%, rgba(255, 211, 126, 0.1) 1px, transparent 1px),
+                           radial-gradient(circle at 60% 20%, rgba(162, 89, 255, 0.08) 1px, transparent 1px),
+                           radial-gradient(circle at 30% 70%, rgba(0, 193, 212, 0.06) 1px, transparent 1px),
+                           radial-gradient(circle at 80% 80%, rgba(255, 111, 97, 0.08) 1px, transparent 1px),
+                           radial-gradient(circle at 10% 60%, rgba(255, 211, 126, 0.05) 1px, transparent 1px);
+  
+  /* Star Field Animation */
+  --star-animation: twinkling 3s ease-in-out infinite alternate;
+}
 
-  /* Improved Animation Settings */
-  .page-transition-enter {
+/* Cosmic Background Classes */
+.cosmic-bg-primary {
+  background: var(--cosmic-primary-gradient);
+  position: relative;
+}
+
+.cosmic-bg-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--constellation-pattern);
+  background-size: 400px 400px, 300px 300px, 500px 500px, 350px 350px, 450px 450px;
+  opacity: 0.6;
+  animation: var(--star-animation);
+}
+
+.cosmic-bg-secondary {
+  background: var(--cosmic-secondary-gradient);
+}
+
+.cosmic-bg-accent {
+  background: var(--cosmic-accent-gradient);
+}
+
+/* Cosmic Text Gradients */
+.cosmic-text-primary {
+  background: var(--cosmic-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cosmic-text-secondary {
+  background: var(--cosmic-secondary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cosmic-text-accent {
+  background: var(--cosmic-accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Constellation Dots Animation */
+@keyframes twinkling {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+@keyframes floating {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(180deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
+
+@keyframes constellation-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* Cosmic Components */
+.cosmic-card {
+  background: rgba(11, 30, 61, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(162, 89, 255, 0.2);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cosmic-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--constellation-pattern);
+  background-size: 200px 200px, 150px 150px, 250px 250px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.cosmic-button {
+  background: var(--cosmic-primary-gradient);
+  border: 1px solid rgba(162, 89, 255, 0.3);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.cosmic-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(162, 89, 255, 0.3);
+  border-color: rgba(162, 89, 255, 0.5);
+}
+
+.cosmic-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.cosmic-button:hover::before {
+  left: 100%;
+}
+
+.cosmic-input {
+  background: rgba(11, 30, 61, 0.8);
+  border: 1px solid rgba(162, 89, 255, 0.2);
+  border-radius: 8px;
+  color: white;
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.cosmic-input:focus {
+  outline: none;
+  border-color: var(--nebula-violet);
+  box-shadow: 0 0 0 3px rgba(162, 89, 255, 0.1);
+  background: rgba(11, 30, 61, 0.95);
+}
+
+.cosmic-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Constellation Stars */
+.constellation-star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: var(--stardust-gold);
+  border-radius: 50%;
+  animation: constellation-pulse 2s ease-in-out infinite;
+}
+
+.constellation-star:nth-child(2n) {
+  background: var(--aurora-cyan);
+  animation-delay: 0.5s;
+}
+
+.constellation-star:nth-child(3n) {
+  background: var(--nebula-violet);
+  animation-delay: 1s;
+}
+
+.constellation-star:nth-child(4n) {
+  background: var(--constellation-coral);
+  animation-delay: 1.5s;
+}
+
+/* Cosmic Navigation */
+.cosmic-nav {
+  background: rgba(11, 30, 61, 0.95);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(162, 89, 255, 0.1);
+}
+
+/* Cosmic Mobile Navigation */
+.cosmic-mobile-nav {
+  background: rgba(11, 30, 61, 0.98);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(162, 89, 255, 0.1);
+}
+
+/* Philosophical Animations */
+.cosmic-fade-in {
+  animation: cosmicFadeIn 0.8s ease-out;
+}
+
+.cosmic-slide-up {
+  animation: cosmicSlideUp 0.6s ease-out;
+}
+
+@keyframes cosmicFadeIn {
+  from {
     opacity: 0;
+    transform: translateY(20px);
   }
-  
-  .page-transition-enter-active {
+  to {
     opacity: 1;
-    transition: opacity 200ms ease-in-out;
-  }
-  
-  .page-transition-exit {
-    opacity: 1;
-  }
-  
-  .page-transition-exit-active {
-    opacity: 0;
-    transition: opacity 200ms ease-in-out;
-  }
-
-  /* Prevent Content Jump */
-  .overflow-fix {
-    overflow-x: hidden;
-    position: relative;
-    width: 100%;
-  }
-
-  /* Smooth Scrolling */
-  html {
-    scroll-behavior: smooth;
-    @apply antialiased;
-  }
-
-  /* Prevent Layout Shift */
-  body {
-    @apply min-h-screen overflow-x-hidden;
-  }
-
-  /* Force Hardware Acceleration */
-  .hw-accelerated {
-    transform: translateZ(0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-  }
-  
-  /* Mobile App Specific Styles */
-  .transparent-background {
-    background-color: transparent !important;
-  }
-  
-  /* Safe area insets for mobile devices */
-  .safe-top {
-    padding-top: env(safe-area-inset-top);
-  }
-  
-  .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  
-  .safe-left {
-    padding-left: env(safe-area-inset-left);
-  }
-  
-  .safe-right {
-    padding-right: env(safe-area-inset-right);
-  }
-  
-  /* Status bar styles for iOS */
-  .ios-status-bar-padding {
-    padding-top: 20px; /* Default status bar height */
-    padding-top: env(safe-area-inset-top); /* Use safe area if available */
-  }
-  
-  /* Bottom navigation padding for iOS */
-  .ios-bottom-padding {
-    padding-bottom: 34px; /* Default home indicator height */
-    padding-bottom: env(safe-area-inset-bottom); /* Use safe area if available */
-  }
-  
-  /* Highlight effect for waitlist form */
-  .highlight-form {
-    animation: highlight-pulse 2s ease-in-out;
-  }
-  
-  @keyframes highlight-pulse {
-    0% { 
-      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
-      transform: scale(1);
-    }
-    50% { 
-      box-shadow: 0 0 0 10px rgba(99, 102, 241, 0.1);
-      transform: scale(1.02);
-    }
-    100% { 
-      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
-      transform: scale(1);
-    }
-  }
-  
-  /* Radial gradient utility */
-  .bg-gradient-radial {
-    background: radial-gradient(circle, var(--tw-gradient-stops));
+    transform: translateY(0);
   }
 }
 
-/* ... (keep rest of the file unchanged) */
+@keyframes cosmicSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cosmic Loading Spinner */
+.cosmic-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(162, 89, 255, 0.2);
+  border-top: 3px solid var(--nebula-violet);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Clean Shadows */
+.cosmic-shadow-sm {
+  box-shadow: 0 2px 8px rgba(11, 30, 61, 0.1);
+}
+
+.cosmic-shadow-md {
+  box-shadow: 0 4px 16px rgba(11, 30, 61, 0.15);
+}
+
+.cosmic-shadow-lg {
+  box-shadow: 0 8px 32px rgba(11, 30, 61, 0.2);
+}
+
+/* Cosmic Notification Badges */
+.cosmic-notification {
+  background: var(--cosmic-accent-gradient);
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  animation: constellation-pulse 2s ease-in-out infinite;
+}
+
+/* Responsive Cosmic Design */
+@media (max-width: 768px) {
+  .cosmic-card {
+    border-radius: 12px;
+  }
+  
+  .cosmic-button {
+    padding: 10px 20px;
+    border-radius: 10px;
+  }
+}
+
+/* High Contrast Text */
+.cosmic-text-high-contrast {
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(11, 30, 61, 0.5);
+}
+
+.cosmic-text-medium-contrast {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.cosmic-text-low-contrast {
+  color: rgba(255, 255, 255, 0.7);
+}
