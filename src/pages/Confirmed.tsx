@@ -142,17 +142,35 @@ export function Confirmed() {
         if (verificationSuccessful) {
           logger.info('Email verification successful');
           
-          // Try to get the session to ensure it was created
-          const { data: { session } } = await supabase.auth.getSession();
-          logger.info('Session after verification:', { 
-            hasSession: !!session,
-            userId: session?.user?.id
-          });
+          // Wait for session to be fully established before redirecting
+          const waitForSession = async () => {
+            try {
+              const { data: { session }, error } = await supabase.auth.getSession();
+              
+              if (session && !error) {
+                logger.info('Session confirmed after verification:', { 
+                  hasSession: !!session,
+                  userId: session?.user?.id
+                });
+                
+                // Force a page reload to ensure AuthProvider gets the new session
+                window.location.href = '/app/onboarding';
+              } else {
+                // If no session yet, wait a bit and try again
+                logger.info('Session not ready, retrying...');
+                setTimeout(waitForSession, 1000);
+              }
+            } catch (error) {
+              logger.error('Error checking session:', error);
+              // Fallback to normal navigation after delay
+              setTimeout(() => {
+                navigate('/app/onboarding');
+              }, 2000);
+            }
+          };
           
-          // Automatically redirect to onboarding after a short delay
-          setTimeout(() => {
-            navigate('/app/onboarding');
-          }, 2000);
+          // Start checking for session
+          setTimeout(waitForSession, 500);
         }
       } catch (err) {
         logger.error('Verification error:', err);

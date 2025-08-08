@@ -49,6 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     '/story',
     '/app/login',
     '/app/register',
+    '/app/onboarding',
     '/app/terms',
     '/app/test-terms',
     '/terms',
