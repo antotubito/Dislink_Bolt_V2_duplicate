@@ -30,7 +30,6 @@
   from = "/*"
   to = "/index.html"
   status = 200
-<<<<<<< HEAD
 
 # Headers for better security and performance
 [[headers]]
@@ -55,5 +54,3 @@
 # Function settings for edge functions if needed
 [functions]
   directory = "netlify/functions"
-=======
->>>>>>> df15a0f8 (Fix netlify.toml for root build)
