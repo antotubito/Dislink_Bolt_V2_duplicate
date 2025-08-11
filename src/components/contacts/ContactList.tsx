@@ -5,7 +5,7 @@ import type { Contact, ContactFilters } from '../../types/contact';
 import ContactCard from './ContactCard';
 import { ContactForm } from './ContactForm';
 import { ContactFilters as ContactFiltersComponent } from './ContactFilters';
-import { listContacts, createContact, updateContact, deleteContact, listRecentContacts, updateContactTier } from '../../lib/contacts';
+import { listContacts, addContact, updateContact, deleteContact, listRecentContacts, updateContactTier } from '../../lib/contacts';
 import { TierSelector } from './TierSelector';
 
 export function ContactList() {
@@ -81,7 +81,7 @@ export function ContactList() {
 
   async function handleCreate(contactData: Omit<Contact, 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'notes' | 'followUps'>) {
     try {
-      const newContact = await createContact(contactData);
+      const newContact = await addContact(contactData);
       setContacts([newContact, ...contacts]);
       await loadData(); // Refresh both lists
       setShowForm(false);

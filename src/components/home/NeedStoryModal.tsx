@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Coffee, Music, Dumbbell, Utensils, Plane, Palette, BookOpen, User, Clock, MessageCircle, Globe, Lock, Briefcase, Lightbulb, Check, ArrowRight, CheckCircle, AlertTriangle } from 'lucide-react';
-import type { Need } from '../../types/need';
-import { getNeedReplies, sendNeedReply, markNeedAsSatisfied } from '../../lib/needs';
+import type { Need, NeedReply } from '../../types/need';
+import { getNeedReplies, replyToNeed, updateNeedSatisfaction } from '../../lib/needs';
+import { getTimeSince } from '../../lib/needs';
 import { useAuth } from '../../hooks/useAuth';
-import { NeedReply } from '../../types/need';
 import { NeedChatView } from './NeedChatView';
 
 interface NeedStoryModalProps {
@@ -27,7 +27,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
     if (!onMarkSatisfied) return;
     
     try {
-      await markNeedAsSatisfied(need.id);
+      await updateNeedSatisfaction(need.id, true);
       onMarkSatisfied(need.id);
     } catch (error) {
       console.error('Error marking need as satisfied:', error);
@@ -39,7 +39,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
       try {
         setLoading(true);
         // Only load replies from the current user
-        const repliesData = await getNeedReplies(need.id, user?.id);
+        const repliesData = await getNeedReplies(need.id);
         setReplies(repliesData);
       } catch (error) {
         console.error('Error loading replies:', error);
@@ -110,12 +110,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
     if (!reply.trim() || !user) return;
     
     try {
-      const newReply = await sendNeedReply({
-        needId: need.id,
-        message: reply.trim(),
-        userName: user.name,
-        userImage: user.profileImage
-      });
+      const newReply = await replyToNeed(need.id, reply.trim());
       
       // Add new reply to the list
       setReplies([...replies, newReply]);

@@ -18,7 +18,7 @@ import {
   declineConnectionRequest, 
   listRecentContacts,
   listContacts,
-  createEmilyTechRequest,
+  createEmilyTechConnectionRequest,
   createLisbonConnectionRequest,
   updateContactTier
 } from '../lib/contacts';
@@ -230,7 +230,7 @@ export function Home() {
   const createTestRequest = async () => {
     try {
       // Create a test connection request
-      const requestId = createEmilyTechRequest();
+      const requestId = createEmilyTechConnectionRequest();
       
       // Refresh the requests list
       const requestsData = await listConnectionRequests();

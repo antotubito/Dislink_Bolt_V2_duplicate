@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, UserCircle as UserIcon, Building2, MapPin, Calendar } from 'lucide-react';
 import type { User } from '../../types/user';
-import { createConnectionRequest } from '../../lib/contacts';
+import { createConnectionRequestFromQR } from '../../lib/contacts';
 import { ConnectionNotification } from '../notifications/ConnectionNotification';
 
 interface ConnectionConfirmationProps {
@@ -34,7 +34,7 @@ export function ConnectionConfirmation({
       setError(null);
       
       // Create connection request with location data
-      await createConnectionRequest({
+      await createConnectionRequestFromQR({
         userId: user.id,
         name: user.name,
         email: user.email,

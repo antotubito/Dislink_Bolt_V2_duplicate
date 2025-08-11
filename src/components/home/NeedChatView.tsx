@@ -4,7 +4,7 @@ import { User, ArrowLeft, Coffee, Music, Dumbbell, Utensils, Plane, Palette, Boo
 import { ChatBubble } from './ChatBubble';
 import { ChatInput } from './ChatInput';
 import { useAuth } from '../../hooks/useAuth';
-import { getNeedReplies, sendNeedReply } from '../../lib/needs';
+import { getNeedReplies, replyToNeed } from '../../lib/needs';
 import type { Need, NeedReply } from '../../types/need';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -52,13 +52,7 @@ export function NeedChatView({ need, onBack }: NeedChatViewProps) {
       // For private needs, set the replyToUserId to the need creator
       const replyToUserId = need.visibility === 'private' ? need.userId : undefined;
       
-      const newReply = await sendNeedReply({
-        needId: need.id,
-        message,
-        userName: user.name,
-        userImage: user.profileImage,
-        replyToUserId
-      });
+      const newReply = await replyToNeed(need.id, message);
       
       setReplies([...replies, newReply]);
     } catch (error) {

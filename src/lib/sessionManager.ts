@@ -1,7 +1,5 @@
 import { logger } from './logger';
 import Cookies from 'js-cookie';
-import { channelManager } from './channelManager';
-import { dataIsolation } from './dataIsolation';
 
 class SessionManager {
   private static instance: SessionManager;
@@ -21,195 +19,217 @@ class SessionManager {
     return SessionManager.instance;
   }
 
-  // Store production session
-  storeProductionSession(token: string): void {
+  // Store session
+  storeSession(token: string): void {
     try {
       const expiresAt = Date.now() + this.SESSION_DURATION;
       
       // Store session data
       localStorage.setItem('sb-token', token);
       localStorage.setItem('session_expires_at', expiresAt.toString());
-      this.resetLoginAttempts();
       
-      // Set secure cookie for additional security
-      Cookies.set('session_active', 'true', {
-        expires: 1, // 1 day
-        secure: true,
-        sameSite: 'strict'
-      });
-
-      logger.info('Production session stored successfully');
+      logger.info('Session stored successfully');
     } catch (error) {
-      logger.error('Error storing production session:', { error });
-      throw error;
+      logger.error('Failed to store session:', error);
     }
   }
 
-  // Store testing session
+  // Store testing session with specific token
   storeTestingSession(token: string): void {
     try {
+      const expiresAt = Date.now() + this.SESSION_DURATION;
+      
+      // Store both production-style and testing-style tokens
       localStorage.setItem('auth_token', token);
-      this.resetLoginAttempts();
+      localStorage.setItem('session_expires_at', expiresAt.toString());
+      
       logger.info('Testing session stored successfully');
     } catch (error) {
-      logger.error('Error storing testing session:', { error });
-      throw error;
+      logger.error('Failed to store testing session:', error);
     }
   }
 
-  // Check if user has active session
+  // Check if session exists and is valid
   hasSession(): boolean {
     try {
       const token = localStorage.getItem('sb-token');
-      const sessionCookie = Cookies.get('session_active');
-      const expiresAt = localStorage.getItem('session_expires_at');
       
-      if (!token) {
+      if (!token) return false;
+      
+      const expiresAt = localStorage.getItem('session_expires_at');
+      if (!expiresAt) return false;
+      
+      const expirationTime = parseInt(expiresAt);
+      const now = Date.now();
+      
+      if (now >= expirationTime) {
+        logger.info('Session expired, clearing');
+        this.clearSession();
         return false;
       }
-
-      // For production, check cookie and expiration
-      if (!sessionCookie) {
-        return false;
-      }
-
-      // Check expiration if it exists
-      if (expiresAt) {
-        const now = Date.now();
-        if (now >= parseInt(expiresAt)) {
-          this.clearSession();
-          return false;
-        }
-      }
-
+      
       return true;
     } catch (error) {
-      logger.error('Error checking session:', { error });
+      logger.error('Error checking session:', error);
       return false;
     }
   }
 
-  // Clear session data
+  // Get stored session token
+  getSessionToken(): string | null {
+    try {
+      if (!this.hasSession()) return null;
+      return localStorage.getItem('sb-token');
+    } catch (error) {
+      logger.error('Error getting session token:', error);
+      return null;
+    }
+  }
+
+  // Clear all session data
   clearSession(): void {
     try {
+      // Clear all possible session storage locations
       localStorage.removeItem('sb-token');
       localStorage.removeItem('auth_token');
       localStorage.removeItem('session_expires_at');
       localStorage.removeItem('loginAttempts');
       localStorage.removeItem('loginLockoutUntil');
       localStorage.removeItem('redirectUrl');
-      Cookies.remove('session_active');
       
-      // Clear channel-specific data
-      dataIsolation.clearAllData();
-      channelManager.resetChannel();
+      // Clear cookies
+      Cookies.remove('auth_token');
+      Cookies.remove('session_id');
       
       logger.info('Session cleared successfully');
     } catch (error) {
-      logger.error('Error clearing session:', { error });
-      throw error;
+      logger.error('Error clearing session:', error);
     }
   }
 
-  // Record failed login attempt
-  recordFailedAttempt(): void {
+  // Login attempt tracking
+  recordFailedLogin(): boolean {
     try {
       const attempts = Number(localStorage.getItem('loginAttempts') || '0') + 1;
       localStorage.setItem('loginAttempts', attempts.toString());
-
+      
       if (attempts >= this.MAX_LOGIN_ATTEMPTS) {
         const lockoutUntil = Date.now() + this.LOCKOUT_DURATION;
         localStorage.setItem('loginLockoutUntil', lockoutUntil.toString());
-        throw new Error('Account is temporarily locked. Please try again later.');
+        logger.warn(`Account locked out after ${attempts} failed attempts`);
+        return true; // Account is locked
       }
-
-      const remaining = this.MAX_LOGIN_ATTEMPTS - attempts;
-      throw new Error(`Invalid credentials. ${remaining} attempts remaining.`);
+      
+      logger.info(`Failed login attempt ${attempts}/${this.MAX_LOGIN_ATTEMPTS}`);
+      return false; // Not locked yet
     } catch (error) {
-      if (error instanceof Error) {
-        logger.error('Error recording failed attempt:', { message: error.message });
-        throw error;
-      }
-      logger.error('Error recording failed attempt:', { error });
-      throw new Error('Failed to record login attempt');
+      logger.error('Error recording failed login:', error);
+      return false;
     }
   }
 
-  // Reset login attempts
-  resetLoginAttempts(): void {
+  // Clear login attempts on successful login
+  clearLoginAttempts(): void {
     try {
       localStorage.removeItem('loginAttempts');
       localStorage.removeItem('loginLockoutUntil');
-      logger.info('Login attempts reset');
+      logger.info('Login attempts cleared');
     } catch (error) {
-      logger.error('Error resetting login attempts:', { error });
-      throw error;
+      logger.error('Error clearing login attempts:', error);
     }
   }
 
-  // Check if account is locked out
+  // Check if account is currently locked out
   isLockedOut(): boolean {
     try {
       const lockoutUntil = localStorage.getItem('loginLockoutUntil');
       if (!lockoutUntil) return false;
-
-      const now = Date.now();
+      
       const lockoutTime = parseInt(lockoutUntil);
-
-      if (now < lockoutTime) {
-        const remainingMinutes = Math.ceil((lockoutTime - now) / 60000);
-        throw new Error(`Account is locked. Please try again in ${remainingMinutes} minutes.`);
+      const now = Date.now();
+      
+      if (now >= lockoutTime) {
+        // Lockout period has expired
+        this.clearLoginAttempts();
+        return false;
       }
-
-      // Lockout expired, clear it
-      this.resetLoginAttempts();
-      return false;
+      
+      return true;
     } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      logger.error('Error checking lockout status:', { error });
+      logger.error('Error checking lockout status:', error);
       return false;
     }
   }
 
-  // Store redirect URL
-  storeRedirectUrl(url: string): void {
-    if (!url.startsWith('/app/login') && !url.startsWith('/app/register')) {
-      localStorage.setItem('redirectUrl', url);
+  // Get remaining lockout time in minutes
+  getRemainingLockoutTime(): number {
+    try {
+      const lockoutUntil = localStorage.getItem('loginLockoutUntil');
+      if (!lockoutUntil) return 0;
+      
+      const lockoutTime = parseInt(lockoutUntil);
+      const now = Date.now();
+      const remaining = Math.max(0, lockoutTime - now);
+      
+      return Math.ceil(remaining / 60000); // Convert to minutes
+    } catch (error) {
+      logger.error('Error getting remaining lockout time:', error);
+      return 0;
     }
   }
 
-  // Get redirect URL
-  getRedirectUrl(): string | null {
-    const url = localStorage.getItem('redirectUrl');
-    localStorage.removeItem('redirectUrl');
-    return url;
+  // Store redirect URL for post-login navigation
+  storeRedirectUrl(url: string): void {
+    try {
+      localStorage.setItem('redirectUrl', url);
+    } catch (error) {
+      logger.error('Error storing redirect URL:', error);
+    }
   }
 
-  // Get remaining login attempts
-  getRemainingAttempts(): number {
-    const attempts = Number(localStorage.getItem('loginAttempts') || '0');
-    return Math.max(0, this.MAX_LOGIN_ATTEMPTS - attempts);
+  // Get and clear redirect URL
+  getAndClearRedirectUrl(): string | null {
+    try {
+      const url = localStorage.getItem('redirectUrl');
+      localStorage.removeItem('redirectUrl');
+      return url;
+    } catch (error) {
+      logger.error('Error getting redirect URL:', error);
+      return null;
+    }
+  }
+
+  // Get login attempt count
+  getLoginAttempts(): number {
+    try {
+      const attempts = Number(localStorage.getItem('loginAttempts') || '0');
+      return attempts;
+    } catch (error) {
+      logger.error('Error getting login attempts:', error);
+      return 0;
+    }
   }
 
   // Check session expiry
   private checkSessionExpiry(): void {
     try {
       const expiresAt = localStorage.getItem('session_expires_at');
-      if (expiresAt && Date.now() >= parseInt(expiresAt)) {
+      if (!expiresAt) return;
+      
+      const expirationTime = parseInt(expiresAt);
+      const now = Date.now();
+      
+      // If session is expired, clear it
+      if (now >= expirationTime) {
+        logger.info('Session expired during background check');
         this.clearSession();
-        logger.info('Session expired');
-        window.location.href = '/app/login';
+        
+        // Optionally trigger a logout event
+        window.dispatchEvent(new CustomEvent('sessionExpired'));
       }
     } catch (error) {
-      logger.error('Error checking session expiry:', { error });
+      logger.error('Error during session expiry check:', error);
     }
-  }
-
-  // Check if access password is verified
-  isAccessVerified(): boolean {
-    return true; // Always return true to bypass access password verification
   }
 }
 

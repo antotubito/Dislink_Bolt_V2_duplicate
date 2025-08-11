@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { QrCode, Copy, Edit2, Scan } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { QRModal } from '../qr/QRModal';
+import React, { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Scan, Share2, X, Download, QrCode, CameraIcon, Upload, ExternalLink, Users } from 'lucide-react';
+import { generateQRCode } from '../../lib/qr';
+import { QRCodeSVG } from 'qrcode.react';
 import { QRScanner } from '../qr/QRScanner';
 import { ConnectionConfirmation } from '../qr/ConnectionConfirmation';
-import { validateQRCode, createConnectionRequest } from '../../lib/contacts';
+import { validateQRCode } from '../../lib/qr';
+import { createConnectionRequestFromQR } from '../../lib/contacts';
 import type { User } from '../../types/user';
 
 interface ProfileActionsProps {
@@ -52,7 +53,7 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
     if (!scannedUser) return;
     
     try {
-      await createConnectionRequest(scannedUser);
+      await createConnectionRequestFromQR(scannedUser);
       navigate('/app/contacts');
     } catch (error) {
       console.error('Error creating connection:', error);
