@@ -22,8 +22,6 @@ import { useCosmicTheme } from '../lib/cosmicThemes';
 import { CosmicThemeSelectorCompact } from '../components/cosmic/CosmicThemeSelector';
 
 export function Waitlist() {
-  console.log('🎯 Waitlist component rendering...');
-  
   const navigate = useNavigate();
   const { currentPalette } = useCosmicTheme();
   const [activeTestimonial, setActiveTestimonial] = useState(0);
@@ -35,11 +33,8 @@ export function Waitlist() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log('🎯 Waitlist component state initialized');
-
   // Function to scroll to waitlist form
   const scrollToWaitlistForm = () => {
-    console.log('🎯 Scroll to waitlist form called');
     const waitlistSection = document.getElementById('waitlist-form');
     if (waitlistSection) {
       waitlistSection.scrollIntoView({ 

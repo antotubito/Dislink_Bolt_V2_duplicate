@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import type { User, LoginCredentials, RegistrationData } from '../types/user';
+import { sessionManager } from './sessionManager';
 import { logger } from './logger';
-import { apiService } from './apiService';
 
 // Get current user based on Supabase session
 export async function getCurrentUser(): Promise<User | null> {
@@ -93,200 +93,73 @@ export async function login(credentials: LoginCredentials): Promise<{
   try {
     logger.info('Attempting login', { email: credentials.email });
 
-    // Check if Supabase is properly configured
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-    
-    if (!supabaseUrl || !supabaseAnonKey) {
-      logger.error('❌ Supabase not configured - login cannot proceed');
+    // Clear any existing auth data
+    await supabase.auth.signOut();
+    sessionManager.clearSession();
+
+    // Handle regular email/password login
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: credentials.email,
+      password: credentials.password
+    });
+
+    if (error) {
+      logger.error('Login error:', error);
+      
+      if (error.message.includes('Invalid login credentials')) {
+        return {
+          success: false,
+          error: 'Invalid email or password'
+        };
+      }
+      
+      if (error.message.includes('Email not confirmed')) {
+        localStorage.setItem('confirmEmail', credentials.email);
+        return {
+          success: false,
+          emailConfirmationRequired: true,
+          error: 'Please check your email and click the confirmation link before logging in.'
+        };
+      }
+      
+      if (error.message.includes('User not found')) {
+        return {
+          success: false,
+          emailNotFound: true,
+          error: 'No account found with this email address. Please sign up first.'
+        };
+      }
+      
+      throw error;
+    }
+
+    if (!data.session) {
       return {
         success: false,
-        error: 'Application configuration error. Please check Supabase credentials.'
+        error: 'No session returned'
       };
     }
 
-    // Try direct Supabase auth
-    if ('accessKey' in credentials) {
-      // Handle testing access key login
-      if (!credentials.accessKey?.trim()) {
-        return {
-          success: false,
-          error: 'Access key is required'
-        };
-      }
+    // Get user profile
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_complete, registration_status')
+      .eq('id', data.session.user.id)
+      .single();
 
-      // Clear any existing auth data
-      await supabase.auth.signOut();
-
-      // Use test credentials for access key login
-      const testEmail = `test-${credentials.accessKey}@example.com`;
-      const testPassword = credentials.accessKey;
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: testEmail,
-        password: testPassword
-      });
-
-      if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          return {
-            success: false,
-            error: 'Invalid access key'
-          };
-        }
-        throw error;
-      }
-
-      if (!data.session) {
-        return {
-          success: false,
-          error: 'No session returned'
-        };
-      }
-
-      // Get user profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('onboarding_complete, registration_status')
-        .eq('id', data.session.user.id)
-        .single();
-
-      logger.info('Test login successful', { userId: data.user?.id });
-      
-      return { 
-        success: true,
-        requiresOnboarding: !profile?.onboarding_complete
-      };
-    } else {
-      // Handle regular email/password login
-      if (!credentials.email?.trim() || !credentials.password?.trim()) {
-        return {
-          success: false,
-          error: 'Email and password are required'
-        };
-      }
-
-      // First check if the email exists in auth.users
-      try {
-        // Get the user directly from Supabase Auth
-        const { data: userData, error: userError } = await supabase.auth.signInWithPassword({
-          email: credentials.email,
-          password: credentials.password
-        });
-
-        if (userError) {
-          logger.error('Login error from Supabase:', userError);
-          
-          if (userError.message.includes('Failed to fetch')) {
-            return {
-              success: false,
-              error: 'Network error. Please check your internet connection and try again.'
-            };
-          }
-          
-          if (userError.message.includes('Email not confirmed')) {
-            localStorage.setItem('confirmEmail', credentials.email);
-            return {
-              success: false,
-              emailConfirmationRequired: true
-            };
-          }
-
-          if (userError.message.includes('Invalid login credentials')) {
-            // Check if the email exists in profiles
-            const { data: profileCheck, error: profileError } = await supabase
-              .from('profiles')
-              .select('id, email')
-              .ilike('email', credentials.email.toLowerCase().trim())
-              .limit(1);
-
-            if (profileError) {
-              logger.error('Profile check error:', profileError);
-            }
-
-            // If profile exists but credentials are invalid, it's a password issue
-            if (profileCheck && profileCheck.length > 0) {
-              logger.info('Profile found but password is incorrect');
-              return {
-                success: false,
-                error: 'Invalid password'
-              };
-            } else {
-              // If no profile found, the email doesn't exist
-              logger.warn('Email not found in profiles:', { email: credentials.email });
-              return {
-                success: false,
-                emailNotFound: true
-              };
-            }
-          }
-
-          throw userError;
-        }
-
-        if (!userData.session) {
-          return {
-            success: false,
-            error: 'No session returned'
-          };
-        }
-
-        // Get user profile
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('onboarding_complete, registration_status')
-          .eq('id', userData.session.user.id)
-          .single();
-
-        logger.info('Login successful', { userId: userData.user?.id });
-        
-        return { 
-          success: true,
-          requiresOnboarding: !profile?.onboarding_complete
-        };
-      } catch (error) {
-        logger.error('Error during login:', error);
-        
-        if (error instanceof Error) {
-          if (error.message.includes('Failed to fetch')) {
-            return {
-              success: false,
-              error: 'Network error. Please check your internet connection and try again.'
-            };
-          }
-          
-          return {
-            success: false,
-            error: error.message
-          };
-        }
-        
-        return {
-          success: false,
-          error: 'An unexpected error occurred. Please try again.'
-        };
-      }
-    }
+    logger.info('Login successful', { userId: data.user?.id });
+    
+    return { 
+      success: true,
+      requiresOnboarding: !profile?.onboarding_complete
+    };
   } catch (error) {
     logger.error('Login error:', error);
-    
-    if (error instanceof Error) {
-      if (error.message.includes('Failed to fetch')) {
-        return {
-          success: false,
-          error: 'Network error. Please check your internet connection and try again.'
-        };
-      }
-      
-      return {
-        success: false,
-        error: error.message
-      };
-    }
+    sessionManager.clearSession();
     
     return {
       success: false,
-      error: 'An unexpected error occurred. Please try again.'
+      error: error instanceof Error ? error.message : 'Login failed'
     };
   }
 }
@@ -388,15 +261,6 @@ export function validatePassword(password: string) {
   }
 
   return { isValid: true, message: '' };
-}
-
-// Get test users
-export function getTestUsers() {
-  return [
-    { email: "john@techinnovations.dev", name: "John Developer" },
-    { email: "user1@example.com", name: "User One" },
-    { email: "user2@example.com", name: "User Two" }
-  ];
 }
 
 // Get access requests

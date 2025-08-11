@@ -9,7 +9,6 @@ import { Profile } from './pages/Profile';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Terms } from './pages/Terms';
-import { TestTerms } from './pages/TestTerms';
 import { Contacts } from './pages/Contacts';
 import { Settings } from './pages/Settings';
 import { ContactProfile } from './pages/ContactProfile';
@@ -23,14 +22,11 @@ import { EmailConfirmation } from './pages/EmailConfirmation';
 import { EmailConfirm } from './pages/EmailConfirm';
 import { Confirmed } from './pages/Confirmed';
 import { ResetPassword } from './pages/ResetPassword';
-import { Demo } from './pages/Demo';
 import { ConnectionErrorBanner } from './components/ConnectionErrorBanner';
 import { isMobileApp } from './lib/mobileUtils';
 
 function App() {
-  console.log('🎯 App component rendering...');
   const isRunningInMobileApp = isMobileApp();
-  console.log('📱 Is mobile app:', isRunningInMobileApp);
 
   try {
     return (
@@ -48,14 +44,12 @@ function App() {
             <Route path="/verify" element={<EmailConfirmation />} />
             <Route path="/confirm" element={<EmailConfirm />} />
             <Route path="/confirmed" element={<Confirmed />} />
-            <Route path="/demo" element={<Demo />} />
             
             {/* Auth Routes - No authentication required */}
             <Route path="/app/login" element={<Login />} />
             <Route path="/app/register" element={<Register />} />
             <Route path="/app/reset-password" element={<ResetPassword />} />
             <Route path="/app/terms" element={<TermsConditions />} />
-            <Route path="/app/test-terms" element={<TestTerms />} />
             <Route path="/app/privacy" element={<PrivacyPolicy />} />
             <Route path="/app/onboarding" element={<Onboarding />} />
             
