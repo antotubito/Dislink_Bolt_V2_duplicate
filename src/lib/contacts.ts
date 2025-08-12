@@ -437,61 +437,83 @@ export const EMILY_TECH: User = {
   }
 };
 
-export async function createConnectionRequestFromQR(qrData: any, location?: { latitude: number; longitude: number; name?: string }): Promise<Contact> {
+export async function createConnectionRequestFromQR(
+  userData: {
+    userId: string;
+    name: string;
+    email?: string;
+    jobTitle?: string;
+    company?: string;
+    profileImage?: string;
+    bio?: any;
+    interests?: string[];
+    socialLinks?: Record<string, string>;
+    location?: {
+      latitude: number;
+      longitude: number;
+      name: string;
+      timestamp: Date;
+    };
+  },
+  location?: { latitude: number; longitude: number; name?: string }
+): Promise<Contact> {
   try {
-    logger.info('Creating connection request from QR scan', { qrData, location });
+    logger.info('Creating connection request from QR scan', { userData, location });
 
     // For testing, return Emily Tech profile when scanning test QR code
-    if (qrData.i === 'test-qr-code') {
+    if (userData.userId === 'test-qr-code') {
       return {
         id: 'test-qr-code',
-        name: qrData.n,
-        jobTitle: qrData.j,
-        company: qrData.o,
-        profileImage: qrData.p,
-        coverImage: qrData.c,
-        bio: qrData.b,
-        interests: qrData.in,
-        socialLinks: qrData.s,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    twoFactorEnabled: false,
-    publicProfile: {
-      enabled: true,
+        name: userData.name,
+        jobTitle: userData.jobTitle,
+        company: userData.company,
+        profileImage: userData.profileImage,
+        coverImage: undefined,
+        bio: userData.bio,
+        interests: userData.interests,
+        socialLinks: userData.socialLinks,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        twoFactorEnabled: false,
+        publicProfile: {
+          enabled: true,
           defaultSharedLinks: {},
-      allowedFields: {
-        email: false,
-        phone: false,
-        company: true,
-        jobTitle: true,
-        bio: true,
-        interests: true,
-        location: true
-      }
-    }
+          allowedFields: {
+            email: false,
+            phone: false,
+            company: true,
+            jobTitle: true,
+            bio: true,
+            interests: true,
+            location: true
+          }
+        }
       } as any;
     }
 
     const requestId = `req-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     
+    // Use the provided location from user data, or fallback to the location parameter
+    const meetingLocation = userData.location || location;
+    
     const newRequest: Contact = {
       id: requestId,
-      userId: qrData.u || 'unknown',
-      name: qrData.n || 'Unknown User',
-      email: qrData.e,
-      phone: qrData.p,
-      jobTitle: qrData.j,
-      company: qrData.o,
-      profileImage: qrData.pi,
-      coverImage: qrData.ci,
-      bio: qrData.b,
-      interests: qrData.in || [],
-      socialLinks: qrData.s || {},
+      userId: userData.userId,
+      name: userData.name,
+      email: userData.email,
+      phone: undefined,
+      jobTitle: userData.jobTitle,
+      company: userData.company,
+      profileImage: userData.profileImage,
+      coverImage: undefined,
+      bio: userData.bio,
+      interests: userData.interests || [],
+      socialLinks: userData.socialLinks || {},
       meetingDate: new Date(),
-      meetingLocation: location ? {
-        name: location.name || 'Unknown Location',
-        latitude: location.latitude,
-        longitude: location.longitude,
+      meetingLocation: meetingLocation ? {
+        name: meetingLocation.name || 'QR Code Location',
+        latitude: meetingLocation.latitude,
+        longitude: meetingLocation.longitude,
         venue: 'QR Code Scan',
         eventContext: 'Digital Connection'
       } : undefined,

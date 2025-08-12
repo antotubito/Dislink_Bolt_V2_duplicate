@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, UserCircle as UserIcon, Building2, MapPin, Calendar } from 'lucide-react';
 import type { User } from '../../types/user';
+import type { QRScanResult } from '../../types/qr';
 import { createConnectionRequestFromQR } from '../../lib/contacts';
 import { ConnectionNotification } from '../notifications/ConnectionNotification';
 
@@ -9,7 +10,7 @@ interface ConnectionConfirmationProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  user: User;
+  user: User | QRScanResult; // Accept both types
   location?: {
     latitude: number;
     longitude: number;
@@ -35,12 +36,15 @@ export function ConnectionConfirmation({
       
       // Create connection request with location data
       await createConnectionRequestFromQR({
-        userId: user.id,
+        userId: (user as QRScanResult).userId || (user as User).id, // Handle both QRScanResult and User types
         name: user.name,
-        email: user.email,
+        email: (user as User).email,
         jobTitle: user.jobTitle,
         company: user.company,
         profileImage: user.profileImage,
+        bio: (user as QRScanResult).bio || (user as User).bio,
+        interests: (user as QRScanResult).interests || (user as User).interests,
+        socialLinks: (user as QRScanResult).socialLinks || (user as User).socialLinks,
         location: location ? {
           latitude: location.latitude,
           longitude: location.longitude,
