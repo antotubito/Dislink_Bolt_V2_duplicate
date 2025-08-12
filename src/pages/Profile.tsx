@@ -7,7 +7,7 @@ import { updateProfile, getCurrentProfile } from '../lib/profile';
 import { sendTierNotifications } from '../lib/notifications';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, X } from 'lucide-react';
 
 export function Profile() {
   const { user, refreshUser, connectionStatus, reconnectSupabase } = useAuth();
