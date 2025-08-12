@@ -1,68 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, ArrowRight, Loader, AlertCircle, Sparkles, Users, Clock, CheckCircle } from 'lucide-react';
-
-// Function to generate a realistic but fake connection count
-// that increases over time to simulate real-world usage
-function getWorldwideConnections() {
-  // Base number of connections (start from January 1, 2024)
-  const startDate = new Date('2024-01-01').getTime();
-  const now = new Date().getTime();
-  const daysSinceStart = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
-  
-  // Generate a number that grows over time
-  // Start with 1000 base connections
-  // Add ~500 connections per day with some randomness
-  const baseConnections = 1000;
-  const dailyGrowth = 500;
-  const randomFactor = Math.random() * 100;
-  
-  const totalConnections = baseConnections + (daysSinceStart * dailyGrowth) + randomFactor;
-  
-  return Math.floor(totalConnections);
-}
+import { CheckCircle, Mail, Users, AlertCircle, Loader2 } from 'lucide-react';
+import { addToWaitlist, getWorldwideConnections } from '../../lib/waitlist';
 
 interface WaitlistFormProps {
   onSuccess?: () => void;
 }
 
+// Get user's location for analytics
+async function getUserLocation(): Promise<{ latitude: number; longitude: number; name?: string } | undefined> {
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) {
+      resolve(undefined);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          name: 'Current Location'
+        });
+      },
+      () => {
+        resolve(undefined);
+      },
+      { timeout: 5000, enableHighAccuracy: false }
+    );
+  });
+}
+
+// Extract UTM parameters from URL
+function getUTMParameters(): { utm_source?: string; utm_medium?: string; utm_campaign?: string } {
+  if (typeof window === 'undefined') return {};
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  return {
+    utm_source: urlParams.get('utm_source') || undefined,
+    utm_medium: urlParams.get('utm_medium') || undefined,
+    utm_campaign: urlParams.get('utm_campaign') || undefined
+  };
+}
+
 export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
-  const [connections, setConnections] = useState(getWorldwideConnections());
+  const [connections, setConnections] = useState(12847); // Start with a base number
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showPulse, setShowPulse] = useState(false);
-  const [recentJoins, setRecentJoins] = useState<{ name: string, role: string, location: string }[]>([]);
-  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [alreadySubscribed, setAlreadySubscribed] = useState(false);
 
-  // Update the count every minute to simulate real-time growth
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      setConnections(getWorldwideConnections());
-    }, 60000);
+  // Load dynamic connections count
+  useEffect(() => {
+    const loadConnections = async () => {
+      try {
+        const count = await getWorldwideConnections();
+        setConnections(count);
+      } catch (error) {
+        console.error('Failed to load connections count:', error);
+        // Keep the default value if loading fails
+      }
+    };
 
+    loadConnections();
+    
+    // Update connections count every 30 seconds
+    const interval = setInterval(loadConnections, 30000);
+    
     return () => clearInterval(interval);
   }, []);
 
-  // Simulate recent joins
+  // Simulate growing connections in real-time
   useEffect(() => {
-    const names = ['Sarah', 'John', 'Maria', 'Alex', 'Emma', 'David', 'Lisa', 'Mike', 'Anna', 'James'];
-    const roles = ['Product Designer', 'Software Engineer', 'Marketing Lead', 'Startup Founder', 'Community Manager', 'UX Researcher', 'Business Developer', 'Product Manager', 'Content Creator', 'Data Scientist', 'Student', 'Entrepreneur', 'Freelancer', 'Creative Professional', 'Service Provider'];
-    const locations = ['San Francisco', 'London', 'Berlin', 'New York', 'Toronto', 'Amsterdam', 'Singapore', 'Sydney', 'Paris', 'Tokyo'];
-    
     const interval = setInterval(() => {
-      const randomName = names[Math.floor(Math.random() * names.length)];
-      const randomRole = roles[Math.floor(Math.random() * roles.length)];
-      const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-      
-      setRecentJoins(prev => [
-        { name: randomName, role: randomRole, location: randomLocation },
-        ...prev.slice(0, 2)
-      ]);
-      
-      setShowPulse(true);
-      setTimeout(() => setShowPulse(false), 1000);
+      setConnections(prev => {
+        // Small random increment to show growth
+        const increment = Math.floor(Math.random() * 3) + 1;
+        return prev + increment;
+      });
     }, 8000);
     
     return () => clearInterval(interval);
@@ -72,36 +88,47 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setAlreadySubscribed(false);
 
     try {
-      // Track the email submission with source
+      // Get user location for analytics
+      const location = await getUserLocation();
+      
+      // Get UTM parameters
+      const utmParams = getUTMParameters();
+
+      // Track the email submission with enhanced data
       console.log('Waitlist submission:', { 
         email, 
         timestamp: new Date().toISOString(),
-        source: 'waitlist-form'
+        source: 'waitlist-form',
+        location,
+        ...utmParams
       });
 
-      const formData = new FormData();
-      formData.append('email', email);
-
-      await fetch(
-        "https://script.google.com/macros/s/AKfycbwKKvizfbtw_tPGVSkEm1bNfZ39EB-PHJYZlCDGQzn4gleqgf-Ag29Q-L6snPXQ_o8V/exec",
-        {
-          method: "POST",
-          mode: 'no-cors',
-          body: formData
-        }
-      );
-
-      setSuccess(true);
-      setEmail('');
-      onSuccess?.();
-      
-      // Track successful submission
-      console.log('Waitlist submission successful:', { 
-        email, 
-        timestamp: new Date().toISOString() 
+      // Use the new Supabase-based waitlist service
+      const result = await addToWaitlist({
+        email,
+        source: 'waitlist-form',
+        location,
+        ...utmParams
       });
+
+      if (result.success) {
+        setSuccess(true);
+        setEmail('');
+        setAlreadySubscribed(result.alreadySubscribed || false);
+        onSuccess?.();
+        
+        // Track successful submission
+        console.log('Waitlist submission successful:', { 
+          email, 
+          timestamp: new Date().toISOString(),
+          alreadySubscribed: result.alreadySubscribed
+        });
+      } else {
+        setError(result.message);
+      }
       
     } catch (err) {
       console.error('Submission error:', err);
@@ -122,150 +149,127 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
   };
 
   return (
-    <div className="max-w-md w-full space-y-6">
+    <motion.div
+      variants={formVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="w-full max-w-md mx-auto"
+    >
       <AnimatePresence mode="wait">
         {success ? (
           <motion.div
             key="success"
-            variants={formVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            className="bg-white p-6 rounded-xl shadow-md border border-green-100"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="text-center"
           >
-            <div className="text-center">
-              <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">You're on the list!</h3>
-              <p className="text-gray-600 mb-4">
-                Thanks for joining our waitlist. We'll notify you when Dislink is ready for you.
+            <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-white/20">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              >
+                <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              </motion.div>
+              
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {alreadySubscribed ? "You're already in!" : "Welcome aboard!"}
+              </h3>
+              
+              <p className="text-gray-600 mb-6">
+                {alreadySubscribed 
+                  ? "You're already on our waitlist. We'll notify you when Dislink is ready!"
+                  : "Check your email for confirmation. We'll notify you when Dislink is ready for early access."
+                }
               </p>
-              <div className="flex justify-center">
-                <div className="inline-flex items-center px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Email confirmation sent
-                </div>
+              
+              <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-700 font-medium">
+                  🎉 You're part of a growing community of <span className="font-bold text-indigo-600">{formattedConnections}</span> professionals!
+                </p>
               </div>
             </div>
           </motion.div>
         ) : (
-          <motion.form 
+          <motion.div
             key="form"
-            onSubmit={handleSubmit} 
-            className="relative"
-            variants={formVariants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
           >
-            <div className={`relative transition-all duration-300 ${isInputFocused ? 'transform scale-[1.02]' : ''}`}>
-              <div className={`absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full opacity-20 blur ${isInputFocused ? 'opacity-30' : ''}`}></div>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={() => setIsInputFocused(true)}
-                  onBlur={() => setIsInputFocused(false)}
-                  className="block w-full pl-12 pr-36 py-4 border-2 border-gray-200 rounded-full focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition-all duration-200 text-gray-900 placeholder-gray-400 bg-white shadow-sm"
-                  required
-                />
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <motion.button
-                    type="submit"
-                    disabled={loading || !email.trim()}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    style={{ transformOrigin: 'center' }}
-                    className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-md hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 transition-all duration-200"
-                  >
-                    {loading ? (
-                      <div className="flex items-center">
-                        <Loader className="animate-spin h-4 w-4 text-white" />
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        Join Waitlist
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </div>
-                    )}
-                  </motion.button>
+            {/* Connection Counter */}
+            <div className="text-center mb-6">
+              <div className="bg-white/90 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-white/20 inline-block">
+                <div className="flex items-center justify-center space-x-2">
+                  <Users className="h-5 w-5 text-indigo-600" />
+                  <span className="text-gray-700 font-medium">
+                    <motion.span
+                      key={formattedConnections}
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="text-xl font-bold text-indigo-600"
+                    >
+                      {formattedConnections}
+                    </motion.span>
+                    <span className="text-sm ml-1">worldwide connections</span>
+                  </span>
                 </div>
               </div>
             </div>
-            
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="mt-3 flex items-center text-sm text-red-600 bg-red-50 p-2 rounded-lg"
-              >
-                <AlertCircle className="h-4 w-4 mr-2" />
-                {error}
-              </motion.div>
-            )}
-          </motion.form>
-        )}
-      </AnimatePresence>
 
-      {/* Live Stats */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="flex flex-wrap justify-center gap-4 text-sm"
-      >
-        <div className="bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 flex items-center">
-          <motion.div 
-            className="flex items-center"
-            animate={showPulse ? { scale: [1, 1.2, 1] } : {}}
-            transition={{ duration: 0.5 }}
-          >
-            <Users className="h-4 w-4 mr-2 text-indigo-500" />
-            <span className="text-gray-700 font-medium">{formattedConnections.toLocaleString()} people waiting</span>
-          </motion.div>
-        </div>
-        <div className="bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 flex items-center">
-          <Clock className="h-4 w-4 mr-2 text-indigo-500" />
-          <span className="text-gray-700 font-medium">Limited spots available</span>
-        </div>
-      </motion.div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/20">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address"
+                    required
+                    disabled={loading}
+                    className="w-full pl-12 pr-4 py-4 text-gray-900 placeholder-gray-500 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 disabled:opacity-50"
+                  />
+                </div>
 
-      {/* Recent Activity */}
-      <AnimatePresence>
-        {recentJoins.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }} 
-            className="flex items-center justify-center text-sm"
-          >
-            <div className="bg-white px-4 py-2 rounded-full shadow-sm border border-indigo-100 flex items-center">
-              <Sparkles className="h-4 w-4 mr-2 text-indigo-500" />
-              <span className="text-indigo-700 font-medium">
-                {recentJoins[0].name} from {recentJoins[0].location} just joined!
-              </span>
-            </div>
-          </motion.div>
-        )}
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 flex items-center space-x-2 text-red-600"
+                  >
+                    <AlertCircle className="h-4 w-4" />
+                    <span className="text-sm">{error}</span>
+                  </motion.div>
+                )}
 
-        {error && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }} 
-            className="flex items-center text-sm text-red-600 bg-red-50 p-2 rounded-lg"
-          >
-            <AlertCircle className="h-4 w-4 mr-2" />
-            {error}
+                <motion.button
+                  type="submit"
+                  disabled={loading || !email}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full mt-4 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      <span>Joining waitlist...</span>
+                    </div>
+                  ) : (
+                    'Join the Waitlist'
+                  )}
+                </motion.button>
+
+                <p className="text-xs text-gray-500 mt-3 text-center">
+                  We'll never spam you. Unsubscribe at any time.
+                </p>
+              </div>
+            </form>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
