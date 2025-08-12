@@ -74,6 +74,9 @@ export function Waitlist() {
     setError(null);
 
     try {
+      // Import the addToWaitlist function
+      const { addToWaitlist } = await import('../lib/waitlist');
+      
       // Track the email submission
       console.log('Waitlist submission:', { 
         email, 
@@ -81,26 +84,25 @@ export function Waitlist() {
         source: 'hero-form'
       });
 
-      const formData = new FormData();
-      formData.append('email', email);
-
-      await fetch(
-        "https://script.google.com/macros/s/AKfycbwKKvizfbtw_tPGVSkEm1bNfZ39EB-PHJYZlCDGQzn4gleqgf-Ag29Q-L6snPXQ_o8V/exec",
-        {
-          method: "POST",
-          mode: 'no-cors',
-          body: formData
-        }
-      );
-
-      setSuccess(true);
-      setEmail('');
-      
-      // Track successful submission
-      console.log('Waitlist submission successful:', { 
-        email, 
-        timestamp: new Date().toISOString() 
+      // Use the new Supabase-based waitlist service
+      const result = await addToWaitlist({
+        email,
+        source: 'hero-form'
       });
+
+      if (result.success) {
+        setSuccess(true);
+        setEmail('');
+        
+        // Track successful submission
+        console.log('Waitlist submission successful:', { 
+          email, 
+          timestamp: new Date().toISOString(),
+          alreadySubscribed: result.alreadySubscribed
+        });
+      } else {
+        setError(result.message);
+      }
       
     } catch (err) {
       console.error('Submission error:', err);
