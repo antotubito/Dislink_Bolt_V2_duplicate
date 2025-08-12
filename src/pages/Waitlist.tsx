@@ -430,7 +430,7 @@ export function Waitlist() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, -10, 0] }}
-                  transition={{ delay: 0.4, repeat: Infinity, duration: 3 }}
+                  transition={{ repeat: Infinity, duration: 3 }}
                 >
                   <QrCode className="h-8 w-8 text-indigo-600" />
                 </motion.div>
@@ -441,7 +441,7 @@ export function Waitlist() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, 10, 0] }}
-                  transition={{ delay: 1, repeat: Infinity, duration: 4 }}
+                  transition={{ repeat: Infinity, duration: 4, delay: 1 }}
                 >
                   <MapPin className="h-8 w-8 text-red-500" />
                 </motion.div>
@@ -452,7 +452,7 @@ export function Waitlist() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   animate={{ y: [0, -8, 0] }}
-                  transition={{ delay: 0.5, repeat: Infinity, duration: 3.5 }}
+                  transition={{ repeat: Infinity, duration: 3.5, delay: 0.5 }}
                 >
                   <Bell className="h-8 w-8 text-amber-500" />
                 </motion.div>
