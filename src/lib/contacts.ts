@@ -453,22 +453,22 @@ export async function createConnectionRequestFromQR(qrData: any, location?: { la
         bio: qrData.b,
         interests: qrData.in,
         socialLinks: qrData.s,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        twoFactorEnabled: false,
-        publicProfile: {
-          enabled: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    twoFactorEnabled: false,
+    publicProfile: {
+      enabled: true,
           defaultSharedLinks: {},
-          allowedFields: {
-            email: false,
-            phone: false,
-            company: true,
-            jobTitle: true,
-            bio: true,
-            interests: true,
-            location: true
-          }
-        }
+      allowedFields: {
+        email: false,
+        phone: false,
+        company: true,
+        jobTitle: true,
+        bio: true,
+        interests: true,
+        location: true
+      }
+    }
       } as any;
     }
 
@@ -564,7 +564,7 @@ export async function createLisbonConnectionRequest(): Promise<string> {
     const requestId = `req-lisbon-${Date.now()}`;
     
     const newRequest: Contact = {
-      id: requestId,
+    id: requestId,
       userId: 'lisbon-user',
       name: 'Maria Silva',
       email: 'maria@example.com',
@@ -592,17 +592,17 @@ export async function createLisbonConnectionRequest(): Promise<string> {
       meetingContext: 'Met at UX workshop in Lisbon',
       tags: ['Design', 'UX', 'Lisbon'],
       tier: 2,
-      notes: [],
-      followUps: [],
+    notes: [],
+    followUps: [],
       createdAt: new Date(),
       updatedAt: new Date()
-    };
+  };
 
     // Add to Supabase
     addContact(newRequest);
-    
-    logger.info('Lisbon connection request created', { requestId });
-    return requestId;
+  
+  logger.info('Lisbon connection request created', { requestId });
+  return requestId;
   } catch (error) {
     logger.error('Error creating Lisbon connection request:', error);
     throw error;

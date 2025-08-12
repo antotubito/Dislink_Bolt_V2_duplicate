@@ -33,23 +33,23 @@ export const supabase = createClient(
   supabaseUrl || 'https://placeholder.supabase.co', 
   supabaseAnonKey || 'placeholder-key', 
   {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true,
       storage: typeof window !== 'undefined' ? localStorage : undefined,
-      flowType: 'pkce',
-      debug: import.meta.env.DEV
-    },
-    global: {
-      headers: {
-        'x-application-name': 'dislink',
+    flowType: 'pkce',
+    debug: import.meta.env.DEV
+  },
+  global: {
+    headers: {
+      'x-application-name': 'dislink',
         'x-environment': import.meta.env.MODE,
         'x-client-info': 'dislink-web@1.0.0'
-      }
-    },
-    realtime: {
-      params: {
+    }
+  },
+  realtime: {
+    params: {
         eventsPerSecond: import.meta.env.PROD ? 5 : 10
       }
     },
@@ -81,7 +81,7 @@ const checkConnection = async (): Promise<boolean> => {
       .from('profiles')
       .select('id')
       .limit(1);
-
+    
     if (error) {
       logger.error('Supabase connection check failed:', error);
       connectionHealthy = false;
@@ -109,8 +109,8 @@ const retryConnection = async (maxRetries = 3, delay = 1000): Promise<boolean> =
       await new Promise(resolve => setTimeout(resolve, delay));
       delay *= 2; // Exponential backoff
     }
-  }
-  return false;
+      }
+      return false;
 };
 
 // Export retryConnection function
