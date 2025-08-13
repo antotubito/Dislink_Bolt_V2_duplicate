@@ -127,9 +127,20 @@ CREATE POLICY "Users can create connection requests" ON connection_requests
 CREATE POLICY "Users can update requests to them" ON connection_requests
   FOR UPDATE USING (auth.uid() = user_id);
 
--- Waitlist Policies (Admin only)
-CREATE POLICY "Only authenticated users can view waitlist" ON waitlist
-  FOR SELECT USING (auth.role() = 'authenticated');
+-- Waitlist Policies - Allow public signups but restrict viewing
+DROP POLICY IF EXISTS "Only authenticated users can view waitlist" ON waitlist;
+
+-- Allow anyone to submit emails to the waitlist (public signups)
+CREATE POLICY "Allow public waitlist signups" ON waitlist
+  FOR INSERT WITH CHECK (true);
+
+-- Allow public access to check for duplicate emails (needed for duplicate detection)
+CREATE POLICY "Allow public email duplicate checks" ON waitlist
+  FOR SELECT USING (true);
+
+-- Keep admin access for viewing full waitlist data
+CREATE POLICY "Authenticated users can view full waitlist" ON waitlist
+  FOR ALL USING (auth.role() = 'authenticated');
 
 -- QR Scan Events Policies
 CREATE POLICY "Users can view their scan events" ON qr_scan_events
