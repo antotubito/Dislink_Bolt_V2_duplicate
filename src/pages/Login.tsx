@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer, CheckCircle, ArrowRight } from 'lucide-react';
+import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { login } from '../lib/auth';
-import { supabase, getSafeSession } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
 import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Login() {
   const navigate = useNavigate();
   const { user, loading, connectionStatus } = useAuth();
-  const { currentPalette } = useCosmicTheme();
+  useCosmicTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -105,11 +105,12 @@ export function Login() {
       
       // Try the enhanced login function first
       const result = await login({ email, password });
-      
-      if (result.success && result.session) {
-        logger.info('✅ Login successful with session - navigating immediately');
-        
-        // Direct navigation after successful login with session
+
+      // The 'session' property does not exist on result, so just check result.success
+      if (result.success) {
+        logger.info('✅ Login successful - navigating immediately');
+
+        // Direct navigation after successful login
         const redirectUrl = localStorage.getItem('redirectUrl');
         if (redirectUrl) {
           localStorage.removeItem('redirectUrl');
@@ -160,7 +161,7 @@ export function Login() {
 
         if (directError) {
           logger.error('❌ Direct login also failed:', directError.message);
-          setError(result.error.message);
+          setError(directError.message);
         } else if (data.session) {
           logger.info('✅ Direct login successful with session');
           

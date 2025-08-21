@@ -276,7 +276,7 @@ export async function addNote(contactId: string, content: string): Promise<Note>
   }
 }
 
-export async function deleteNote(contactId: string, noteId: string): Promise<void> {
+export async function deleteNote(contactId: string): Promise<void> {
   try {
     const contact = await getContact(contactId);
     if (!contact) throw new Error('Contact not found');
@@ -311,7 +311,7 @@ export async function addFollowUp(contactId: string, description: string, dueDat
   }
 }
 
-export async function toggleFollowUp(contactId: string, followUpId: string, completed: boolean): Promise<void> {
+export async function toggleFollowUp(contactId: string): Promise<void> {
   try {
     const contact = await getContact(contactId);
     if (!contact) throw new Error('Contact not found');

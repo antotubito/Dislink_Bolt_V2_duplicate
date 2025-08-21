@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, ArrowRight, Check, Lock, AlertCircle, Home, Timer, RefreshCw } from 'lucide-react';
+import { ArrowRight, Check, AlertCircle, Home, Timer, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
 
@@ -10,7 +10,7 @@ export function EmailConfirmation() {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [, setSuccess] = useState(false);
   const [resendingEmail, setResendingEmail] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
@@ -69,7 +69,7 @@ export function EmailConfirmation() {
         // Approach 1: Use token_hash with email
         if (email) {
           logger.info('Attempting verification with email and token_hash');
-          const { data: data1, error: error1 } = await supabase.auth.verifyOtp({
+          const { error: error1 } = await supabase.auth.verifyOtp({
             token_hash: token,
             type: type as any,
             email
@@ -86,7 +86,7 @@ export function EmailConfirmation() {
         // Approach 2: Use token_hash without email if first approach failed
         if (!verificationSuccessful) {
           logger.info('Attempting verification with token_hash only');
-          const { data: data2, error: error2 } = await supabase.auth.verifyOtp({
+          const { error: error2 } = await supabase.auth.verifyOtp({
             token_hash: token,
             type: type as any
           });
