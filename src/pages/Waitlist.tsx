@@ -6,20 +6,19 @@
  * 
  * NOT the authenticated app dashboard - that's Home.tsx
  */
-import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowRight, Mail, Link as LinkIcon, Check, 
-  Sparkles, Users, Shield, Zap, QrCode, Share2, 
-  MapPin, Bell, Clock, BookOpen, Globe, MessageCircle,
-  Smartphone, Star, X, Smile, Compass, 
-  ArrowUpRight, Quote, Linkedin, Twitter, Lock, CheckCircle
+  ArrowRight, Mail, Link as LinkIcon, 
+  Sparkles, Shield, Zap, QrCode, 
+  MapPin, Bell, Clock, MessageCircle,
+  Smile, Compass, 
+  Quote, Lock, CheckCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Footer } from '../components/Footer';
 import { WaitlistForm } from '../components/waitlist/WaitlistForm';
 import { useCosmicTheme } from '../lib/cosmicThemes';
-import { CosmicThemeSelectorCompact } from '../components/cosmic/CosmicThemeSelector';
 
 export function Waitlist() {
   const navigate = useNavigate();
@@ -429,10 +428,16 @@ export function Waitlist() {
                 <motion.div 
                   className="absolute -right-8 top-1/2 bg-white p-3 rounded-xl shadow-lg border border-indigo-100"
                   initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 3 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1,
+                    y: [0, -10, 0] 
+                  }}
+                  transition={{ 
+                    opacity: { duration: 0.5 },
+                    scale: { duration: 0.5 },
+                    y: { repeat: Infinity, duration: 3 }
+                  }}
                 >
                   <QrCode className="h-8 w-8 text-indigo-600" />
                 </motion.div>
@@ -440,10 +445,16 @@ export function Waitlist() {
                 <motion.div 
                   className="absolute -left-8 top-1/3 bg-white p-3 rounded-xl shadow-lg border border-red-100"
                   initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  animate={{ y: [0, 10, 0] }}
-                  transition={{ repeat: Infinity, duration: 4, delay: 1 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1,
+                    y: [0, 10, 0] 
+                  }}
+                  transition={{ 
+                    opacity: { duration: 0.5, delay: 0.2 },
+                    scale: { duration: 0.5, delay: 0.2 },
+                    y: { repeat: Infinity, duration: 4, delay: 1 }
+                  }}
                 >
                   <MapPin className="h-8 w-8 text-red-500" />
                 </motion.div>
@@ -451,10 +462,16 @@ export function Waitlist() {
                 <motion.div 
                   className="absolute -right-12 bottom-1/4 bg-white p-3 rounded-xl shadow-lg border border-amber-100"
                   initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  animate={{ y: [0, -8, 0] }}
-                  transition={{ repeat: Infinity, duration: 3.5, delay: 0.5 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: 1,
+                    y: [0, -8, 0] 
+                  }}
+                  transition={{ 
+                    opacity: { duration: 0.5, delay: 0.4 },
+                    scale: { duration: 0.5, delay: 0.4 },
+                    y: { repeat: Infinity, duration: 3.5, delay: 0.5 }
+                  }}
                 >
                   <Bell className="h-8 w-8 text-amber-500" />
                 </motion.div>
