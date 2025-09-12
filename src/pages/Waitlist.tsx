@@ -37,6 +37,22 @@ export function Waitlist() {
 
   console.log('🎯 Waitlist component state initialized');
 
+  // Add at the beginning of the component
+  useEffect(() => {
+    // Check if this is actually an email confirmation
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const tokenHash = urlParams.get('token_hash');
+    const type = urlParams.get('type');
+    
+    if (code || tokenHash) {
+      console.log('🔄 Email confirmation detected on homepage, redirecting...');
+      // This is an email confirmation, redirect to proper handler
+      window.location.href = `/confirmed${window.location.search}`;
+      return;
+    }
+  }, []);
+
   // Function to scroll to waitlist form
   const scrollToWaitlistForm = () => {
     console.log('🎯 Scroll to waitlist form called');

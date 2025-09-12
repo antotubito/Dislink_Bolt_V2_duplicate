@@ -29,10 +29,18 @@ export async function login(credentials: LoginCredentials): Promise<{
   emailNotFound?: boolean;
 }> {
   try {
+    // 🔍 PRODUCTION DEBUG LOGGING
+    console.log('🔍 AUTH: Starting login function', {
+      email: credentials.email.substring(0, 5) + '...',
+      hasPassword: !!credentials.password,
+      supabaseReady: typeof supabase !== 'undefined'
+    });
+    
     logger.info('🔐 Attempting login for:', credentials.email);
     
     // Validate input
     if (!credentials.email || !credentials.password) {
+      console.log('🔍 AUTH: Validation failed - missing credentials');
       return {
         user: null,
         session: null,
@@ -41,13 +49,30 @@ export async function login(credentials: LoginCredentials): Promise<{
       };
     }
 
+    console.log('🔍 AUTH: About to call signInWithPassword');
+    
     // Attempt sign in
     const { data, error } = await supabase.auth.signInWithPassword({
       email: credentials.email.trim().toLowerCase(),
       password: credentials.password,
     });
 
+    console.log('🔍 AUTH: signInWithPassword result:', {
+      hasData: !!data,
+      hasUser: !!data?.user,
+      hasSession: !!data?.session,
+      error: error?.message,
+      errorCode: error?.code || error?.status
+    });
+
     if (error) {
+      console.error('🔍 AUTH: Login error details:', {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        details: error
+      });
+      
       logger.error('Login error:', error);
       
       // Handle specific error cases
@@ -414,4 +439,118 @@ export function validatePassword(password: string) {
 
   // Basic validation - just check length for now to improve UX
   return { isValid: true, message: '' };
+}
+
+// 🔍 DIAGNOSTIC: Check user account state in Supabase
+export async function diagnoseUserAccount(email: string): Promise<{
+  exists: boolean;
+  confirmed: boolean;
+  inAuthUsers: boolean;
+  inProfiles: boolean;
+  details: any;
+}> {
+  try {
+    console.log('🔍 DIAGNOSING USER ACCOUNT:', email);
+    
+    const result = {
+      exists: false,
+      confirmed: false,
+      inAuthUsers: false,
+      inProfiles: false,
+      details: {}
+    };
+    
+    // Check if user exists in profiles table
+    const { data: profiles, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('email', email.trim().toLowerCase());
+    
+    if (!profileError && profiles && profiles.length > 0) {
+      result.inProfiles = true;
+      result.exists = true;
+      result.details.profile = profiles[0];
+      console.log('🔍 User found in profiles:', profiles[0]);
+    }
+    
+    // Try to sign up with a dummy password to check auth state
+    const { data: signupData, error: signupError } = await supabase.auth.signUp({
+      email: email.trim().toLowerCase(),
+      password: 'dummy-password-for-testing-' + Math.random()
+    });
+    
+    if (signupError) {
+      console.log('🔍 Signup test error:', signupError.message);
+      
+      if (signupError.message.includes('already registered') || 
+          signupError.message.includes('already exists')) {
+        result.inAuthUsers = true;
+        result.exists = true;
+        result.confirmed = true;
+      } else if (signupError.message.includes('not confirmed')) {
+        result.inAuthUsers = true;
+        result.exists = true;
+        result.confirmed = false;
+      }
+    } else if (signupData.user) {
+      // User was created (shouldn't happen if they exist)
+      result.exists = false;
+      console.log('🔍 New user created during test');
+    }
+    
+    console.log('🔍 DIAGNOSIS COMPLETE:', result);
+    return result;
+    
+  } catch (error) {
+    console.error('🔍 Error diagnosing user account:', error);
+    return {
+      exists: false,
+      confirmed: false,
+      inAuthUsers: false,
+      inProfiles: false,
+      details: { error: error.message }
+    };
+  }
+}
+
+// 🔧 ENHANCED LOGIN with proper error handling
+export async function enhancedLogin(credentials: LoginCredentials): Promise<{ 
+  user: any; 
+  session: any; 
+  error: AuthError | null;
+  success: boolean;
+  requiresOnboarding?: boolean;
+  emailConfirmationRequired?: boolean;
+  emailNotFound?: boolean;
+  diagnosis?: any;
+}> {
+  try {
+    console.log('🔍 ENHANCED LOGIN: Starting diagnosis for:', credentials.email);
+    
+    // First, diagnose the user account state
+    const diagnosis = await diagnoseUserAccount(credentials.email);
+    console.log('🔍 Account diagnosis:', diagnosis);
+    
+    // Attempt normal login
+    const loginResult = await login(credentials);
+    
+    // If login failed, provide enhanced error info
+    if (!loginResult.success && loginResult.error) {
+      return {
+        ...loginResult,
+        diagnosis
+      };
+    }
+    
+    return loginResult;
+    
+  } catch (error) {
+    console.error('🔍 Enhanced login error:', error);
+    return {
+      user: null,
+      session: null,
+      error: { message: error.message },
+      success: false
+    };
+  }
 }

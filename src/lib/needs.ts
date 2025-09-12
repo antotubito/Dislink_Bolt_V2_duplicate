@@ -1,140 +1,52 @@
+import { supabase } from './supabase';
 import { logger } from './logger';
 import type { Need, NeedReply } from '../types/need';
-import { ANTONIO_TUBITO } from './contacts';
 import { formatDistanceToNow } from 'date-fns';
 
-// Mock data for needs
-const MOCK_NEEDS: Need[] = [
-  {
-    id: '1',
-    userId: 'user-1',
-    userName: 'Sarah Johnson',
-    userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'socialize',
-    categoryLabel: 'Socialize',
-    message: 'Anyone up for coffee this afternoon in downtown?',
-    tags: ['coffee', 'chat'],
-    visibility: 'open', // Open visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
-  },
-  {
-    id: '2',
-    userId: 'user-2',
-    userName: 'Michael Chen',
-    userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'events',
-    categoryLabel: 'Events',
-    message: 'Got an extra ticket for tonight\'s concert at Madison Square Garden!',
-    tags: ['concert', 'music'],
-    visibility: 'private', // Private visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // Expires in 48 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
-  },
-  {
-    id: '3',
-    userId: 'user-3',
-    userName: 'Emma Rodriguez',
-    userImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'learning',
-    categoryLabel: 'Learning',
-    message: 'Starting a Spanish study group - beginners welcome! Meeting this weekend.',
-    tags: ['language', 'study'],
-    visibility: 'open', // Open visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5) // 5 hours ago
-  },
-  {
-    id: '4',
-    userId: 'user-4',
-    userName: 'David Kim',
-    userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    category: 'active',
-    categoryLabel: 'Active',
-    message: 'Looking for a tennis partner for Sunday morning at Central Park courts.',
-    tags: ['sports', 'tennis'],
-    visibility: 'private', // Private visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 48), // Expires in 48 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8) // 8 hours ago
-  },
-  {
-    id: '5',
-    userId: ANTONIO_TUBITO.id,
-    userName: ANTONIO_TUBITO.name,
-    userImage: ANTONIO_TUBITO.profileImage,
-    category: 'food',
-    categoryLabel: 'Food',
-    message: 'Trying that new Italian restaurant downtown tonight. Anyone want to join?',
-    tags: ['dining', 'italian'],
-    visibility: 'open', // Open visibility
-    expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // Expires in 24 hours
-    isSatisfied: false,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1) // 1 hour ago
-  }
-];
-
-// Mock data for replies
-const MOCK_REPLIES: Record<string, NeedReply[]> = {
-  '1': [
-    {
-      id: 'reply-1-1',
-      needId: '1',
-      userId: 'user-2',
-      userName: 'Michael Chen',
-      userImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'I\'m free after 3pm. Which coffee shop were you thinking?',
-      createdAt: new Date(Date.now() - 1000 * 60 * 20) // 20 minutes ago
-    },
-    {
-      id: 'reply-1-2',
-      needId: '1',
-      userId: 'user-3',
-      userName: 'Emma Rodriguez',
-      userImage: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'I\'d love to join! I know a great place on Main Street.',
-      createdAt: new Date(Date.now() - 1000 * 60 * 15) // 15 minutes ago
-    }
-  ],
-  '2': [
-    {
-      id: 'reply-2-1',
-      needId: '2',
-      userId: 'user-4',
-      userName: 'David Kim',
-      userImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'Who\'s playing? I might be interested!',
-      createdAt: new Date(Date.now() - 1000 * 60 * 60) // 1 hour ago
-    }
-  ],
-  '5': [
-    {
-      id: 'reply-5-1',
-      needId: '5',
-      userId: 'user-1',
-      userName: 'Sarah Johnson',
-      userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-      message: 'I\'ve been wanting to try that place! What time are you going?',
-      createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 minutes ago
-    }
-  ]
-};
+// 🚀 PRODUCTION-READY NEEDS SYSTEM
+// Migrated from mock data to Supabase with mobile optimizations
 
 /**
- * List all needs
+ * List all active needs from Supabase
  */
 export async function listNeeds(): Promise<Need[]> {
   try {
-    // In a real implementation, this would fetch needs from the database
-    // Filter out expired and satisfied needs
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      logger.warn('No authenticated user for listing needs');
+      return [];
+    }
+
     const now = new Date();
-    return MOCK_NEEDS.filter(need => {
-      // Keep needs that are not satisfied and not expired
-      return !need.isSatisfied && (!need.expiresAt || new Date(need.expiresAt) > now);
-    });
+    const { data, error } = await supabase
+      .from('needs')
+      .select(`
+        *,
+        profiles!needs_user_id_fkey(name, profile_image)
+      `)
+      .eq('is_satisfied', false)
+      .gt('expires_at', now.toISOString())
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      logger.error('Error fetching needs:', error);
+      throw error;
+    }
+    
+    return data?.map(need => ({
+      id: need.id,
+      userId: need.user_id,
+      userName: need.profiles?.name || 'Unknown User',
+      userImage: need.profiles?.profile_image,
+      category: need.category,
+      categoryLabel: need.category_label,
+      message: need.message,
+      tags: need.tags || [],
+      visibility: need.visibility,
+      expiresAt: new Date(need.expires_at),
+      isSatisfied: need.is_satisfied,
+      createdAt: new Date(need.created_at)
+    })) || [];
   } catch (error) {
     logger.error('Error listing needs:', error);
     return [];
@@ -146,34 +58,50 @@ export async function listNeeds(): Promise<Need[]> {
  */
 export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'createdAt'>): Promise<Need> {
   try {
-    // In a real implementation, this would create a need in the database
-    
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    // Get user profile for name and image
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('name, profile_image')
+      .eq('id', user.id)
+      .single();
+
     // Set default expiration if not provided (24 hours)
-    if (!needData.expiresAt) {
-      const expiresAt = new Date();
-      expiresAt.setHours(expiresAt.getHours() + 24);
-      needData.expiresAt = expiresAt;
-    }
+    const expiresAt = needData.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000);
     
-    // Set default isSatisfied if not provided
-    if (needData.isSatisfied === undefined) {
-      needData.isSatisfied = false;
-    }
+    const { data, error } = await supabase
+      .from('needs')
+      .insert({
+        user_id: user.id,
+        category: needData.category,
+        category_label: needData.categoryLabel,
+        message: needData.message,
+        tags: needData.tags,
+        visibility: needData.visibility,
+        expires_at: expiresAt.toISOString(),
+        is_satisfied: false
+      })
+      .select()
+      .single();
     
-    // For now, create a mock need
-    const newNeed: Need = {
-      id: `need-${Date.now()}`,
-      userId: ANTONIO_TUBITO.id,
-      userName: ANTONIO_TUBITO.name,
-      userImage: ANTONIO_TUBITO.profileImage,
-      ...needData,
-      createdAt: new Date()
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      userId: data.user_id,
+      userName: profile?.name || 'Unknown User',
+      userImage: profile?.profile_image,
+      category: data.category,
+      categoryLabel: data.category_label,
+      message: data.message,
+      tags: data.tags || [],
+      visibility: data.visibility,
+      expiresAt: new Date(data.expires_at),
+      isSatisfied: data.is_satisfied,
+      createdAt: new Date(data.created_at)
     };
-
-    // Add to mock data
-    MOCK_NEEDS.unshift(newNeed);
-
-    return newNeed;
   } catch (error) {
     logger.error('Error creating need:', error);
     throw error;
@@ -185,10 +113,34 @@ export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'created
  */
 export async function getNeed(id: string): Promise<Need | null> {
   try {
-    // In a real implementation, this would fetch a need from the database
-    // For now, find in mock data
-    const need = MOCK_NEEDS.find(n => n.id === id);
-    return need || null;
+    const { data, error } = await supabase
+      .from('needs')
+      .select(`
+        *,
+        profiles!needs_user_id_fkey(name, profile_image)
+      `)
+      .eq('id', id)
+      .single();
+    
+    if (error || !data) {
+      logger.warn('Need not found:', { id, error });
+      return null;
+    }
+    
+    return {
+      id: data.id,
+      userId: data.user_id,
+      userName: data.profiles?.name || 'Unknown User',
+      userImage: data.profiles?.profile_image,
+      category: data.category,
+      categoryLabel: data.category_label,
+      message: data.message,
+      tags: data.tags || [],
+      visibility: data.visibility,
+      expiresAt: new Date(data.expires_at),
+      isSatisfied: data.is_satisfied,
+      createdAt: new Date(data.created_at)
+    };
   } catch (error) {
     logger.error('Error getting need:', error);
     return null;
@@ -200,14 +152,17 @@ export async function getNeed(id: string): Promise<Need | null> {
  */
 export async function deleteNeed(id: string): Promise<boolean> {
   try {
-    // In a real implementation, this would delete a need from the database
-    // For now, remove from mock data
-    const index = MOCK_NEEDS.findIndex(n => n.id === id);
-    if (index !== -1) {
-      MOCK_NEEDS.splice(index, 1);
-      return true;
-    }
-    return false;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('needs')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id);
+    
+    if (error) throw error;
+    return true;
   } catch (error) {
     logger.error('Error deleting need:', error);
     return false;
@@ -216,37 +171,30 @@ export async function deleteNeed(id: string): Promise<boolean> {
 
 /**
  * Get replies for a need
- * If currentUserId is provided, filter replies based on visibility and user
  */
 export async function getNeedReplies(needId: string, currentUserId?: string): Promise<NeedReply[]> {
   try {
-    // In a real implementation, this would fetch replies from the database
-    // For now, return mock data
-    const allReplies = MOCK_REPLIES[needId] || [];
-    const need = MOCK_NEEDS.find(n => n.id === needId);
+    const { data, error } = await supabase
+      .from('need_replies')
+      .select(`
+        *,
+        profiles!need_replies_user_id_fkey(name, profile_image)
+      `)
+      .eq('need_id', needId)
+      .order('created_at', { ascending: true });
     
-    if (!need) return [];
+    if (error) throw error;
     
-    // If currentUserId is provided, filter replies based on visibility
-    if (currentUserId) {
-      // If current user created the need, they can see all replies
-      if (need.userId === currentUserId) {
-        return allReplies;
-      }
-      
-      // For open needs, everyone can see all replies
-      if (need.visibility === 'open') {
-        return allReplies;
-      }
-      
-      // For private needs, users can only see their own replies and responses to those replies
-      return allReplies.filter(reply => 
-        reply.userId === currentUserId || // User's own replies
-        reply.replyToUserId === currentUserId // Replies to the user
-      );
-    }
-    
-    return allReplies;
+    return data?.map(reply => ({
+      id: reply.id,
+      needId: reply.need_id,
+      userId: reply.user_id,
+      userName: reply.profiles?.name || 'Unknown User',
+      userImage: reply.profiles?.profile_image,
+      message: reply.message,
+      replyToUserId: reply.reply_to_user_id,
+      createdAt: new Date(reply.created_at)
+    })) || [];
   } catch (error) {
     logger.error('Error getting need replies:', error);
     return [];
@@ -258,27 +206,38 @@ export async function getNeedReplies(needId: string, currentUserId?: string): Pr
  */
 export async function sendNeedReply(replyData: Omit<NeedReply, 'id' | 'userId' | 'createdAt'>): Promise<NeedReply> {
   try {
-    // In a real implementation, this would create a reply in the database
-    // Get the need to check visibility
-    const need = MOCK_NEEDS.find(n => n.id === replyData.needId);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('name, profile_image')
+      .eq('id', user.id)
+      .single();
+
+    const { data, error } = await supabase
+      .from('need_replies')
+      .insert({
+        need_id: replyData.needId,
+        user_id: user.id,
+        message: replyData.message,
+        reply_to_user_id: replyData.replyToUserId
+      })
+      .select()
+      .single();
     
-    const newReply: NeedReply = {
-      id: `reply-${replyData.needId}-${Date.now()}`,
-      userId: ANTONIO_TUBITO.id,
-      ...replyData,
-      // For private needs, set replyToUserId to the need creator's ID
-      // For public needs, only set if explicitly provided
-      replyToUserId: need?.visibility === 'private' ? need.userId : replyData.replyToUserId,
-      createdAt: new Date()
+    if (error) throw error;
+    
+    return {
+      id: data.id,
+      needId: data.need_id,
+      userId: data.user_id,
+      userName: profile?.name || 'Unknown User',
+      userImage: profile?.profile_image,
+      message: data.message,
+      replyToUserId: data.reply_to_user_id,
+      createdAt: new Date(data.created_at)
     };
-
-    // Add to mock data
-    if (!MOCK_REPLIES[replyData.needId]) {
-      MOCK_REPLIES[replyData.needId] = [];
-    }
-    MOCK_REPLIES[replyData.needId].push(newReply);
-
-    return newReply;
   } catch (error) {
     logger.error('Error sending need reply:', error);
     throw error;
@@ -290,16 +249,17 @@ export async function sendNeedReply(replyData: Omit<NeedReply, 'id' | 'userId' |
  */
 export async function deleteNeedReply(needId: string, replyId: string): Promise<boolean> {
   try {
-    // In a real implementation, this would delete a reply from the database
-    // For now, remove from mock data
-    if (!MOCK_REPLIES[needId]) return false;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('need_replies')
+      .delete()
+      .eq('id', replyId)
+      .eq('user_id', user.id);
     
-    const index = MOCK_REPLIES[needId].findIndex(r => r.id === replyId);
-    if (index !== -1) {
-      MOCK_REPLIES[needId].splice(index, 1);
-      return true;
-    }
-    return false;
+    if (error) throw error;
+    return true;
   } catch (error) {
     logger.error('Error deleting need reply:', error);
     return false;
@@ -311,14 +271,17 @@ export async function deleteNeedReply(needId: string, replyId: string): Promise<
  */
 export async function markNeedAsSatisfied(id: string): Promise<boolean> {
   try {
-    // Find the need in the mock data
-    const index = MOCK_NEEDS.findIndex(n => n.id === id);
-    if (index !== -1) {
-      // Mark as satisfied
-      MOCK_NEEDS[index].isSatisfied = true;
-      return true;
-    }
-    return false;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('needs')
+      .update({ is_satisfied: true, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .eq('user_id', user.id);
+    
+    if (error) throw error;
+    return true;
   } catch (error) {
     logger.error('Error marking need as satisfied:', error);
     return false;
@@ -330,13 +293,36 @@ export async function markNeedAsSatisfied(id: string): Promise<boolean> {
  */
 export async function getArchivedNeeds(): Promise<Need[]> {
   try {
-    // Get current date for comparison
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
     const now = new Date();
+    const { data, error } = await supabase
+      .from('needs')
+      .select(`
+        *,
+        profiles!needs_user_id_fkey(name, profile_image)
+      `)
+      .eq('user_id', user.id)
+      .or(`is_satisfied.eq.true,expires_at.lt.${now.toISOString()}`)
+      .order('created_at', { ascending: false });
     
-    // Return needs that are either satisfied or expired
-    return MOCK_NEEDS.filter(need => {
-      return need.isSatisfied || (need.expiresAt && new Date(need.expiresAt) <= now);
-    });
+    if (error) throw error;
+    
+    return data?.map(need => ({
+      id: need.id,
+      userId: need.user_id,
+      userName: need.profiles?.name || 'Unknown User',
+      userImage: need.profiles?.profile_image,
+      category: need.category,
+      categoryLabel: need.category_label,
+      message: need.message,
+      tags: need.tags || [],
+      visibility: need.visibility,
+      expiresAt: new Date(need.expires_at),
+      isSatisfied: need.is_satisfied,
+      createdAt: new Date(need.created_at)
+    })) || [];
   } catch (error) {
     logger.error('Error getting archived needs:', error);
     return [];

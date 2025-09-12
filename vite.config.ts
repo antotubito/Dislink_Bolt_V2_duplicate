@@ -7,6 +7,7 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   server: {
-    port: 3000 // Changed back to port 3000 for Netlify compatibility
+    port: 3001, // ✅ FIXED: Set to your expected port
+    host: true
   }
 });

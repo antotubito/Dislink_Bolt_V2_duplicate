@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Check, ArrowRight, Home, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
+import { completeQRConnection } from '../lib/qrConnectionHandler';
 
 export function Confirmed() {
   const navigate = useNavigate();
@@ -148,6 +149,17 @@ export function Confirmed() {
             hasSession: !!session,
             userId: session?.user?.id
           });
+
+          // Handle QR connection completion if user just registered
+          if (session?.user?.id) {
+            try {
+              await completeQRConnection(session.user.id);
+              logger.info('QR connection completion processed');
+            } catch (qrError) {
+              logger.error('Error completing QR connection:', qrError);
+              // Don't fail the verification process for QR connection errors
+            }
+          }
           
           // Automatically redirect to onboarding after a short delay
           setTimeout(() => {

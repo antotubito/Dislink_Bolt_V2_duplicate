@@ -1,11 +1,11 @@
 [build]
-  command = "npm run build"
+  command = "pnpm build"
   publish = "dist"
 
 # Environment variables for build (these should be set in Netlify dashboard)
 [build.environment]
   NODE_VERSION = "18"
-  NPM_VERSION = "9"
+  PNPM_VERSION = "10.16.0"
 
 # Handle email confirmation redirects from Supabase
 [[redirects]]
@@ -23,6 +23,24 @@
 [[redirects]]
   from = "/?error=*&error_code=*&error_description=*"
   to = "/confirmed?error=:error&error_code=:error_code&error_description=:error_description"
+  status = 302
+
+# Handle QR code invitation redirects
+[[redirects]]
+  from = "/register?invitation=*&code=*"
+  to = "/app/register?invitation=:invitation&code=:code"
+  status = 302
+
+# Handle QR scan redirects
+[[redirects]]
+  from = "/register?from=qr_scan&connect=*"
+  to = "/app/register?from=qr_scan&connect=:connect"
+  status = 302
+
+# Handle QR scan with scan ID
+[[redirects]]
+  from = "/register?from=qr_scan&connect=*&scan_id=*"
+  to = "/app/register?from=qr_scan&connect=:connect&scan_id=:scan_id"
   status = 302
 
 # SPA routing - catch all other routes
@@ -46,8 +64,8 @@
     Cache-Control = "public, max-age=31536000, immutable"
 
 [dev]
-  command = "npm run dev"
-  port = 3000
+  command = "pnpm dev"
+  port = 3001  # ✅ FIXED: Match vite config
   publish = "dist"
   autoLaunch = true
 

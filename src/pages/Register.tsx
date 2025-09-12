@@ -8,6 +8,11 @@ import type { RegistrationData } from '../types/user';
 import { sessionManager } from '../lib/sessionManager';
 import { logger } from '../lib/logger';
 import { supabase } from '../lib/supabase';
+import { 
+  updateConnectionMemoryOnRegistration, 
+  createUserConnection, 
+  validateInvitationCode 
+} from '../lib/qrEnhanced';
 
 export function Register() {
   const navigate = useNavigate();
@@ -23,11 +28,57 @@ export function Register() {
   const [error, setError] = useState<string | null | React.ReactNode>(null);
   const [showVerificationPrompt, setShowVerificationPrompt] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
+  const [qrConnectionData, setQrConnectionData] = useState<any>(null);
+  const [invitationData, setInvitationData] = useState<any>(null);
+  const [isRegistering, setIsRegistering] = useState(false);
 
-  // Check for existing session
+  // Check for existing session and QR connection data
   useEffect(() => {
     if (sessionManager.hasSession()) {
       navigate('/app');
+    }
+
+    // Check for QR scan data from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const invitationId = urlParams.get('invitation');
+    const connectionCode = urlParams.get('code');
+    const fromQrScan = urlParams.get('from') === 'qr_scan';
+    const connectUserId = urlParams.get('connect');
+    const scanId = urlParams.get('scan_id');
+
+    // Handle email invitation
+    if (invitationId && connectionCode) {
+      validateInvitationCode(invitationId, connectionCode)
+        .then(invitation => {
+          if (invitation) {
+            setInvitationData(invitation);
+            // Pre-fill email if available
+            if (invitation.recipientEmail) {
+              setFormData(prev => ({ ...prev, email: invitation.recipientEmail }));
+            }
+            console.log('Valid invitation found:', invitation);
+          } else {
+            setError('Invalid or expired invitation link');
+          }
+        })
+        .catch(err => {
+          console.error('Error validating invitation:', err);
+          setError('Failed to validate invitation');
+        });
+    }
+
+    // Handle direct QR scan registration
+    if (fromQrScan && connectUserId) {
+      const storedData = localStorage.getItem('qr_registration_data');
+      if (storedData) {
+        try {
+          const parsedData = JSON.parse(storedData);
+          setQrConnectionData(parsedData);
+          console.log('QR connection data loaded:', parsedData);
+        } catch (err) {
+          console.error('Error parsing QR registration data:', err);
+        }
+      }
     }
   }, [navigate]);
 
@@ -47,41 +98,87 @@ export function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setIsRegistering(true);
 
     // Check if in cooldown period
     if (cooldownTime > 0) {
       setError(`Please wait ${cooldownTime} seconds before trying again`);
+      setIsRegistering(false);
       return;
     }
 
     // Validate form data
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
       setError('Please enter your full name');
+      setIsRegistering(false);
       return;
     }
 
     if (!formData.email.trim() || !formData.email.includes('@')) {
       setError('Please enter a valid email address');
+      setIsRegistering(false);
       return;
     }
 
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters long');
+      setIsRegistering(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
+      setIsRegistering(false);
       return;
     }
 
     setLoading(true);
 
     try {
+      // 🔍 FIRST: Check if user already exists
+      console.log('🔍 Checking if user exists before registration');
+      
+      const { data: existingProfiles } = await supabase
+        .from('profiles')
+        .select('email, id')
+        .eq('email', formData.email.trim().toLowerCase());
+      
+      if (existingProfiles && existingProfiles.length > 0) {
+        console.log('🔍 User already exists in profiles table');
+        setError(
+          <div className="text-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="h-5 w-5 text-yellow-500" />
+              <span className="font-medium">Account Already Exists</span>
+            </div>
+            <p className="text-gray-600 mb-3">
+              An account with this email address is already registered.
+            </p>
+            <div className="flex flex-col gap-2">
+              <Link 
+                to="/app/login" 
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                Sign In Instead
+              </Link>
+              <button
+                onClick={() => setError(null)}
+                className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Try Different Email
+              </button>
+            </div>
+          </div>
+        );
+        setIsRegistering(false);
+        return;
+      }
+      
       // Check connection status first
       if (connectionStatus === 'disconnected') {
         setError('You appear to be offline. Please check your internet connection and try again.');
         setLoading(false);
+        setIsRegistering(false);
         return;
       }
       
@@ -104,6 +201,16 @@ export function Register() {
       
       // Show verification prompt
       setShowVerificationPrompt(true);
+      
+      // Handle QR connection setup after successful registration
+      if (invitationData || qrConnectionData) {
+        // Store connection data for post-verification processing
+        localStorage.setItem('pending_qr_connection', JSON.stringify({
+          invitationData,
+          qrConnectionData,
+          userEmail: formData.email
+        }));
+      }
       
     } catch (err) {
       console.error('Registration error:', err);
@@ -155,6 +262,7 @@ export function Register() {
       localStorage.removeItem('confirmEmail');
     } finally {
       setLoading(false);
+      setIsRegistering(false);
     }
   };
 
@@ -408,7 +516,7 @@ export function Register() {
 
           <button
             type="submit"
-            disabled={loading || cooldownTime > 0}
+            disabled={loading || cooldownTime > 0 || isRegistering}
             className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             {loading ? (

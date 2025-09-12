@@ -13,13 +13,19 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { validateQRCode, requestConnection } from '../lib/qr';
+import { 
+  trackEnhancedQRScan, 
+  sendEmailInvitation, 
+  createConnectionMemory,
+  validateInvitationCode 
+} from '../lib/qrEnhanced';
 import { SOCIAL_CATEGORIES } from '../config/social';
 import { supabase } from '../lib/supabase';
 import { AppStoreButtons } from '../components/AppStoreButtons';
 import { shareContent, isMobileApp } from '../lib/mobileUtils';
 
 export function PublicProfile() {
-  const { code } = useParams<{ code: string }>();
+  const { code, scanId } = useParams<{ code?: string; scanId?: string }>();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,63 +41,61 @@ export function PublicProfile() {
   const [scanTimestamp] = useState(new Date());
 
   useEffect(() => {
-    // Track QR code scan event
+    // Enhanced QR code scan tracking for unique scans
     const trackScanEvent = async () => {
       try {
+        // Get the connection code from URL params or route params
+        const connectionCode = code || new URLSearchParams(window.location.search).get('code');
+        if (!connectionCode && !scanId) return;
+
         // Get user's location when they scan the QR code
+        let location;
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const location = {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-              };
-              setScanLocation(location);
-              
-              // Log scan event with location and timestamp
-              console.log('QR Code Scan Event:', {
-                code,
-                timestamp: scanTimestamp.toISOString(),
-                location,
-                userAgent: navigator.userAgent,
-                referrer: document.referrer,
-                url: window.location.href
+          try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
               });
-              
-              // Reverse geocode to get location name
-              fetch(`https://api.opencagedata.com/geocode/v1/json?q=${position.coords.latitude}+${position.coords.longitude}&key=demo&no_annotations=1`)
-                .then(response => response.json())
-                .then(data => {
-                  if (data.results && data.results.length > 0) {
-                    const result = data.results[0];
-                    const locationName = result.formatted || 'Unknown Location';
-                    setScanLocation(prev => prev ? { ...prev, name: locationName } : null);
-                  }
-                })
-                .catch(err => console.warn('Geocoding failed:', err));
-            },
-            (error) => {
-              console.warn('Location access denied:', error);
-              // Still log the scan event without location
-              console.log('QR Code Scan Event (No Location):', {
-                code,
-                timestamp: scanTimestamp.toISOString(),
-                userAgent: navigator.userAgent,
-                referrer: document.referrer,
-                url: window.location.href
-              });
-            }
-          );
+            });
+            
+            location = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            setScanLocation(location);
+          } catch (error) {
+            console.warn('Location access denied:', error);
+          }
         }
+
+        // Track scan with enhanced data
+        const scanData = await trackEnhancedQRScan(code, location);
+        
+        // Update scan location with enhanced data
+        if (scanData.location) {
+          setScanLocation({
+            latitude: scanData.location.latitude,
+            longitude: scanData.location.longitude,
+            name: scanData.location.address || scanData.location.city
+          });
+        }
+
+        console.log('Enhanced QR Code Scan Event:', scanData);
       } catch (err) {
-        console.error('Error tracking scan event:', err);
+        console.error('Error tracking enhanced scan event:', err);
       }
     };
 
     trackScanEvent();
 
     async function loadProfile() {
-      if (!code) {
+      // Handle both /share/:code and /scan/:scanId routes
+      const connectionCode = code || new URLSearchParams(window.location.search).get('code');
+      const currentScanId = scanId;
+      
+      if (!connectionCode && !currentScanId) {
         setError('Invalid profile link');
         setLoading(false);
         return;
@@ -146,6 +150,12 @@ export function PublicProfile() {
       try {
         console.log("Validating code:", code);
         
+        // For unique scan URLs, we need to track this specific scan moment
+        if (currentScanId) {
+          // Update the scan tracking with actual scan details
+          await trackEnhancedQRScan(connectionCode || currentScanId, scanLocation);
+        }
+
         // First try to get profile directly from Supabase
         const { data: directProfile, error: directError } = await supabase
           .from('connection_codes')
@@ -153,6 +163,7 @@ export function PublicProfile() {
             id,
             user_id,
             status,
+            expires_at,
             profiles!connection_codes_user_id_fkey (
               id,
               first_name,
@@ -166,8 +177,8 @@ export function PublicProfile() {
               public_profile
             )
           `)
-          .eq('code', code)
-          .maybeSingle(); // Changed from .single() to .maybeSingle()
+          .eq('code', connectionCode || code)
+          .maybeSingle();
         
         if (directError) {
           console.error("Supabase query error:", directError);
@@ -175,9 +186,20 @@ export function PublicProfile() {
         }
         
         if (!directProfile) {
-          setError('Profile not found');
+          setError('QR code not found or expired');
           setLoading(false);
           return;
+        }
+
+        // Check if the code has expired
+        if (directProfile.expires_at) {
+          const expirationDate = new Date(directProfile.expires_at);
+          if (expirationDate < new Date()) {
+            setError('This QR code has expired. Please ask for a new one.');
+            setIsExpired(true);
+            setLoading(false);
+            return;
+          }
         }
         
         if (directProfile?.profiles) {
@@ -247,30 +269,26 @@ export function PublicProfile() {
         throw new Error('Please enter a valid email address');
       }
 
-      // Get current location
-      let location;
-      try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject);
-        });
-        
-        location = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        };
-      } catch (err) {
-        console.warn('Location access denied:', err);
+      if (!profile) {
+        throw new Error('Profile not found');
       }
 
-      // Request connection
-      const result = await requestConnection(code!, email, location);
+      // Get enhanced scan data
+      const scanData = await trackEnhancedQRScan(code!, scanLocation);
+
+      // Send email invitation with connection tracking
+      const invitation = await sendEmailInvitation(email, profile.userId, scanData);
       
-      if (result.success) {
-        setConnectionCode(result.connectionCode);
-        setShowEmailForm(false);
-      }
+      // Create connection memory for tracking
+      await createConnectionMemory(profile.userId, 'pending_user', scanData, 'email_invitation');
+
+      // Set the connection code for display
+      setConnectionCode(invitation.connectionCode);
+      setShowEmailForm(false);
+
+      console.log('Email invitation sent successfully:', invitation);
     } catch (err) {
-      setEmailError(err instanceof Error ? err.message : 'Failed to save email');
+      setEmailError(err instanceof Error ? err.message : 'Failed to send invitation');
     } finally {
       setSubmitting(false);
     }
@@ -688,33 +706,39 @@ export function PublicProfile() {
                 </p>
                 
                 <button
-                  onClick={() => {
-                    // Log the direct profile creation with scan tracking
-                    console.log('Direct Profile Creation:', {
-                      scannedProfile: profile.name,
-                      scanLocation,
-                      scanTimestamp: scanTimestamp.toISOString(),
-                      action: 'create_profile_direct',
-                      code,
-                      timestamp: new Date().toISOString()
-                    });
-                    
-                    // Store scan data for later use during registration
-                    localStorage.setItem('qr_scan_data', JSON.stringify({
-                      scannedProfile: {
-                        userId: profile.userId,
-                        name: profile.name,
-                        jobTitle: profile.jobTitle,
-                        company: profile.company,
-                        profileImage: profile.profileImage
-                      },
-                      scanLocation,
-                      scanTimestamp: scanTimestamp.toISOString(),
-                      code
-                    }));
-                    
-                    // Navigate to registration with tracking
-                    window.location.href = '/app/register?from=qr_scan&connect=' + encodeURIComponent(profile.userId);
+                  onClick={async () => {
+                    try {
+                      // Get enhanced scan data
+                      const scanData = await trackEnhancedQRScan(code!, scanLocation);
+                      
+                      // Create connection memory for direct registration
+                      await createConnectionMemory(profile.userId, 'pending_user', scanData, 'qr_scan');
+
+                      // Store comprehensive scan data for registration
+                      const registrationData = {
+                        scannedProfile: {
+                          userId: profile.userId,
+                          name: profile.name,
+                          jobTitle: profile.jobTitle,
+                          company: profile.company,
+                          profileImage: profile.profileImage
+                        },
+                        scanData,
+                        connectionMethod: 'qr_scan_direct',
+                        timestamp: new Date().toISOString()
+                      };
+
+                      localStorage.setItem('qr_registration_data', JSON.stringify(registrationData));
+                      
+                      console.log('Direct Profile Creation with Enhanced Tracking:', registrationData);
+                      
+                      // Navigate to registration with enhanced tracking
+                      window.location.href = `/app/register?from=qr_scan&connect=${encodeURIComponent(profile.userId)}&scan_id=${encodeURIComponent(scanData.scanId)}`;
+                    } catch (err) {
+                      console.error('Error handling direct profile creation:', err);
+                      // Fallback to simple registration
+                      window.location.href = '/app/register?from=qr_scan&connect=' + encodeURIComponent(profile.userId);
+                    }
                   }}
                   className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                 >

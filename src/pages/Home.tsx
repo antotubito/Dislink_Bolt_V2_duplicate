@@ -18,8 +18,6 @@ import {
   declineConnectionRequest, 
   listRecentContacts,
   listContacts,
-  createEmilyTechRequest,
-  createLisbonConnectionRequest,
   updateContactTier
 } from '../lib/contacts';
 import type { Contact, FollowUp } from '../types/contact';

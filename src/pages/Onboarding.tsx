@@ -17,6 +17,7 @@ import { supabase } from '../lib/supabase';
 import { JobTitleInput } from '../components/profile/JobTitleInput';
 import { IndustrySelect } from '../components/profile/IndustrySelect';
 import { Industry } from '../types/industry';
+import { CodeInvitationModal } from '../components/onboarding/CodeInvitationModal';
 
 type OnboardingStep = 'welcome' | 'basics' | 'work' | 'location' | 'photo' | 'social' | 'complete';
 
@@ -42,6 +43,7 @@ export function Onboarding() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
+  const [showCodeInvitation, setShowCodeInvitation] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -151,11 +153,23 @@ export function Onboarding() {
   const handleFinish = async () => {
     try {
       await refreshUser();
-      navigate('/app');
+      // Show Code Invitation modal instead of navigating directly
+      setShowCodeInvitation(true);
     } catch (error) {
       console.error('Error completing onboarding:', error);
       setError('Failed to complete onboarding');
     }
+  };
+
+  const handleCodeInvitationSuccess = (connectionDetails: any) => {
+    // Connection was successful, navigate to app
+    console.log('Code invitation successful:', connectionDetails);
+    navigate('/app');
+  };
+
+  const handleCodeInvitationSkip = () => {
+    // User skipped or doesn't have invitation, navigate to app normally
+    navigate('/app');
   };
 
   const handleExit = () => {
@@ -616,6 +630,14 @@ export function Onboarding() {
           {step === 'social' && renderSocialStep()}
           {step === 'complete' && renderCompleteStep()}
         </AnimatePresence>
+
+        {/* Code Invitation Modal */}
+        <CodeInvitationModal
+          isOpen={showCodeInvitation}
+          onClose={() => setShowCodeInvitation(false)}
+          onSuccess={handleCodeInvitationSuccess}
+          onSkip={handleCodeInvitationSkip}
+        />
       </div>
     </div>
   );

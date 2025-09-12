@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dislink - Your Network Reimagined. Build meaningful connections with context-rich relationship management." />
+  <meta name="keywords" content="networking, connections, QR code, relationship management, professional networking" />
+  <meta name="author" content="Dislink" />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Dislink - Your Network Reimagined" />
+  <meta property="og:description" content="Build meaningful connections with context-rich relationship management and smart QR code networking." />
+  <meta property="og:image" content="/og-image.jpg" />
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content="Dislink - Your Network Reimagined" />
+  <meta property="twitter:description" content="Build meaningful connections with context-rich relationship management and smart QR code networking." />
+  <meta property="twitter:image" content="/og-image.jpg" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#000000" />
+  
+  <title>Dislink - Your Network Reimagined</title>
+  <script type="module" crossorigin src="/assets/index-BfKU2Jv4.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-VHr1BliT.css">
+</head>
+<body>
+  <div id="root"></div>
+  
+  <!-- Ensure proper camera and geolocation permissions for QR scanning -->
+  <script>
+    // Pre-warm service worker for better performance
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {
+          // Service worker registration failed, continue without it
+        });
+      });
+    }
+  </script>
+</body>
+</html>

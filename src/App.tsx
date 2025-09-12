@@ -42,6 +42,7 @@ function App() {
             <Route path="/" element={<Waitlist />} />
             <Route path="/waitlist" element={<Waitlist />} />
             <Route path="/share/:code" element={<PublicProfile />} />
+            <Route path="/scan/:scanId" element={<PublicProfile />} />
             <Route path="/terms" element={<TermsConditions />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/story" element={<Story />} />

@@ -78,6 +78,36 @@ export function Login() {
     setError(null);
     setPendingRedirect(false);
 
+    // 🔍 PRODUCTION DEBUG LOGGING - START
+    const debugInfo = {
+      timestamp: new Date().toISOString(),
+      environment: {
+        mode: import.meta.env.MODE,
+        prod: import.meta.env.PROD,
+        dev: import.meta.env.DEV
+      },
+      supabase: {
+        urlPresent: !!import.meta.env.VITE_SUPABASE_URL,
+        keyPresent: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+        urlLength: import.meta.env.VITE_SUPABASE_URL?.length || 0,
+        keyLength: import.meta.env.VITE_SUPABASE_ANON_KEY?.length || 0
+      },
+      auth: {
+        connectionStatus,
+        userPresent: !!user,
+        loading
+      },
+      browser: {
+        userAgent: navigator.userAgent,
+        url: window.location.href,
+        localStorage: typeof localStorage !== 'undefined'
+      }
+    };
+    
+    console.log('🔍 PRODUCTION LOGIN DEBUG:', debugInfo);
+    logger.info('🔍 Production login attempt starting', debugInfo);
+    // 🔍 PRODUCTION DEBUG LOGGING - END
+
     // Validate input
     if (!email.trim() || !password.trim()) {
       setError('Please enter both email and password');
@@ -96,18 +126,32 @@ export function Login() {
     try {
       // Check connection status first
       if (connectionStatus === 'disconnected') {
+        console.error('🔍 CONNECTION ERROR: Status is disconnected');
         setError('You appear to be offline. Please check your internet connection and try again.');
         setIsLoggingIn(false);
         return;
       }
       
       logger.info('🔐 Starting login process for:', email);
+      console.log('🔍 About to call login function with:', { email: email.substring(0, 5) + '...' });
       
       // Try the enhanced login function first
       const result = await login({ email, password });
       
+      console.log('🔍 Login function result:', {
+        success: result.success,
+        hasUser: !!result.user,
+        hasSession: !!result.session,
+        error: result.error?.message,
+        errorCode: result.error?.code,
+        requiresOnboarding: result.requiresOnboarding,
+        emailConfirmationRequired: result.emailConfirmationRequired,
+        emailNotFound: result.emailNotFound
+      });
+      
       if (result.success && result.session) {
         logger.info('✅ Login successful with session - navigating immediately');
+        console.log('🔍 SUCCESS: Login completed, preparing navigation');
         
         // Direct navigation after successful login with session
         const redirectUrl = localStorage.getItem('redirectUrl');
