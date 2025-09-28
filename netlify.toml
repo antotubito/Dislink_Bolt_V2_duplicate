@@ -1,9 +1,8 @@
 [build]
   base = "web"
-  command = "pnpm install && pnpm build"
-  publish = "dist"
+  command = "pnpm install && pnpm --filter web build"
+  publish = "web/dist"
 
-# Environment variables for build (these should be set in Netlify dashboard)
 [build.environment]
   NODE_VERSION = "18"
   PNPM_VERSION = "10.16.0"
