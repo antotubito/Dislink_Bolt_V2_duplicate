@@ -109,7 +109,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co wss://bbonxxvifycwpoeaxsor.supabase.co https://o4510074051756032.ingest.us.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org; frame-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co; worker-src 'self' blob:;"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co wss://bbonxxvifycwpoeaxsor.supabase.co https://o4510074051756032.ingest.us.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org; frame-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co; worker-src 'self' blob:; object-src 'none'; base-uri 'self';"
     Permissions-Policy = "geolocation=*"
 
 [[headers]]
