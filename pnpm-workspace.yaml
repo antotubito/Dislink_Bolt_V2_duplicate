@@ -1,2 +1,7 @@
+packages:
+  - "web"
+  - "mobile"
+  - "shared"
+
 ignoredBuiltDependencies:
   - esbuild
