@@ -152,7 +152,7 @@ export function QRFlowTester() {
     <div className="max-w-4xl mx-auto p-6">
       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+        <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 text-white">
           <div className="flex items-center">
             <TestTube className="h-8 w-8 mr-3" />
             <div>
@@ -176,7 +176,7 @@ export function QRFlowTester() {
                 type="email"
                 value={testEmail}
                 onChange={(e) => setTestEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600"
                 placeholder="test@example.com"
               />
             </div>
@@ -184,7 +184,7 @@ export function QRFlowTester() {
               <button
                 onClick={runCompleteQRTest}
                 disabled={testing || !testEmail}
-                className="w-full flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center px-4 py-2 btn-captamundi-primary text-white rounded-lg hover:btn-captamundi-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {testing ? (
                   <>

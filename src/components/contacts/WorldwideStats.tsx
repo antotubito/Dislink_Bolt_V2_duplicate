@@ -54,7 +54,7 @@ export function WorldwideStats() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="bg-gradient-to-br from-indigo-600 to-indigo-800 p-4 rounded-xl shadow-md text-white mb-6"
+      className="bg-gradient-to-br from-purple-500 to-indigo-600 p-4 rounded-xl shadow-md text-white mb-6"
     >
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-3">

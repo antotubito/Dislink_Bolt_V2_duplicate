@@ -15,7 +15,7 @@ export function PrivacyPolicy() {
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-gray-900">Privacy Policy</h1>
               <Link
-                to={isInApp ? "/app" : "/waitlist"}
+                to={isInApp ? "/app" : "/"}
                 className="inline-flex items-center text-sm text-gray-500 hover:text-gray-700"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
@@ -28,7 +28,7 @@ export function PrivacyPolicy() {
           <div className="px-6 py-8 prose max-w-none">
             <h2>1. Introduction</h2>
             <p>
-              At Dislink, we take your privacy seriously. This Privacy Policy explains how we collect, 
+              At Dislink, we take your privacy seriously. This Privacy Policy explains how we collect,
               use, disclose, and safeguard your information when you use our service.
             </p>
 
@@ -82,25 +82,25 @@ export function PrivacyPolicy() {
 
             <h2>6. Data Security</h2>
             <p>
-              We implement appropriate technical and organizational measures to protect your 
+              We implement appropriate technical and organizational measures to protect your
               personal information against unauthorized access, alteration, disclosure, or destruction.
             </p>
 
             <h2>7. International Data Transfers</h2>
             <p>
-              Your information may be transferred to and processed in countries other than your own. 
+              Your information may be transferred to and processed in countries other than your own.
               We ensure appropriate safeguards are in place for such transfers.
             </p>
 
             <h2>8. Children's Privacy</h2>
             <p>
-              Our service is not intended for children under 13. We do not knowingly collect 
+              Our service is not intended for children under 13. We do not knowingly collect
               information from children under 13.
             </p>
 
             <h2>9. Changes to This Policy</h2>
             <p>
-              We may update this Privacy Policy from time to time. We will notify you of any 
+              We may update this Privacy Policy from time to time. We will notify you of any
               changes by posting the new policy on this page.
             </p>
 

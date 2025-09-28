@@ -5,6 +5,7 @@ export interface User {
   middleName?: string;
   lastName: string;
   name: string;
+  birthday?: string; // Added birthday field
   jobTitle?: string;
   company?: string;
   industry?: string;
@@ -36,6 +37,7 @@ export interface User {
       bio: boolean;
       interests: boolean;
       location: boolean;
+      birthday?: boolean; // Added birthday to allowed fields
     };
   };
   twoFactorEnabled: boolean;

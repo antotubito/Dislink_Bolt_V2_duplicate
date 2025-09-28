@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Test - Dislink</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .status {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .working {
+            background: rgba(34, 197, 94, 0.3);
+            border: 2px solid #22c55e;
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.3);
+            border: 2px solid #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🚀 Dislink Domain Test</h1>
+        <p>Testing domain configuration and React app loading</p>
+
+        <div id="status" class="status">
+            <h3>Loading...</h3>
+            <p>Checking domain and React app status...</p>
+        </div>
+
+        <div id="details" style="margin-top: 20px; text-align: left;">
+            <h4>Domain Information:</h4>
+            <p><strong>Current URL:</strong> <span id="current-url"></span></p>
+            <p><strong>User Agent:</strong> <span id="user-agent"></span></p>
+            <p><strong>Timestamp:</strong> <span id="timestamp"></span></p>
+        </div>
+    </div>
+
+    <script>
+        // Display current information
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('user-agent').textContent = navigator.userAgent;
+        document.getElementById('timestamp').textContent = new Date().toISOString();
+
+        // Check if React app is loading
+        setTimeout(() => {
+            const rootElement = document.getElementById('root');
+            const statusDiv = document.getElementById('status');
+
+            if (rootElement && rootElement.innerHTML.length > 0) {
+                statusDiv.className = 'status working';
+                statusDiv.innerHTML = `
+                    <h3>✅ React App Working</h3>
+                    <p>React app is loading correctly. Root element has content.</p>
+                `;
+            } else {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = `
+                    <h3>❌ React App Not Loading</h3>
+                    <p>React app is not rendering. Root element is empty or missing.</p>
+                    <p><strong>Possible issues:</strong></p>
+                    <ul style="text-align: left; margin-top: 10px;">
+                        <li>JavaScript errors preventing React from mounting</li>
+                        <li>Missing or failed asset loading</li>
+                        <li>Environment variable issues</li>
+                        <li>Supabase connection problems</li>
+                    </ul>
+                `;
+            }
+        }, 2000);
+
+        // Check for JavaScript errors
+        window.addEventListener('error', (event) => {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status error';
+            statusDiv.innerHTML = `
+                <h3>❌ JavaScript Error Detected</h3>
+                <p><strong>Error:</strong> ${event.message}</p>
+                <p><strong>File:</strong> ${event.filename}</p>
+                <p><strong>Line:</strong> ${event.lineno}</p>
+            `;
+        });
+    </script>
+</body>
+
+</html>

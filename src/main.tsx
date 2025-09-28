@@ -2,8 +2,16 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
+import { AppSimple } from './AppSimple';
+import { TestApp } from './TestApp';
 import './index.css';
+import './utils/emailConfirmationTest'; // Load email confirmation test utilities
+import './utils/registrationDiagnostic'; // Load registration diagnostic utilities
 import './styles/react-select.css';
+
+// Initialize Sentry as early as possible in the application lifecycle
+import { initSentry } from './lib/sentry';
+initSentry();
 
 // Initialize logging for production debugging
 const isProduction = import.meta.env.PROD;
@@ -19,7 +27,16 @@ if (!isProduction) {
 // Enhanced error boundary for production
 function handleCriticalError(error: Error, context: string) {
   console.error(`❌ Critical error in ${context}:`, error);
-  
+
+  // Send to Sentry
+  import('./lib/sentry').then(({ captureError }) => {
+    captureError(error, {
+      type: 'criticalError',
+      context: context,
+      timestamp: new Date().toISOString()
+    });
+  });
+
   if (isProduction) {
     // In production, show a fallback UI instead of crashing
     const rootElement = document.getElementById('root');
@@ -67,29 +84,34 @@ if (!rootElement) {
   if (!isProduction) {
     console.log('✅ Root element found, rendering app...');
   }
-  
+
   try {
     const root = createRoot(rootElement);
-    
+
     root.render(
       <StrictMode>
-        <Router>
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
           <App />
         </Router>
       </StrictMode>
     );
-    
+
     if (!isProduction) {
       console.log('✅ App rendered successfully');
     }
-    
+
     // Initialize Supabase connection with better error handling
     // Use static import to avoid the dynamic import warning
     import('./lib/supabase').then(({ initializeConnection }) => {
       if (!isProduction) {
         console.log('🔗 Initializing Supabase connection...');
       }
-      
+
       initializeConnection().catch(error => {
         console.error('❌ Supabase initialization failed:', error);
         // Don't crash the app for Supabase errors
@@ -104,11 +126,11 @@ if (!rootElement) {
       if (!isProduction) {
         console.log('🌌 Initializing Cosmic Theme System...');
       }
-      
+
       // Theme manager automatically loads saved theme and applies it
       const currentTheme = cosmicThemeManager.getCurrentTheme();
       const currentPalette = cosmicThemeManager.getCurrentPalette();
-      
+
       if (!isProduction) {
         console.log(`✨ Cosmic theme loaded: ${currentPalette.name} - ${currentPalette.description}`);
       }
@@ -116,7 +138,7 @@ if (!rootElement) {
       console.error('❌ Failed to load Cosmic Theme System:', error);
       // Don't crash the app for theme loading errors
     });
-    
+
   } catch (error) {
     handleCriticalError(error as Error, 'app rendering');
   }
@@ -125,23 +147,31 @@ if (!rootElement) {
 // Global error handler for unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
   console.error('❌ Unhandled promise rejection:', event.reason);
-  
+
   // Prevent the default behavior that would log to console
   event.preventDefault();
-  
-  // In production, we might want to send this to an error reporting service
-  if (isProduction) {
-    // Example: Send to error reporting service
-    console.warn('Error reported in production environment');
-  }
+
+  // Send to Sentry
+  import('./lib/sentry').then(({ captureError }) => {
+    captureError(new Error(`Unhandled promise rejection: ${event.reason}`), {
+      type: 'unhandledRejection',
+      reason: event.reason,
+      promise: event.promise
+    });
+  });
 });
 
 // Global error handler for uncaught errors
 window.addEventListener('error', (event) => {
   console.error('❌ Uncaught error:', event.error);
-  
-  if (isProduction) {
-    // Log but don't crash the application
-    console.warn('Uncaught error in production environment');
-  }
+
+  // Send to Sentry
+  import('./lib/sentry').then(({ captureError }) => {
+    captureError(event.error || new Error('Unknown error'), {
+      type: 'uncaughtError',
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno
+    });
+  });
 });

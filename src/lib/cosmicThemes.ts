@@ -1,6 +1,8 @@
 // 🌌 Dislink Cosmic Theme System
 // Constellation of relationships - philosophical, cosmic, and human-centered
 
+import React from 'react';
+
 export type CosmicTheme = 'nebula' | 'aurora' | 'starlight';
 
 export interface CosmicPalette {
@@ -89,7 +91,7 @@ export class CosmicThemeManager {
     if (savedTheme && Object.keys(COSMIC_PALETTES).includes(savedTheme)) {
       this.currentTheme = savedTheme;
     }
-    
+
     // Apply initial theme
     this.applyTheme(this.currentTheme);
   }
@@ -109,13 +111,13 @@ export class CosmicThemeManager {
     }
 
     this.currentTheme = theme;
-    
+
     // Save to localStorage
     localStorage.setItem('dislink-cosmic-theme', theme);
-    
+
     // Apply CSS custom properties
     this.applyTheme(theme);
-    
+
     // Notify listeners
     this.listeners.forEach(listener => listener(theme));
   }
@@ -144,7 +146,7 @@ export class CosmicThemeManager {
 
   subscribe(listener: (theme: CosmicTheme) => void): () => void {
     this.listeners.push(listener);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.listeners.indexOf(listener);
@@ -157,13 +159,13 @@ export class CosmicThemeManager {
   // Get color with opacity
   getColorWithOpacity(colorKey: keyof CosmicPalette['colors'], opacity: number): string {
     const color = this.getCurrentPalette().colors[colorKey];
-    
+
     // Convert hex to rgba
     const hex = color.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
-    
+
     return `rgba(${r}, ${g}, ${b}, ${opacity})`;
   }
 
@@ -201,7 +203,7 @@ export function useCosmicTheme() {
   }, [currentTheme]);
 
   const getColorWithOpacity = React.useCallback((
-    colorKey: keyof CosmicPalette['colors'], 
+    colorKey: keyof CosmicPalette['colors'],
     opacity: number
   ) => {
     return cosmicThemeManager.getColorWithOpacity(colorKey, opacity);

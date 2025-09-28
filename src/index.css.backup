@@ -1,0 +1,310 @@
+/* Import design system first */
+@import './styles/design-system.css';
+@import './styles/vibrant.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cosmic Theme System - CSS Custom Properties */
+:root {
+  /* Default theme: Nebula Glow */
+  --color-cosmic-primary: #0B1E3D;
+  --color-cosmic-secondary: #A259FF;
+  --color-cosmic-accent: #FFD37E;
+  --color-cosmic-pop: #FF6F61;
+  --color-cosmic-neutral: #F4F5F7;
+  
+  /* Gradients */
+  --cosmic-gradient: linear-gradient(135deg, var(--color-cosmic-primary) 0%, var(--color-cosmic-secondary) 100%);
+  --cosmic-gradient-soft: linear-gradient(135deg, var(--color-cosmic-secondary) 0%, var(--color-cosmic-accent) 100%);
+  --cosmic-gradient-radial: radial-gradient(circle, var(--color-cosmic-secondary) 0%, var(--color-cosmic-primary) 100%);
+  
+  /* Animation Variables */
+  --cosmic-glow-size: 0px;
+  --cosmic-animation-speed: 0.3s;
+}
+
+/* Nebula Glow Theme */
+[data-cosmic-theme="nebula"] {
+  --color-cosmic-primary: #0B1E3D;
+  --color-cosmic-secondary: #A259FF;
+  --color-cosmic-accent: #FFD37E;
+  --color-cosmic-pop: #FF6F61;
+  --color-cosmic-neutral: #F4F5F7;
+}
+
+/* Aurora Dream Theme */
+[data-cosmic-theme="aurora"] {
+  --color-cosmic-primary: #142850;
+  --color-cosmic-secondary: #00C1D4;
+  --color-cosmic-accent: #FF9B85;
+  --color-cosmic-pop: #9D4EDD;
+  --color-cosmic-neutral: #F9FAFB;
+}
+
+/* Starlight Horizon Theme */
+[data-cosmic-theme="starlight"] {
+  --color-cosmic-primary: #1A1B41;
+  --color-cosmic-secondary: #D4A5FF;
+  --color-cosmic-accent: #FFD6A5;
+  --color-cosmic-pop: #48CAE4;
+  --color-cosmic-neutral: #FAF9F6;
+}
+
+/* Global cosmic transition for smooth theme changes */
+* {
+  transition: 
+    background-color var(--cosmic-animation-speed) ease-in-out,
+    border-color var(--cosmic-animation-speed) ease-in-out,
+    color var(--cosmic-animation-speed) ease-in-out,
+    box-shadow var(--cosmic-animation-speed) ease-in-out;
+}
+
+/* Enhanced Cosmic Utilities */
+@layer components {
+  .cosmic-gradient {
+    background: var(--cosmic-gradient);
+    background-size: 200% 200%;
+    animation: cosmic-shimmer 4s ease-in-out infinite;
+  }
+  
+  .cosmic-gradient-soft {
+    background: var(--cosmic-gradient-soft);
+    background-size: 200% 200%;
+    animation: cosmic-flow 6s ease-in-out infinite;
+  }
+  
+  .cosmic-gradient-radial {
+    background: var(--cosmic-gradient-radial);
+    background-size: 150% 150%;
+    animation: cosmic-pulse 8s ease-in-out infinite;
+  }
+  
+  .cosmic-glow {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .cosmic-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--cosmic-gradient);
+    opacity: 0;
+    border-radius: inherit;
+    transition: opacity var(--cosmic-animation-speed) ease-in-out;
+    z-index: -1;
+  }
+  
+  .cosmic-glow:hover::before {
+    opacity: 0.1;
+  }
+  
+  .cosmic-text-glow {
+    animation: cosmic-text-shine 3s ease-in-out infinite;
+  }
+  
+  .cosmic-border {
+    border: 1px solid var(--color-cosmic-secondary);
+    border-image: var(--cosmic-gradient) 1;
+    animation: cosmic-border-flow 4s linear infinite;
+  }
+  
+  .cosmic-backdrop {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Modern floating animation */
+  .cosmic-float {
+    animation: cosmic-float 6s ease-in-out infinite;
+  }
+
+  /* Smooth scale animation */
+  .cosmic-scale {
+    animation: cosmic-scale 4s ease-in-out infinite;
+  }
+
+  /* Clean rotation animation */
+  .cosmic-rotate {
+    animation: cosmic-rotate 20s linear infinite;
+  }
+}
+
+/* Enhanced Cosmic Animations */
+@keyframes cosmic-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes cosmic-flow {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+}
+
+@keyframes cosmic-pulse {
+  0%, 100% { background-size: 150% 150%; }
+  50% { background-size: 200% 200%; }
+}
+
+@keyframes cosmic-text-shine {
+  0%, 100% { 
+    text-shadow: 0 0 10px var(--color-cosmic-secondary); 
+    opacity: 1;
+  }
+  50% { 
+    text-shadow: 0 0 20px var(--color-cosmic-secondary), 0 0 30px var(--color-cosmic-accent); 
+    opacity: 0.9;
+  }
+}
+
+@keyframes cosmic-border-flow {
+  0% { border-image-slice: 1; }
+  50% { border-image-slice: 0; }
+  100% { border-image-slice: 1; }
+}
+
+@keyframes cosmic-float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(1deg); }
+  66% { transform: translateY(5px) rotate(-1deg); }
+}
+
+@keyframes cosmic-scale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes cosmic-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Base Styles */
+@layer base {
+  /* ... (keep existing base styles) */
+
+  /* Improved Animation Settings */
+  .page-transition-enter {
+    opacity: 0;
+  }
+  
+  .page-transition-enter-active {
+    opacity: 1;
+    transition: opacity 200ms ease-in-out;
+  }
+  
+  .page-transition-exit {
+    opacity: 1;
+  }
+  
+  .page-transition-exit-active {
+    opacity: 0;
+    transition: opacity 200ms ease-in-out;
+  }
+
+  /* Prevent Content Jump */
+  .overflow-fix {
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+  }
+
+  /* Smooth Scrolling */
+  html {
+    scroll-behavior: smooth;
+    @apply antialiased;
+  }
+
+  /* Prevent Layout Shift */
+  body {
+    @apply min-h-screen overflow-x-hidden;
+  }
+
+  /* Force Hardware Acceleration */
+  .hw-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Mobile App Specific Styles */
+  .transparent-background {
+    background-color: transparent !important;
+  }
+  
+  /* Safe area insets for mobile devices */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Slow pulse animation for recent joins */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s ease-in-out infinite;
+}
+
+/* Reduced motion support for pulse animation */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-slow {
+    animation: none;
+  }
+}
+  
+  /* Status bar styles for iOS */
+  .ios-status-bar-padding {
+    padding-top: 20px; /* Default status bar height */
+    padding-top: env(safe-area-inset-top); /* Use safe area if available */
+  }
+  
+  /* Bottom navigation padding for iOS */
+  .ios-bottom-padding {
+    padding-bottom: 34px; /* Default home indicator height */
+    padding-bottom: env(safe-area-inset-bottom); /* Use safe area if available */
+  }
+  
+  /* Highlight effect for waitlist form */
+  .highlight-form {
+    animation: highlight-pulse 2s ease-in-out;
+  }
+  
+  @keyframes highlight-pulse {
+    0% { 
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4);
+      transform: scale(1);
+    }
+    50% { 
+      box-shadow: 0 0 0 10px rgba(99, 102, 241, 0.1);
+      transform: scale(1.02);
+    }
+    100% { 
+      box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+      transform: scale(1);
+    }
+  }
+  
+  /* Radial gradient utility */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
+/* ... (keep rest of the file unchanged) */

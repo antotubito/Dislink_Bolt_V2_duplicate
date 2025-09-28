@@ -453,7 +453,7 @@ const ContactCard = ({ contact, onEdit, onDelete, onAccept, onDecline, onUpdateT
                     }}
                     aria-label="Show notes"
                   >
-                    <MessageCircle className="h-5 w-5 text-gray-400" />
+                    <MessageCircle className="h-5 w-5 text-gray-600" />
                   </div>
                   <AnimatePresence>
                     {showNotesPreview && lastNote && (
@@ -475,7 +475,7 @@ const ContactCard = ({ contact, onEdit, onDelete, onAccept, onDecline, onUpdateT
                         <div className="text-sm text-gray-600 whitespace-pre-wrap break-words max-h-[200px] overflow-y-auto">
                           {lastNote.content}
                         </div>
-                        <div className="mt-2 text-xs text-gray-400 flex items-center">
+                        <div className="mt-2 text-xs text-gray-600 flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           {new Date(lastNote.createdAt).toLocaleDateString()}
                         </div>
@@ -495,7 +495,7 @@ const ContactCard = ({ contact, onEdit, onDelete, onAccept, onDecline, onUpdateT
               <div className="mt-3 space-y-1.5">
                 {contact.requestDate && (
                   <p className="text-sm text-gray-600 flex items-center">
-                    <Calendar className="h-4 w-4 mr-1.5 text-gray-400" />
+                    <Calendar className="h-4 w-4 mr-1.5 text-gray-600" />
                     <span className="truncate">Connected on {new Date(contact.requestDate).toLocaleDateString('en-US', {
                       day: 'numeric',
                       month: 'long',
@@ -505,7 +505,7 @@ const ContactCard = ({ contact, onEdit, onDelete, onAccept, onDecline, onUpdateT
                 )}
                 {contact.requestLocation && (
                   <p className="text-sm text-gray-600 flex items-start">
-                    <MapPin className="h-4 w-4 mr-1.5 text-gray-400 mt-0.5" />
+                    <MapPin className="h-4 w-4 mr-1.5 text-gray-600 mt-0.5" />
                     <span>
                       {contact.requestLocation.name}
                       {contact.requestLocation.venue && (
@@ -561,7 +561,7 @@ const ContactCard = ({ contact, onEdit, onDelete, onAccept, onDecline, onUpdateT
           <div className="relative">
             <div
               onClick={handleMenuToggle}
-              className="p-1.5 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer rounded-full"
+              className="p-1.5 sm:p-2 text-gray-600 hover:text-gray-600 hover:bg-gray-100 transition-colors cursor-pointer rounded-full"
               role="button"
               tabIndex={0}
               onKeyDown={(e) => {

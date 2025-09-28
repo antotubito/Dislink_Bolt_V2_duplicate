@@ -195,7 +195,7 @@ export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-64 h-64 border-2 border-white/50 rounded-lg">
                         {isScanning && (
-                          <div className="absolute inset-0 border-2 border-indigo-500 rounded-lg animate-pulse" />
+                          <div className="absolute inset-0 border-2 border-purple-600 rounded-lg animate-pulse" />
                         )}
                         {scanSuccess && (
                           <div className="absolute inset-0 border-2 border-green-500 rounded-lg" />

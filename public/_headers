@@ -1,0 +1,21 @@
+# Netlify _headers file for additional security and API access
+
+# Allow geolocation and Nominatim API access
+/*
+  Permissions-Policy: geolocation=*
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# Allow Nominatim API in CSP
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co wss://bbonxxvifycwpoeaxsor.supabase.co https://o4510074051756032.ingest.us.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org; frame-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co; worker-src 'self' blob:;
+
+# Cache static assets
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache HTML files for shorter time
+/*.html
+  Cache-Control: public, max-age=3600

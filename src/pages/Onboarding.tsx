@@ -1,23 +1,28 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
+import {
   User, Mail, Building2, Briefcase, Calendar, Heart,
-  Globe, Camera, Sparkles, LinkIcon, LogOut, Check, ArrowLeft, X 
+  Globe, Camera, Sparkles, LinkIcon, LogOut, Check, ArrowLeft, X
 } from 'lucide-react';
 import { OnboardingStep } from '../components/onboarding/OnboardingStep';
 import { AnimatedInput } from '../components/onboarding/AnimatedInput';
 import { AnimatedButton } from '../components/onboarding/AnimatedButton';
-import { SocialLinksStep } from '../components/onboarding/SocialLinksStep';
-import { LocationStep } from '../components/onboarding/LocationStep';
+import { EnhancedSocialLinksInput } from '../components/common/EnhancedSocialLinksInput';
 import { updateProfile } from '../lib/profile';
 import { useAuth } from '../components/auth/AuthProvider';
-import { FaceVerification } from '../components/verification/FaceVerification';
 import { supabase } from '../lib/supabase';
-import { JobTitleInput } from '../components/profile/JobTitleInput';
-import { IndustrySelect } from '../components/profile/IndustrySelect';
 import { Industry } from '../types/industry';
-import { CodeInvitationModal } from '../components/onboarding/CodeInvitationModal';
+import { 
+  LazyEnhancedSocialPlatforms, 
+  LazyLocationStep, 
+  LazyFaceVerification, 
+  LazyJobTitleInput, 
+  LazyIndustrySelect, 
+  LazyCodeInvitationModal,
+  LazyLoadingFallback 
+} from '../components/lazy';
+import { Suspense } from 'react';
 
 type OnboardingStep = 'welcome' | 'basics' | 'work' | 'location' | 'photo' | 'social' | 'complete';
 
@@ -28,11 +33,11 @@ function calculateAge(birthday: string): number {
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
-  
+
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
     age--;
   }
-  
+
   return age;
 }
 
@@ -116,15 +121,19 @@ export function Onboarding() {
     setError(null);
 
     try {
+      console.log('🎯 Starting onboarding completion...');
+
       // Get current session to ensure we have the user ID
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('No active session');
       }
 
+      console.log('🎯 Updating profile with onboarding completion...');
       await updateProfile({
         firstName: formData.firstName,
         lastName: formData.lastName,
+        birthday: formData.birthday, // Added birthday field
         jobTitle: formData.jobTitle,
         company: formData.company,
         industry: formData.industry,
@@ -139,8 +148,10 @@ export function Onboarding() {
         onboardingCompletedAt: new Date()
       });
 
+      console.log('🎯 Profile updated successfully, clearing progress...');
       localStorage.removeItem('onboarding_progress');
 
+      console.log('🎯 Moving to complete step...');
       setStep('complete');
     } catch (err) {
       console.error('Onboarding completion error:', err);
@@ -152,7 +163,12 @@ export function Onboarding() {
 
   const handleFinish = async () => {
     try {
+      // Wait for user refresh to complete and ensure profile is updated
       await refreshUser();
+
+      // Add a small delay to ensure all state is synchronized
+      await new Promise(resolve => setTimeout(resolve, 500));
+
       // Show Code Invitation modal instead of navigating directly
       setShowCodeInvitation(true);
     } catch (error) {
@@ -161,15 +177,42 @@ export function Onboarding() {
     }
   };
 
-  const handleCodeInvitationSuccess = (connectionDetails: any) => {
-    // Connection was successful, navigate to app
-    console.log('Code invitation successful:', connectionDetails);
-    navigate('/app');
+  const handleCodeInvitationSuccess = async (connectionDetails: any) => {
+    try {
+      // Connection was successful, refresh user data and navigate to app
+      console.log('Code invitation successful:', connectionDetails);
+
+      // Ensure user data is fully refreshed before navigation
+      await refreshUser();
+
+      // Add a small delay to ensure all state is synchronized
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      console.log('🎯 Navigating to app after successful code invitation');
+      navigate('/app');
+    } catch (error) {
+      console.error('Error during success navigation:', error);
+      // Fallback navigation even if refresh fails
+      navigate('/app');
+    }
   };
 
-  const handleCodeInvitationSkip = () => {
-    // User skipped or doesn't have invitation, navigate to app normally
-    navigate('/app');
+  const handleCodeInvitationSkip = async () => {
+    try {
+      // Ensure user data is fully refreshed before navigation
+      await refreshUser();
+
+      // Add a small delay to ensure all state is synchronized
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // User skipped or doesn't have invitation, navigate to app normally
+      console.log('🎯 Navigating to app after skipping code invitation');
+      navigate('/app');
+    } catch (error) {
+      console.error('Error during skip navigation:', error);
+      // Fallback navigation even if refresh fails
+      navigate('/app');
+    }
   };
 
   const handleExit = () => {
@@ -180,10 +223,10 @@ export function Onboarding() {
     try {
       // Sign out the user for security
       await supabase.auth.signOut();
-      
+
       // Clear any stored progress
       localStorage.removeItem('onboarding_progress');
-      
+
       // Redirect to login page
       navigate('/app/login');
     } catch (error) {
@@ -225,10 +268,15 @@ export function Onboarding() {
   };
 
   const handleSocialLinksUpdate = (links: Record<string, string>) => {
-    setFormData(prev => ({
-      ...prev,
-      socialLinks: links
-    }));
+    console.log('🔧 Onboarding: handleSocialLinksUpdate called with:', links);
+    setFormData(prev => {
+      const updated = {
+        ...prev,
+        socialLinks: links
+      };
+      console.log('🔧 Onboarding: Updated formData:', updated);
+      return updated;
+    });
   };
 
   const renderWelcomeStep = () => (
@@ -271,7 +319,7 @@ export function Onboarding() {
               {formData.firstName} {formData.lastName}
             </p>
           </div>
-          
+
           <div className="p-4 bg-gray-50 rounded-lg">
             <div className="flex items-center gap-2 mb-2">
               <Mail className="h-4 w-4 text-gray-500" />
@@ -295,7 +343,7 @@ export function Onboarding() {
             You must be at least 12 years old to use Dislink
           </p>
         </div>
-        
+
         <div className="flex space-x-3">
           <AnimatedButton
             variant="secondary"
@@ -323,19 +371,23 @@ export function Onboarding() {
       totalSteps={totalSteps}
     >
       <div className="space-y-6">
-        <IndustrySelect
-          value={formData.industry}
-          onChange={(industry) => setFormData({ ...formData, industry })}
-          required
-        />
-        
-        <JobTitleInput
-          value={formData.jobTitle}
-          onChange={(value) => setFormData({ ...formData, jobTitle: value })}
-          industry={formData.industry}
-          required
-        />
-        
+        <Suspense fallback={<LazyLoadingFallback />}>
+          <LazyIndustrySelect
+            value={formData.industry}
+            onChange={(industry) => setFormData({ ...formData, industry })}
+            required
+          />
+        </Suspense>
+
+        <Suspense fallback={<LazyLoadingFallback />}>
+          <LazyJobTitleInput
+            value={formData.jobTitle}
+            onChange={(value) => setFormData({ ...formData, jobTitle: value })}
+            industry={formData.industry}
+            required
+          />
+        </Suspense>
+
         <AnimatedInput
           label="Company (optional)"
           icon={Building2}
@@ -371,13 +423,15 @@ export function Onboarding() {
       totalSteps={totalSteps}
       error={error}
     >
-      <LocationStep
-        location={formData.location}
-        from={formData.from}
-        onUpdate={handleLocationUpdate}
-        onNext={() => setStep('photo')}
-        onBack={() => setStep('work')}
-      />
+      <Suspense fallback={<LazyLoadingFallback />}>
+        <LazyLocationStep
+          location={formData.location}
+          from={formData.from}
+          onUpdate={handleLocationUpdate}
+          onNext={() => setStep('photo')}
+          onBack={() => setStep('work')}
+        />
+      </Suspense>
     </OnboardingStep>
   );
 
@@ -390,10 +444,12 @@ export function Onboarding() {
       totalSteps={totalSteps}
     >
       <div className="space-y-6">
-        <FaceVerification
-          onVerified={handlePhotoCapture}
-          onError={handlePhotoError}
-        />
+        <Suspense fallback={<LazyLoadingFallback />}>
+          <LazyFaceVerification
+            onVerified={handlePhotoCapture}
+            onError={handlePhotoError}
+          />
+        </Suspense>
 
         <div className="flex space-x-3">
           <AnimatedButton
@@ -423,12 +479,33 @@ export function Onboarding() {
       totalSteps={totalSteps}
       error={error}
     >
-      <SocialLinksStep
-        socialLinks={formData.socialLinks}
-        onUpdate={handleSocialLinksUpdate}
-        onNext={handleComplete}
-        onBack={() => setStep('photo')}
-      />
+      <div className="space-y-6">
+        <EnhancedSocialLinksInput
+          links={formData.socialLinks}
+          onChange={handleSocialLinksUpdate}
+          required={true}
+          minLinks={1}
+          recommendedLinks={3}
+          showPreview={true}
+          allowCustomPlatforms={true}
+        />
+
+        <div className="flex space-x-3 pt-4">
+          <AnimatedButton
+            variant="secondary"
+            onClick={() => setStep('photo')}
+            icon={ArrowLeft}
+          >
+            Back
+          </AnimatedButton>
+          <AnimatedButton
+            onClick={handleComplete}
+            disabled={Object.keys(formData.socialLinks).length === 0}
+          >
+            Complete Setup
+          </AnimatedButton>
+        </div>
+      </div>
     </OnboardingStep>
   );
 
@@ -448,7 +525,7 @@ export function Onboarding() {
         >
           <Check className="h-12 w-12 text-white" />
         </motion.div>
-        
+
         {/* Celebration Text */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -456,12 +533,12 @@ export function Onboarding() {
           transition={{ delay: 0.3 }}
         >
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-          Welcome to Dislink! 🎉
-        </h2>
-        
+            Welcome to Dislink! 🎉
+          </h2>
+
           <p className="text-xl text-gray-600 mb-8 leading-relaxed">
             Your profile is all set up and ready to go. You're now part of a community of amazing people building meaningful connections!
-        </p>
+          </p>
         </motion.div>
 
         {/* What's Next Section */}
@@ -483,7 +560,7 @@ export function Onboarding() {
                   <p className="text-sm text-indigo-700">Discover your personalized experience and start connecting</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-purple-600 font-semibold text-sm">2</span>
@@ -493,7 +570,7 @@ export function Onboarding() {
                   <p className="text-sm text-purple-700">Find and connect with people you know and want to meet</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-green-600 font-semibold text-sm">3</span>
@@ -503,7 +580,7 @@ export function Onboarding() {
                   <p className="text-sm text-green-700">Share your unique profile link with others</p>
                 </div>
               </div>
-              
+
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <span className="text-yellow-600 font-semibold text-sm">4</span>
@@ -527,7 +604,7 @@ export function Onboarding() {
               <div className="text-2xl font-bold text-indigo-600">100%</div>
               <div className="text-xs text-gray-500">Profile Complete</div>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -537,7 +614,7 @@ export function Onboarding() {
               <div className="text-2xl font-bold text-purple-600">∞</div>
               <div className="text-xs text-gray-500">Connections Possible</div>
             </motion.div>
-            
+
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -555,13 +632,13 @@ export function Onboarding() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.0 }}
           >
-          <AnimatedButton
-            onClick={handleFinish}
-              className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-semibold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-          >
+            <AnimatedButton
+              onClick={handleFinish}
+              className="btn-captamundi-primary w-full"
+            >
               <Sparkles className="h-5 w-5 mr-2" />
               Start Your Journey
-          </AnimatedButton>
+            </AnimatedButton>
           </motion.div>
         </motion.div>
       </div>
@@ -632,12 +709,14 @@ export function Onboarding() {
         </AnimatePresence>
 
         {/* Code Invitation Modal */}
-        <CodeInvitationModal
-          isOpen={showCodeInvitation}
-          onClose={() => setShowCodeInvitation(false)}
-          onSuccess={handleCodeInvitationSuccess}
-          onSkip={handleCodeInvitationSkip}
-        />
+        <Suspense fallback={<LazyLoadingFallback />}>
+          <LazyCodeInvitationModal
+            isOpen={showCodeInvitation}
+            onClose={() => setShowCodeInvitation(false)}
+            onSuccess={handleCodeInvitationSuccess}
+            onSkip={handleCodeInvitationSkip}
+          />
+        </Suspense>
       </div>
     </div>
   );

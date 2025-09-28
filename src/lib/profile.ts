@@ -67,6 +67,7 @@ export async function updateProfile(updates: Partial<User>): Promise<User> {
         first_name: updates.firstName,
         middle_name: updates.middleName,
         last_name: updates.lastName,
+        birthday: updates.birthday, // Added birthday field
         job_title: updates.jobTitle,
         company: updates.company,
         industry: updates.industry,
@@ -97,6 +98,7 @@ export async function updateProfile(updates: Partial<User>): Promise<User> {
       lastName: data.last_name,
       middleName: data.middle_name,
       name: `${data.first_name} ${data.middle_name ? data.middle_name + ' ' : ''}${data.last_name}`.trim(),
+      birthday: data.birthday, // Added birthday field
       jobTitle: data.job_title,
       company: data.company,
       industry: data.industry,
@@ -122,7 +124,8 @@ export async function updateProfile(updates: Partial<User>): Promise<User> {
           jobTitle: true,
           bio: true,
           interests: true,
-          location: true
+          location: true,
+          birthday: false // Added birthday to default allowed fields
         }
       }
     };
@@ -173,6 +176,7 @@ export async function getCurrentProfile(): Promise<User | null> {
       lastName: profile.last_name || '',
       middleName: profile.middle_name,
       name: `${profile.first_name || ''} ${profile.middle_name ? profile.middle_name + ' ' : ''}${profile.last_name || ''}`.trim(),
+      birthday: profile.birthday, // Added birthday field
       jobTitle: profile.job_title,
       company: profile.company,
       industry: profile.industry,
@@ -198,7 +202,8 @@ export async function getCurrentProfile(): Promise<User | null> {
           jobTitle: true,
           bio: true,
           interests: true,
-          location: true
+          location: true,
+          birthday: false // Added birthday to default allowed fields
         }
       }
     };

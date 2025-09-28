@@ -213,9 +213,9 @@ export function SocialLinksInput({
           </p>
         </div>
         {expanded ? (
-          <ChevronUp className="h-5 w-5 text-gray-400" />
+          <ChevronUp className="h-5 w-5 text-gray-600" />
         ) : (
-          <ChevronDown className="h-5 w-5 text-gray-400" />
+          <ChevronDown className="h-5 w-5 text-gray-600" />
         )}
       </button>
 
@@ -273,7 +273,7 @@ export function SocialLinksInput({
                   <button
                     type="button"
                     onClick={handleAddPlatform}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90"
                   >
                     <PlusCircle className="h-4 w-4 mr-1.5" />
                     Add Your First Platform
@@ -302,9 +302,9 @@ export function SocialLinksInput({
                       </div>
                     </div>
                     {expandedCategories.includes(categoryId) ? (
-                      <ChevronUp className="h-5 w-5 text-gray-400" />
+                      <ChevronUp className="h-5 w-5 text-gray-600" />
                     ) : (
-                      <ChevronDown className="h-5 w-5 text-gray-400" />
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
                     )}
                   </button>
 
@@ -359,7 +359,7 @@ export function SocialLinksInput({
                                       hasError
                                         ? 'border-red-300 bg-red-50 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
                                         : isActive
-                                        ? 'border-gray-300 focus:ring-indigo-500 focus:border-indigo-500'
+                                        ? 'border-gray-300 focus:ring-purple-500 focus:border-purple-600'
                                         : 'border-gray-200 bg-gray-50 text-gray-500 focus:ring-gray-400 focus:border-gray-400'
                                     }`}
                                   />
@@ -369,7 +369,7 @@ export function SocialLinksInput({
                                       onClick={() => handleLinkChange(platform, '')}
                                       className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100"
                                     >
-                                      <X className="h-4 w-4 text-gray-400" />
+                                      <X className="h-4 w-4 text-gray-600" />
                                     </button>
                                   )}
                                 </div>

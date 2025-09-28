@@ -7,7 +7,7 @@ import { updateProfile, getCurrentProfile } from '../lib/profile';
 import { sendTierNotifications } from '../lib/notifications';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, X } from 'lucide-react';
 
 export function Profile() {
   const { user, refreshUser, connectionStatus, reconnectSupabase } = useAuth();
@@ -25,12 +25,12 @@ export function Profile() {
     const loadProfileData = async () => {
       try {
         setLoading(true);
-        
+
         // Check if we have a session
         const { data: { session } } = await supabase.auth.getSession();
         const hasSession = !!session;
         setIsAuthenticated(hasSession);
-        
+
         if (hasSession) {
           // If we have a session but no user data, fetch it directly
           if (!user) {
@@ -54,7 +54,7 @@ export function Profile() {
         setLoading(false);
       }
     };
-    
+
     loadProfileData();
   }, [user, refreshUser]);
 
@@ -63,42 +63,42 @@ export function Profile() {
     setSaving(true);
     setError(null);
     setNotificationSent(false);
-    
+
     try {
       // Update profile in database
       const updatedUser = await updateProfile(updates);
-      
+
       // Update local state
       setLocalUser(updatedUser);
-      
+
       // Refresh user in auth context
       await refreshUser();
-      
+
       // Send notifications to selected tiers if provided
       if (notifyTiers && notifyTiers.length > 0) {
         // Determine which fields were updated
         const updatedFields: string[] = [];
-        
+
         if (updates.firstName || updates.lastName) updatedFields.push('name');
         if (updates.jobTitle) updatedFields.push('jobTitle');
         if (updates.company) updatedFields.push('company');
         if (updates.bio?.location) updatedFields.push('location');
         if (updates.socialLinks) updatedFields.push('socialLinks');
-        
+
         if (updatedFields.length > 0) {
           const success = await sendTierNotifications(
             updatedUser.id,
             updatedFields,
             notifyTiers
           );
-          
+
           if (success) {
             setNotificationSent(true);
             logger.info('Notifications sent successfully', { tiers: notifyTiers });
           }
         }
       }
-      
+
       // Exit edit mode
       setIsEditing(false);
     } catch (err) {
@@ -115,7 +115,7 @@ export function Profile() {
     setRetryCount(prev => prev + 1);
     setError(null);
     setLoading(true);
-    
+
     try {
       if (connectionStatus === 'disconnected') {
         const reconnected = await reconnectSupabase();
@@ -123,7 +123,7 @@ export function Profile() {
           throw new Error('Failed to reconnect to Supabase');
         }
       }
-      
+
       await refreshUser();
       const profileData = await getCurrentProfile();
       if (profileData) {
@@ -157,9 +157,9 @@ export function Profile() {
         <div className="text-center p-8 bg-white rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Sign In</h2>
           <p className="text-gray-600 mb-6">You need to be signed in to view your profile.</p>
-          <a 
-            href="/app/login" 
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          <a
+            href="/app/login"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25"
           >
             Sign In
           </a>
@@ -176,9 +176,9 @@ export function Profile() {
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Profile</h2>
           <p className="text-red-600 mb-6">{error}</p>
-          <button 
+          <button
             onClick={handleRetry}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Retry {retryCount > 0 ? `(${retryCount})` : ''}
@@ -195,9 +195,9 @@ export function Profile() {
         <div className="text-center p-8 bg-white rounded-lg shadow-md">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Profile Not Found</h2>
           <p className="text-gray-600 mb-6">We couldn't find your profile information.</p>
-          <button 
+          <button
             onClick={handleRetry}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh Profile
@@ -262,9 +262,9 @@ export function Profile() {
               />
             </div>
           ) : (
-            <ProfileView 
-              user={localUser} 
-              onEdit={() => setIsEditing(true)} 
+            <ProfileView
+              user={localUser}
+              onEdit={() => setIsEditing(true)}
             />
           )}
         </div>

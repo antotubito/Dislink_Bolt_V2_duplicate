@@ -387,13 +387,13 @@ export function LocationSelectionModal({
                       Event or Occasion (Optional)
                     </label>
                     <div className="relative">
-                      <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
                       <input
                         type="text"
                         value={eventContext}
                         onChange={(e) => setEventContext(e.target.value)}
                         placeholder="e.g., Conference, Birthday Party, Meetup, Social Event..."
-                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                       />
                     </div>
                     <p className="mt-2 text-xs text-gray-500">
@@ -432,7 +432,7 @@ export function LocationSelectionModal({
                     <div className="flex space-x-3 ml-auto">
                       <button
                         onClick={handleEventContextSubmit}
-                        className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-base font-medium hover:bg-indigo-700"
+                        className="px-6 py-2.5 btn-captamundi-primary text-white rounded-lg text-base font-medium hover:btn-captamundi-primary hover:opacity-90"
                       >
                         Continue
                       </button>
@@ -470,11 +470,11 @@ export function LocationSelectionModal({
                   
                   {/* Search Input */}
                   <div className="mt-4 relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
                     <input
                       type="text"
                       placeholder="Search or enter a location name..."
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -604,7 +604,7 @@ export function LocationSelectionModal({
                               }}
                             >
                               <div className="flex items-start">
-                                <Icon className="h-5 w-5 text-gray-400 mt-1 flex-shrink-0" />
+                                <Icon className="h-5 w-5 text-gray-600 mt-1 flex-shrink-0" />
                                 <div className="ml-3">
                                   <h3 className="text-sm font-medium text-gray-900">
                                     {location.name}
@@ -657,7 +657,7 @@ export function LocationSelectionModal({
                       </button>
                       <button
                         onClick={handleContinue}
-                        className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-base font-medium hover:bg-indigo-700"
+                        className="px-6 py-2.5 btn-captamundi-primary text-white rounded-lg text-base font-medium hover:btn-captamundi-primary hover:opacity-90"
                       >
                         Continue
                       </button>

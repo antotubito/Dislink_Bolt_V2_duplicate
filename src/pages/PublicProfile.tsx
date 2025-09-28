@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { 
+import {
   Building2, Mail, Phone, MapPin, Globe, Heart, Lock,
   Linkedin, Twitter, Github, Instagram, Facebook, Youtube,
   MessageCircle as WhatsApp, Link as LinkIcon, Download,
@@ -13,11 +13,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { validateQRCode, requestConnection } from '../lib/qr';
-import { 
-  trackEnhancedQRScan, 
-  sendEmailInvitation, 
+import {
+  trackEnhancedQRScan,
+  sendEmailInvitation,
   createConnectionMemory,
-  validateInvitationCode 
+  validateInvitationCode
 } from '../lib/qrEnhanced';
 import { SOCIAL_CATEGORIES } from '../config/social';
 import { supabase } from '../lib/supabase';
@@ -41,65 +41,28 @@ export function PublicProfile() {
   const [scanTimestamp] = useState(new Date());
 
   useEffect(() => {
-    // Enhanced QR code scan tracking for unique scans
-    const trackScanEvent = async () => {
-      try {
-        // Get the connection code from URL params or route params
-        const connectionCode = code || new URLSearchParams(window.location.search).get('code');
-        if (!connectionCode && !scanId) return;
-
-        // Get user's location when they scan the QR code
-        let location;
-        if (navigator.geolocation) {
-          try {
-            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-              navigator.geolocation.getCurrentPosition(resolve, reject, {
-                enableHighAccuracy: true,
-                timeout: 5000,
-                maximumAge: 0
-              });
-            });
-            
-            location = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
-            };
-            setScanLocation(location);
-          } catch (error) {
-            console.warn('Location access denied:', error);
-          }
-        }
-
-        // Track scan with enhanced data
-        const scanData = await trackEnhancedQRScan(code, location);
-        
-        // Update scan location with enhanced data
-        if (scanData.location) {
-          setScanLocation({
-            latitude: scanData.location.latitude,
-            longitude: scanData.location.longitude,
-            name: scanData.location.address || scanData.location.city
-          });
-        }
-
-        console.log('Enhanced QR Code Scan Event:', scanData);
-      } catch (err) {
-        console.error('Error tracking enhanced scan event:', err);
-      }
-    };
-
-    trackScanEvent();
-
     async function loadProfile() {
-      // Handle both /share/:code and /scan/:scanId routes
-      const connectionCode = code || new URLSearchParams(window.location.search).get('code');
-      const currentScanId = scanId;
+      console.log('🔍 PublicProfile: Loading profile with params:', { code, scanId });
       
+      // Handle both /share/:code and /scan/:scanId routes
+      let connectionCode = code;
+      let currentScanId = scanId;
+      
+      // For /scan/:scanId routes, extract the code from URL parameters
+      if (currentScanId && !connectionCode) {
+        const urlParams = new URLSearchParams(window.location.search);
+        connectionCode = urlParams.get('code');
+        console.log('🔍 PublicProfile: Extracted code from URL params:', connectionCode);
+      }
+
       if (!connectionCode && !currentScanId) {
+        console.error('❌ PublicProfile: No connection code or scan ID found');
         setError('Invalid profile link');
         setLoading(false);
         return;
       }
+
+      console.log('🔍 PublicProfile: Processing with:', { connectionCode, currentScanId });
 
       // Handle test profile
       if (code === 'test-profile') {
@@ -142,27 +105,54 @@ export function PublicProfile() {
           isExpired: false,
           code: 'test-profile'
         };
-        
+
         setProfile(testProfile);
         setLoading(false);
         return;
       }
       try {
-        console.log("Validating code:", code);
-        
-        // For unique scan URLs, we need to track this specific scan moment
-        if (currentScanId) {
-          // Update the scan tracking with actual scan details
-          await trackEnhancedQRScan(connectionCode || currentScanId, scanLocation);
+        console.log("🔍 PublicProfile: Validating connection code:", connectionCode);
+
+        // Get user's location when they scan the QR code
+        let location;
+        if (navigator.geolocation) {
+          try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+              });
+            });
+
+            location = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            setScanLocation(location);
+            console.log('📍 PublicProfile: Location captured:', location);
+          } catch (error) {
+            console.warn('⚠️ PublicProfile: Location access denied:', error);
+          }
         }
 
-        // First try to get profile directly from Supabase
+        // For unique scan URLs, we need to track this specific scan moment
+        if (currentScanId && connectionCode) {
+          try {
+            const scanData = await trackEnhancedQRScan(connectionCode, location);
+            console.log('📊 PublicProfile: Scan tracked:', scanData);
+          } catch (trackError) {
+            console.warn('⚠️ PublicProfile: Failed to track scan:', trackError);
+          }
+        }
+
+        // Query the connection_codes table with proper field names
         const { data: directProfile, error: directError } = await supabase
           .from('connection_codes')
           .select(`
             id,
             user_id,
-            status,
+            is_active,
             expires_at,
             profiles!connection_codes_user_id_fkey (
               id,
@@ -177,15 +167,19 @@ export function PublicProfile() {
               public_profile
             )
           `)
-          .eq('code', connectionCode || code)
+          .eq('code', connectionCode)
+          .eq('is_active', true)
           .maybeSingle();
-        
+
+        console.log('🔍 PublicProfile: Database query result:', { directProfile, directError });
+
         if (directError) {
-          console.error("Supabase query error:", directError);
+          console.error("❌ PublicProfile: Supabase query error:", directError);
           throw new Error('Failed to load profile');
         }
-        
+
         if (!directProfile) {
+          console.error('❌ PublicProfile: No active connection code found for:', connectionCode);
           setError('QR code not found or expired');
           setLoading(false);
           return;
@@ -195,13 +189,14 @@ export function PublicProfile() {
         if (directProfile.expires_at) {
           const expirationDate = new Date(directProfile.expires_at);
           if (expirationDate < new Date()) {
+            console.error('❌ PublicProfile: QR code expired:', expirationDate);
             setError('This QR code has expired. Please ask for a new one.');
             setIsExpired(true);
             setLoading(false);
             return;
           }
         }
-        
+
         if (directProfile?.profiles) {
           // Format profile data
           const formattedProfile = {
@@ -214,42 +209,33 @@ export function PublicProfile() {
             socialLinks: directProfile.profiles.social_links,
             interests: directProfile.profiles.interests,
             publicProfile: directProfile.profiles.public_profile,
-            isExpired: directProfile.status !== 'active',
-            code: code
+            isExpired: !directProfile.is_active,
+            code: connectionCode
           };
-          
+
+          console.log('✅ PublicProfile: Profile loaded successfully:', formattedProfile);
+
           if (formattedProfile.isExpired) {
             setIsExpired(true);
           } else {
-            // Use the tracked scan location
-            const location = scanLocation;
             setProfile(formattedProfile);
             setShowEmailForm(true);
           }
         } else {
-          const result = await validateQRCode(code);
-          
-          if (result.isExpired) {
-            setIsExpired(true);
-            setProfile(result);
-          } else {
-            setProfile(result);
-            setShowEmailForm(true);
-          }
+          console.error('❌ PublicProfile: No profile data found for connection code');
+          setError('Profile not found');
         }
-          
-        // Log successful connection request
-        console.log('Connection Request Successful:', {
-          code,
-          email,
-          connectionCode: result.connectionCode,
+
+        // Log successful profile load
+        console.log('✅ PublicProfile: Profile loaded successfully:', {
+          connectionCode,
+          userId: directProfile?.profiles?.id,
           timestamp: new Date().toISOString(),
-          scanLocation,
-          scanTimestamp: scanTimestamp.toISOString()
+          scanLocation: location
         });
       } catch (err) {
-        console.error("Error loading profile:", err);
-        setError('Failed to load profile');
+        console.error("❌ PublicProfile: Error loading profile:", err);
+        setError('Failed to load profile (this profile may have been removed or is not publicly available)');
       } finally {
         setLoading(false);
       }
@@ -278,7 +264,7 @@ export function PublicProfile() {
 
       // Send email invitation with connection tracking
       const invitation = await sendEmailInvitation(email, profile.userId, scanData);
-      
+
       // Create connection memory for tracking
       await createConnectionMemory(profile.userId, 'pending_user', scanData, 'email_invitation');
 
@@ -297,7 +283,7 @@ export function PublicProfile() {
   const handleCopyLink = async () => {
     try {
       const profileUrl = window.location.href;
-      
+
       if (isMobileApp()) {
         await shareContent({
           title: `Connect with ${profile.name} on Dislink`,
@@ -407,11 +393,11 @@ export function PublicProfile() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-2 rounded-lg mr-3">
+              <div className="bg-gradient-to-r bg-from-purple-500 to-indigo-600 p-2 rounded-lg mr-3">
                 <LinkIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r bg-from-purple-500 to-indigo-600 bg-clip-text text-transparent">
                   Dislink
                 </span>
                 <p className="text-xs text-gray-500">Relationship Building</p>
@@ -433,7 +419,7 @@ export function PublicProfile() {
       </div>
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 text-white overflow-hidden">
+      <div className="relative bg-gradient-to-br bg-from-purple-500 to-indigo-600 text-white overflow-hidden">
         {/* Background decorative elements */}
         <div className="absolute inset-0">
           <div className="absolute top-0 left-0 w-full h-full">
@@ -441,7 +427,7 @@ export function PublicProfile() {
             <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-purple-300/20 rounded-full blur-3xl"></div>
           </div>
         </div>
-        
+
         <div className="relative max-w-4xl mx-auto px-4 py-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -468,7 +454,7 @@ export function PublicProfile() {
                 This is your moment to build something meaningful with <span className="font-semibold">{profile.name}</span>
               </p>
             </motion.div>
-            
+
             {/* Connection CTA */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -482,7 +468,7 @@ export function PublicProfile() {
               <p className="text-lg opacity-90 mb-6">
                 Start tracking your meaningful relationships from this very moment
               </p>
-              
+
               {/* Quick stats */}
               <div className="grid grid-cols-3 gap-4 mb-6">
                 <div className="text-center">
@@ -507,7 +493,7 @@ export function PublicProfile() {
                   <p className="text-xs opacity-75">Lifetime</p>
                 </div>
               </div>
-              
+
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -526,15 +512,15 @@ export function PublicProfile() {
             </motion.div>
           </motion.div>
         </div>
-        
+
         {/* Floating elements */}
         <div className="absolute top-20 left-10 opacity-20">
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, -20, 0],
               rotate: [0, 5, 0]
             }}
-            transition={{ 
+            transition={{
               duration: 6,
               repeat: Infinity,
               ease: "easeInOut"
@@ -543,14 +529,14 @@ export function PublicProfile() {
             <LinkIcon className="h-8 w-8 text-white" />
           </motion.div>
         </div>
-        
+
         <div className="absolute bottom-20 right-10 opacity-20">
           <motion.div
-            animate={{ 
+            animate={{
               y: [0, 15, 0],
               rotate: [0, -5, 0]
             }}
-            transition={{ 
+            transition={{
               duration: 8,
               repeat: Infinity,
               ease: "easeInOut",
@@ -599,7 +585,7 @@ export function PublicProfile() {
                   )}
                 </p>
               )}
-              
+
               {/* Share button */}
               <div className="mt-4 flex space-x-3">
                 <button
@@ -632,7 +618,7 @@ export function PublicProfile() {
                 Get connected and start tracking your relationship
               </p>
             </div>
-            
+
             <div className="space-y-6">
               {/* Option 1: Get Connection Link */}
               <div className="border border-gray-200 rounded-lg p-6">
@@ -643,7 +629,7 @@ export function PublicProfile() {
                 <p className="text-gray-600 mb-4">
                   Receive a special link to use during registration
                 </p>
-                
+
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
                   {emailError && (
                     <div className="rounded-lg bg-red-50 p-3 border border-red-200">
@@ -653,22 +639,22 @@ export function PublicProfile() {
                       </div>
                     </div>
                   )}
-                  
+
                   <div>
                     <input
                       type="email"
                       required
-                      className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                      className="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email address"
                     />
                   </div>
-                  
+
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                    className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50"
                   >
                     {submitting ? (
                       <div className="flex items-center">
@@ -684,7 +670,7 @@ export function PublicProfile() {
                   </button>
                 </form>
               </div>
-              
+
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -694,7 +680,7 @@ export function PublicProfile() {
                   <span className="px-2 bg-white text-gray-500">or</span>
                 </div>
               </div>
-              
+
               {/* Option 2: Create Profile Directly */}
               <div className="border border-gray-200 rounded-lg p-6 bg-gradient-to-r from-green-50 to-emerald-50">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
@@ -704,13 +690,13 @@ export function PublicProfile() {
                 <p className="text-gray-600 mb-4">
                   Start using Dislink immediately with automatic connection tracking
                 </p>
-                
+
                 <button
                   onClick={async () => {
                     try {
                       // Get enhanced scan data
                       const scanData = await trackEnhancedQRScan(code!, scanLocation);
-                      
+
                       // Create connection memory for direct registration
                       await createConnectionMemory(profile.userId, 'pending_user', scanData, 'qr_scan');
 
@@ -729,9 +715,9 @@ export function PublicProfile() {
                       };
 
                       localStorage.setItem('qr_registration_data', JSON.stringify(registrationData));
-                      
+
                       console.log('Direct Profile Creation with Enhanced Tracking:', registrationData);
-                      
+
                       // Navigate to registration with enhanced tracking
                       window.location.href = `/app/register?from=qr_scan&connect=${encodeURIComponent(profile.userId)}&scan_id=${encodeURIComponent(scanData.scanId)}`;
                     } catch (err) {
@@ -745,7 +731,7 @@ export function PublicProfile() {
                   <Sparkles className="h-5 w-5 mr-2" />
                   Create Profile & Connect
                 </button>
-                
+
                 <div className="mt-4 text-xs text-green-700 bg-green-100 p-3 rounded-lg">
                   <div className="flex items-start">
                     <Check className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
@@ -761,7 +747,7 @@ export function PublicProfile() {
                 </div>
               </div>
             </div>
-            
+
             {/* Benefits Section */}
             <div className="mt-8 pt-6 border-t border-gray-100">
               <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center">
@@ -814,13 +800,13 @@ export function PublicProfile() {
                     <div className="flex flex-wrap gap-6">
                       {profile.bio?.location && (
                         <div className="flex items-center text-gray-600">
-                          <MapPin className="h-5 w-5 mr-2 text-gray-400" />
+                          <MapPin className="h-5 w-5 mr-2 text-gray-600" />
                           <span>Located in {profile.bio.location}</span>
                         </div>
                       )}
                       {profile.bio?.from && (
                         <div className="flex items-center text-gray-600">
-                          <Globe className="h-5 w-5 mr-2 text-gray-400" />
+                          <Globe className="h-5 w-5 mr-2 text-gray-600" />
                           <span>From {profile.bio.from}</span>
                         </div>
                       )}
@@ -868,16 +854,16 @@ export function PublicProfile() {
                   <LinkIcon className="h-6 w-6 mr-2" />
                   Connect with {profile.name}
                 </h2>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {Object.entries(profile.socialLinks).map(([platform, url]) => {
                     // Skip if this platform is not shared
                     if (!sharedLinks[platform]) return null;
-                    
+
                     // Find platform config
                     let platformConfig;
                     let categoryColor;
-                    
+
                     for (const [categoryId, category] of Object.entries(SOCIAL_CATEGORIES)) {
                       if (category.links[platform]) {
                         platformConfig = category.links[platform];
@@ -885,11 +871,11 @@ export function PublicProfile() {
                         break;
                       }
                     }
-                    
+
                     if (!platformConfig) return null;
-                    
+
                     const Icon = platformConfig.icon;
-                    
+
                     return (
                       <a
                         key={platform}
@@ -898,14 +884,14 @@ export function PublicProfile() {
                         rel="noopener noreferrer"
                         className="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <Icon 
+                        <Icon
                           className="h-5 w-5 mr-3"
                           style={{ color: platformConfig.color }}
                         />
                         <span className="font-medium text-gray-700">
                           {platformConfig.label}
                         </span>
-                        <ArrowRight className="h-4 w-4 ml-auto text-gray-400" />
+                        <ArrowRight className="h-4 w-4 ml-auto text-gray-600" />
                       </a>
                     );
                   })}
@@ -918,7 +904,7 @@ export function PublicProfile() {
 
       {/* Download App Section */}
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-2xl p-8 text-white">
+        <div className="bg-gradient-to-br bg-from-purple-500 to-indigo-600 rounded-2xl p-8 text-white">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-4">
               Download Dislink

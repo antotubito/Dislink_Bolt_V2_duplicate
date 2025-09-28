@@ -1,5 +1,5 @@
 // 🚀 PRODUCTION EMAIL SERVICE INTEGRATION
-// Support for SendGrid, Mailgun, and other email providers
+// Support for Gmail SMTP, SendGrid, Mailgun, and other email providers
 
 import { logger } from './logger';
 
@@ -34,12 +34,12 @@ export interface EmailAttachment {
 /**
  * SendGrid Email Provider
  */
-export class SendGridProvider implements EmailProvider {
+class SendGridProvider implements EmailProvider {
   name = 'SendGrid';
   private apiKey: string;
   private fromEmail: string;
 
-  constructor(apiKey: string, fromEmail: string = 'hello@dislink.com') {
+  constructor(apiKey: string, fromEmail: string = 'hel@dislink.com') {
     this.apiKey = apiKey;
     this.fromEmail = fromEmail;
   }
@@ -123,7 +123,7 @@ export class SendGridProvider implements EmailProvider {
 /**
  * Mailgun Email Provider
  */
-export class MailgunProvider implements EmailProvider {
+class MailgunProvider implements EmailProvider {
   name = 'Mailgun';
   private apiKey: string;
   private domain: string;
@@ -145,8 +145,14 @@ export class MailgunProvider implements EmailProvider {
       if (params.text) formData.append('text', params.text);
 
       if (params.attachments) {
-        params.attachments.forEach((att, index) => {
-          const blob = new Blob([Buffer.from(att.content, 'base64')], { type: att.type });
+        params.attachments.forEach((att) => {
+          // Convert base64 to Uint8Array for browser compatibility
+          const binaryString = atob(att.content);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          const blob = new Blob([bytes], { type: att.type });
           formData.append('attachment', blob, att.filename);
         });
       }
@@ -173,7 +179,7 @@ export class MailgunProvider implements EmailProvider {
     }
   }
 
-  async sendTemplatedEmail(params: TemplatedEmailParams): Promise<boolean> {
+  async sendTemplatedEmail(_params: TemplatedEmailParams): Promise<boolean> {
     // Mailgun doesn't have built-in templates like SendGrid
     // You would implement template rendering here
     logger.warn('Templated emails not implemented for Mailgun provider');
@@ -203,7 +209,7 @@ export class EmailService {
     location?: string
   ): Promise<boolean> {
     const subject = `${senderName} wants to connect with you on Dislink`;
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -288,7 +294,7 @@ export class EmailService {
     connectionUrl: string
   ): Promise<boolean> {
     const subject = `New connection request from ${senderName}`;
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -339,7 +345,7 @@ export class EmailService {
     profileUrl: string
   ): Promise<boolean> {
     const subject = `Follow-up reminder: ${contactName}`;
-    
+
     const html = `
       <!DOCTYPE html>
       <html>
@@ -397,24 +403,46 @@ export class EmailService {
  */
 export function createEmailService(): EmailService | null {
   try {
-    // Check for SendGrid configuration
-    const sendGridApiKey = import.meta.env.VITE_SENDGRID_API_KEY;
+    // 🔍 ENHANCED EMAIL SERVICE DEBUG LOGGING
+    console.log('🔍 EMAIL SERVICE: Checking configuration...');
+
+    // Check for SendGrid configuration (multiple possible env var names)
+    const sendGridApiKey = import.meta.env.VITE_SENDGRID_API_KEY || import.meta.env.VITE_EMAIL_SERVICE_API_KEY;
+    const sendGridFrom = import.meta.env.VITE_SENDGRID_FROM || 'support@dislink.app';
+
+    console.log('🔍 EMAIL SERVICE: Environment variables:', {
+      hasSendGridKey: !!sendGridApiKey,
+      hasSendGridFrom: !!sendGridFrom,
+      sendGridFrom: sendGridFrom,
+      hasMailgunKey: !!import.meta.env.VITE_MAILGUN_API_KEY,
+      hasMailgunDomain: !!import.meta.env.VITE_MAILGUN_DOMAIN,
+      gmailSmtpConfigured: 'Gmail SMTP configured via Supabase dashboard'
+    });
+
     if (sendGridApiKey) {
-      const provider = new SendGridProvider(sendGridApiKey);
-      return new EmailService(provider);
+      console.log('🔍 EMAIL SERVICE: Creating SendGrid provider');
+      const provider = new SendGridProvider(sendGridApiKey, sendGridFrom);
+      const service = new EmailService(provider, sendGridFrom);
+      console.log('✅ EMAIL SERVICE: SendGrid service created successfully');
+      return service;
     }
 
     // Check for Mailgun configuration
     const mailgunApiKey = import.meta.env.VITE_MAILGUN_API_KEY;
     const mailgunDomain = import.meta.env.VITE_MAILGUN_DOMAIN;
     if (mailgunApiKey && mailgunDomain) {
+      console.log('🔍 EMAIL SERVICE: Creating Mailgun provider');
       const provider = new MailgunProvider(mailgunApiKey, mailgunDomain);
-      return new EmailService(provider);
+      const service = new EmailService(provider);
+      console.log('✅ EMAIL SERVICE: Mailgun service created successfully');
+      return service;
     }
 
-    logger.warn('No email service configuration found. Set VITE_SENDGRID_API_KEY or VITE_MAILGUN_API_KEY');
+    console.warn('⚠️ EMAIL SERVICE: No external email service configuration found');
+    logger.warn('No external email service configuration found. Gmail SMTP is configured via Supabase dashboard. Set VITE_SENDGRID_API_KEY, VITE_EMAIL_SERVICE_API_KEY, or VITE_MAILGUN_API_KEY for additional providers');
     return null;
   } catch (error) {
+    console.error('❌ EMAIL SERVICE: Error creating email service:', error);
     logger.error('Error creating email service:', error);
     return null;
   }

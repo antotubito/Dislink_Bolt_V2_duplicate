@@ -172,7 +172,7 @@ import React, { useState } from 'react';
 +            <button
 +              type="button"
 +              onClick={() => setShowInfo(!showInfo)}
-+              className="ml-2 text-gray-400 hover:text-gray-500 p-1 hover:bg-gray-100 rounded-full"
++              className="ml-2 text-gray-600 hover:text-gray-500 p-1 hover:bg-gray-100 rounded-full"
 +            >
 +              <Info className="h-4 w-4" />
 +            </button>
@@ -262,7 +262,7 @@ import React, { useState } from 'react';
 +              <div key={notification.id} className="flex items-center justify-between">
 +                <div className="flex items-center">
 +                  <div className={`p-2 rounded-lg mr-3 ${isEnabled ? 'bg-indigo-100' : 'bg-gray-100'}`}>
-+                    <Icon className={`h-4 w-4 ${isEnabled ? 'text-indigo-600' : 'text-gray-400'}`} />
++                    <Icon className={`h-4 w-4 ${isEnabled ? 'text-indigo-600' : 'text-gray-600'}`} />
 +                  </div>
 +                  <div>
 +                    <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
@@ -272,7 +272,7 @@ import React, { useState } from 'react';
 +                <button
 +                  onClick={() => toggleNotificationType(notification.id)}
 +                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-+                    isEnabled ? 'bg-indigo-600' : 'bg-gray-200'
++                    isEnabled ? 'btn-captamundi-primary' : 'bg-gray-200'
 +                  }`}
 +                >
 +                  <span
@@ -292,7 +292,7 @@ import React, { useState } from 'react';
 +        <button
 +          onClick={onSave}
 +          disabled={saving}
-+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
++          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
 +        >
 +          {saving ? (
 +            <>

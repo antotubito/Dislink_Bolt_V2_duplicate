@@ -26,7 +26,7 @@ export function ChatInput({ onSendMessage, placeholder = 'Type a message...', di
       onSubmit={handleSubmit}
       className={`flex items-center border rounded-lg shadow-sm transition-all ${
         isFocused 
-          ? 'border-indigo-500 shadow-md' 
+          ? 'border-purple-600 shadow-md' 
           : 'border-gray-300'
       } ${disabled ? 'opacity-50' : ''}`}
     >
@@ -46,7 +46,7 @@ export function ChatInput({ onSendMessage, placeholder = 'Type a message...', di
           <button
             type="button"
             onClick={() => setMessage('')}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-600"
           >
             <X className="h-4 w-4" />
           </button>
@@ -61,8 +61,8 @@ export function ChatInput({ onSendMessage, placeholder = 'Type a message...', di
           disabled={!message.trim() || disabled} 
           className={`p-2 rounded-full mr-1 ${
             message.trim() && !disabled
-              ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-              : 'text-gray-400 cursor-not-allowed'
+              ? 'btn-captamundi-primary text-white hover:btn-captamundi-primary hover:opacity-90'
+              : 'text-gray-600 cursor-not-allowed'
           }`}
         >
           <Send className="h-5 w-5" />

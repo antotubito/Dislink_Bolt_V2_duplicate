@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Gift, 
-  Check, 
-  X, 
-  Mail, 
-  Users, 
+import {
+  Gift,
+  Check,
+  X,
+  Mail,
+  Users,
   Sparkles,
   AlertCircle,
   Loader2
@@ -22,11 +22,11 @@ interface CodeInvitationModalProps {
   onSkip?: () => void;
 }
 
-export function CodeInvitationModal({ 
-  isOpen, 
-  onClose, 
-  onSuccess, 
-  onSkip 
+export function CodeInvitationModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  onSkip
 }: CodeInvitationModalProps) {
   const { user } = useAuth();
   const [invitationCode, setInvitationCode] = useState('');
@@ -36,10 +36,48 @@ export function CodeInvitationModal({
   const [step, setStep] = useState<'input' | 'validating' | 'success'>('input');
   const [connectionDetails, setConnectionDetails] = useState<any>(null);
 
+  const validateCodeFormat = (code: string, type: 'invitation' | 'connection'): { isValid: boolean; error?: string } => {
+    const trimmedCode = code.trim();
+
+    if (!trimmedCode) {
+      return { isValid: false, error: `${type === 'invitation' ? 'Invitation ID' : 'Connection Code'} is required` };
+    }
+
+    if (type === 'invitation') {
+      // Invitation codes typically start with 'inv_' and are longer
+      if (!trimmedCode.startsWith('inv_') || trimmedCode.length < 10) {
+        return {
+          isValid: false,
+          error: 'Invitation ID should start with "inv_" and be at least 10 characters long'
+        };
+      }
+    } else {
+      // Connection codes typically start with 'conn_' and are longer
+      if (!trimmedCode.startsWith('conn_') || trimmedCode.length < 10) {
+        return {
+          isValid: false,
+          error: 'Connection Code should start with "conn_" and be at least 10 characters long'
+        };
+      }
+    }
+
+    return { isValid: true };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!invitationCode.trim() || !connectionCode.trim()) {
-      setError('Please enter both codes');
+
+    // Validate both codes before submission
+    const invitationValidation = validateCodeFormat(invitationCode, 'invitation');
+    const connectionValidation = validateCodeFormat(connectionCode, 'connection');
+
+    if (!invitationValidation.isValid) {
+      setError(invitationValidation.error!);
+      return;
+    }
+
+    if (!connectionValidation.isValid) {
+      setError(connectionValidation.error!);
       return;
     }
 
@@ -50,7 +88,7 @@ export function CodeInvitationModal({
     try {
       // First validate the invitation
       const invitation = await validateInvitationCode(invitationCode.trim(), connectionCode.trim());
-      
+
       if (!invitation) {
         throw new Error('Invalid or expired invitation codes. Please check your codes and try again.');
       }
@@ -68,40 +106,67 @@ export function CodeInvitationModal({
       // Complete the QR connection
       if (user?.id) {
         await completeQRConnection(user.id);
-        
+
         setConnectionDetails({
           connectedUser: invitation.senderUserId,
           invitationId: invitation.invitationId,
           scanData: invitation.scanData
         });
-        
+
         setStep('success');
-        
+
         // Call success callback if provided
         if (onSuccess) {
           onSuccess(pendingConnection);
         }
-        
-        logger.info('Code invitation successfully processed', { 
+
+        logger.info('Code invitation successfully processed', {
           invitationId: invitation.invitationId,
-          userId: user.id 
+          userId: user.id
         });
       }
 
     } catch (err) {
       logger.error('Error processing invitation codes:', err);
-      setError(err instanceof Error ? err.message : 'Failed to process invitation codes');
+
+      // Provide more specific error messages
+      let errorMessage = 'Failed to process invitation codes';
+
+      if (err instanceof Error) {
+        if (err.message.includes('Invalid') || err.message.includes('expired')) {
+          errorMessage = err.message;
+        } else if (err.message.includes('network') || err.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your internet connection and try again.';
+        } else if (err.message.includes('timeout')) {
+          errorMessage = 'Request timed out. Please try again.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
+      setError(errorMessage);
       setStep('input');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     logger.info('User skipped code invitation entry');
+
+    // Reset form state before closing
+    resetForm();
+
+    // Call the skip callback if provided
     if (onSkip) {
-      onSkip();
+      try {
+        await onSkip();
+      } catch (error) {
+        logger.error('Error in skip callback:', error);
+      }
     }
+
+    // Close the modal
     onClose();
   };
 
@@ -156,11 +221,11 @@ export function CodeInvitationModal({
                   </p>
                 </div>
               </div>
-              
+
               {step !== 'validating' && (
                 <button
                   onClick={handleClose}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="p-2 text-gray-600 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -180,10 +245,15 @@ export function CodeInvitationModal({
                   {/* Description */}
                   <div className="text-center p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100">
                     <Mail className="h-8 w-8 text-purple-600 mx-auto mb-3" />
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      If someone scanned your QR code and sent you an email invitation, 
+                    <p className="text-sm text-gray-700 leading-relaxed mb-3">
+                      If someone scanned your QR code and sent you an email invitation,
                       you'll find two codes in that email. Enter them below to automatically connect!
                     </p>
+                    <div className="text-xs text-gray-600 bg-white/50 rounded-lg p-2">
+                      <p className="font-medium mb-1">Code Format Examples:</p>
+                      <p>• Invitation ID: <code className="bg-gray-100 px-1 rounded">inv_abc123def456</code></p>
+                      <p>• Connection Code: <code className="bg-gray-100 px-1 rounded">conn_xyz789ghi012</code></p>
+                    </div>
                   </div>
 
                   {/* Form */}
@@ -195,11 +265,23 @@ export function CodeInvitationModal({
                       <input
                         type="text"
                         value={invitationCode}
-                        onChange={(e) => setInvitationCode(e.target.value)}
-                        placeholder="e.g., inv_abc123..."
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+                        onChange={(e) => {
+                          setInvitationCode(e.target.value);
+                          // Clear error when user starts typing
+                          if (error) setError(null);
+                        }}
+                        placeholder="e.g., inv_abc123def456"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm ${invitationCode && !validateCodeFormat(invitationCode, 'invitation').isValid
+                            ? 'border-red-300 bg-red-50'
+                            : 'border-gray-300'
+                          }`}
                         disabled={loading}
                       />
+                      {invitationCode && !validateCodeFormat(invitationCode, 'invitation').isValid && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {validateCodeFormat(invitationCode, 'invitation').error}
+                        </p>
+                      )}
                     </div>
 
                     <div>
@@ -209,11 +291,23 @@ export function CodeInvitationModal({
                       <input
                         type="text"
                         value={connectionCode}
-                        onChange={(e) => setConnectionCode(e.target.value)}
-                        placeholder="e.g., conn_xyz789..."
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm"
+                        onChange={(e) => {
+                          setConnectionCode(e.target.value);
+                          // Clear error when user starts typing
+                          if (error) setError(null);
+                        }}
+                        placeholder="e.g., conn_xyz789ghi012"
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono text-sm ${connectionCode && !validateCodeFormat(connectionCode, 'connection').isValid
+                            ? 'border-red-300 bg-red-50'
+                            : 'border-gray-300'
+                          }`}
                         disabled={loading}
                       />
+                      {connectionCode && !validateCodeFormat(connectionCode, 'connection').isValid && (
+                        <p className="mt-1 text-xs text-red-600">
+                          {validateCodeFormat(connectionCode, 'connection').error}
+                        </p>
+                      )}
                     </div>
 
                     {error && (
@@ -239,7 +333,13 @@ export function CodeInvitationModal({
                       </button>
                       <button
                         type="submit"
-                        disabled={loading || !invitationCode.trim() || !connectionCode.trim()}
+                        disabled={
+                          loading ||
+                          !invitationCode.trim() ||
+                          !connectionCode.trim() ||
+                          !validateCodeFormat(invitationCode, 'invitation').isValid ||
+                          !validateCodeFormat(connectionCode, 'connection').isValid
+                        }
                         className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 disabled:from-gray-300 disabled:to-gray-300 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
                       >
                         {loading ? (
@@ -290,13 +390,13 @@ export function CodeInvitationModal({
                   >
                     <Check className="h-8 w-8 text-white" />
                   </motion.div>
-                  
+
                   <h4 className="text-lg font-semibold text-gray-900 mb-2">
                     Connection Successful! 🎉
                   </h4>
-                  
+
                   <p className="text-gray-600 mb-6 text-sm leading-relaxed">
-                    You've been automatically connected with the person who invited you. 
+                    You've been automatically connected with the person who invited you.
                     You can find them in your contacts and start building your relationship!
                   </p>
 

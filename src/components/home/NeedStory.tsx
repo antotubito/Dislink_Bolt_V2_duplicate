@@ -60,7 +60,7 @@ export function NeedStory({ need, onClick }: NeedStoryProps) {
       case 'travel':
         return 'from-red-500 to-red-300';
       case 'creative':
-        return 'from-pink-500 to-pink-300';
+        return 'from-purple-500 to-indigo-600';
       case 'learning':
         return 'from-indigo-500 to-indigo-300';
       case 'work-career':
@@ -123,7 +123,7 @@ export function NeedStory({ need, onClick }: NeedStoryProps) {
             {isSatisfied ? (
               <CheckCircle className="h-8 w-8 text-green-500" />
             ) : isExpired ? (
-              <Clock className="h-8 w-8 text-gray-400" />
+              <Clock className="h-8 w-8 text-gray-600" />
             ) : (
               <Icon className="h-8 w-8 text-gray-700" />
             )}

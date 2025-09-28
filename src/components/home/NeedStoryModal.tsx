@@ -91,7 +91,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
       case 'travel':
         return 'bg-red-500 text-white';
       case 'creative':
-        return 'bg-pink-500 text-white';
+        return 'bg-purple-600 text-white';
       case 'learning':
         return 'bg-indigo-500 text-white';
       case 'work-career':
@@ -281,7 +281,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
               )}
               <button
                 onClick={() => setShowReplyForm(true)}
-                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
+                className="mt-4 px-4 py-2 btn-captamundi-primary text-white rounded-lg text-sm hover:btn-captamundi-primary hover:opacity-90"
               >
                 Start Conversation
               </button>
@@ -371,9 +371,9 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
             </div> 
           ) : replies.length === 0 ? (
             <div className="text-center py-8 bg-white rounded-lg shadow-sm border border-gray-100">
-              <MessageCircle className="h-10 w-10 text-gray-300 mx-auto mb-3" />
+              <MessageCircle className="h-10 w-10 text-gray-600 mx-auto mb-3" />
               <p className="text-gray-500 mb-2">No replies yet</p>
-              <p className="text-sm text-gray-400">Be the first to start the conversation!</p>
+              <p className="text-sm text-gray-600">Be the first to start the conversation!</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -444,7 +444,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
                   ) : (
                     <div className="text-center py-6 bg-white rounded-lg shadow-sm border border-gray-100">
                       <p className="text-gray-500">No replies yet</p>
-                      <p className="text-sm text-gray-400 mt-1">Your conversation will be private</p>
+                      <p className="text-sm text-gray-600 mt-1">Your conversation will be private</p>
                     </div>
                   )}
                   
@@ -520,7 +520,7 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
                 <button
                   onClick={handleReply}
                   disabled={!reply.trim()}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:opacity-80 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="h-4 w-4 mr-1.5" />
                   Send Reply
@@ -534,10 +534,10 @@ export function NeedStoryModal({ need, onClose, onMarkSatisfied }: NeedStoryModa
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }} 
                   onClick={() => setShowReplyForm(true)}
-                  className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg hover:border-indigo-300 hover:bg-indigo-50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 py-3 border border-gray-300 rounded-lg hover:border-purple-600 hover:bg-indigo-50 transition-colors"
                 >
                   <span className="text-gray-500">Write a reply...</span>
-                  <Send className="h-4 w-4 text-gray-400" />
+                  <Send className="h-4 w-4 text-gray-600" />
                 </motion.button>
               </div>
             </div>

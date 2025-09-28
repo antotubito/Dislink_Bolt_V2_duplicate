@@ -106,11 +106,11 @@ export function MutualConnectionsModal({
               {/* Search and Sort */}
               <div className="mt-4 flex items-center gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
                   <input
                     type="text"
                     placeholder="Search connections..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -118,7 +118,7 @@ export function MutualConnectionsModal({
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'date')}
-                  className="pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
+                  className="pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-600 sm:text-sm rounded-lg"
                 >
                   <option value="date">Most Recent</option>
                   <option value="name">Name</option>
@@ -173,7 +173,7 @@ export function MutualConnectionsModal({
                                   </p>
                                 )}
                                 {connection.meetingDate && (
-                                  <p className="text-xs text-gray-400 flex items-center mt-1">
+                                  <p className="text-xs text-gray-600 flex items-center mt-1">
                                     <Calendar className="h-3 w-3 mr-1" />
                                     Connected {new Date(connection.meetingDate).toLocaleDateString()}
                                   </p>
@@ -184,8 +184,8 @@ export function MutualConnectionsModal({
                               onClick={() => toggleConnection(connection.id)}
                               className={`flex items-center p-2 rounded-full transition-colors ${
                                 selectedConnections.includes(connection.id)
-                                  ? 'bg-indigo-600 text-white'
-                                  : 'text-gray-400 hover:bg-gray-100'
+                                  ? 'btn-captamundi-primary text-white'
+                                  : 'text-gray-600 hover:bg-gray-100'
                               }`}
                             >
                               {selectedConnections.includes(connection.id) ? (
@@ -224,7 +224,7 @@ export function MutualConnectionsModal({
                   </button>
                   <button
                     onClick={handleSubmit}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700"
+                    className="px-4 py-2 btn-captamundi-primary text-white rounded-lg text-sm font-medium hover:btn-captamundi-primary hover:opacity-90"
                   >
                     Continue
                   </button>

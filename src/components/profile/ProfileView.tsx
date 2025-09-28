@@ -119,7 +119,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-indigo-600 to-indigo-800 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center">
             <button
               onClick={() => handleEditSection('images')}
               className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg flex items-center"
@@ -156,14 +156,14 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
               </p>
               <div className="mt-2 h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
                 <div 
-                  className="h-full bg-indigo-600 rounded-full"
+                  className="h-full btn-captamundi-primary rounded-full"
                   style={{ width: `${completionPercentage}%` }}
                 />
               </div>
             </div>
             <button 
               onClick={() => setShowCompletionTips(false)}
-              className="text-gray-400 hover:text-gray-500"
+              className="text-gray-600 hover:text-gray-500"
             >
               <X className="h-4 w-4" />
             </button>
@@ -191,7 +191,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                 />
                 <button
                   onClick={() => handleEditSection('images')}
-                  className="absolute bottom-0 right-0 bg-indigo-600 text-white p-1.5 rounded-full"
+                  className="absolute bottom-0 right-0 btn-captamundi-primary text-white p-1.5 rounded-full"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
@@ -215,7 +215,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                 {user.name}
                 <button
                   onClick={() => handleEditSection('basic')}
-                  className="ml-2 p-1 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded-full"
+                  className="ml-2 p-1 text-gray-600 hover:text-indigo-600 hover:bg-gray-100 rounded-full"
                 >
                   <Pencil className="h-4 w-4" />
                 </button>
@@ -242,18 +242,18 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
               <button
                 type="button"
                 onClick={onEdit}
-                className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
-                <Edit2 className="-ml-1 mr-2 h-5 w-5 text-gray-400" />
+                <Edit2 className="-ml-1 mr-2 h-5 w-5 text-gray-600" />
                 <span>Edit Profile</span>
               </button>
               
               <button
                 type="button"
                 onClick={handleCopyProfileLink}
-                className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
               >
-                <Copy className="-ml-1 mr-2 h-5 w-5 text-gray-400" />
+                <Copy className="-ml-1 mr-2 h-5 w-5 text-gray-600" />
                 <span>{copySuccess ? 'Copied!' : 'Copy Link'}</span>
               </button>
             </div>
@@ -269,7 +269,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
               onClick={() => toggleSection('about')}
             >
               <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                <BookOpen className="h-5 w-5 mr-2 text-gray-400" />
+                <BookOpen className="h-5 w-5 mr-2 text-gray-600" />
                 About
               </h2>
               <div className="flex items-center">
@@ -286,9 +286,9 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                   </button>
                 )}
                 {expandedSections.includes('about') ? (
-                  <ChevronUp className="h-5 w-5 text-gray-400" />
+                  <ChevronUp className="h-5 w-5 text-gray-600" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                  <ChevronDown className="h-5 w-5 text-gray-600" />
                 )}
               </div>
             </div>
@@ -307,13 +307,13 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                     <div className="flex flex-wrap gap-6 mb-4">
                       {user.bio?.location && (
                         <div className="flex items-center text-gray-600">
-                          <MapPin className="h-5 w-5 mr-2 text-gray-400" />
+                          <MapPin className="h-5 w-5 mr-2 text-gray-600" />
                           <span>Located in {user.bio.location}</span>
                         </div>
                       )}
                       {user.bio?.from && (
                         <div className="flex items-center text-gray-600">
-                          <Globe className="h-5 w-5 mr-2 text-gray-400" />
+                          <Globe className="h-5 w-5 mr-2 text-gray-600" />
                           <span>From {user.bio.from}</span>
                         </div>
                       )}
@@ -359,7 +359,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-medium text-gray-900 flex items-center">
-                        <Heart className="h-4 w-4 mr-2 text-gray-400" />
+                        <Heart className="h-4 w-4 mr-2 text-gray-600" />
                         Interests
                       </h3>
                       {!hasInterests && (
@@ -402,7 +402,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
               onClick={() => toggleSection('social')}
             >
               <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                <LinkIcon className="h-5 w-5 mr-2 text-gray-400" />
+                <LinkIcon className="h-5 w-5 mr-2 text-gray-600" />
                 Social Links
               </h2>
               <div className="flex items-center">
@@ -419,9 +419,9 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                   </button>
                 )}
                 {expandedSections.includes('social') ? (
-                  <ChevronUp className="h-5 w-5 text-gray-400" />
+                  <ChevronUp className="h-5 w-5 text-gray-600" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                  <ChevronDown className="h-5 w-5 text-gray-600" />
                 )}
               </div>
             </div>
@@ -475,7 +475,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                                     {label}
                                   </span>
                                 </div>
-                                <ArrowRight className="h-4 w-4 text-gray-400" />
+                                <ArrowRight className="h-4 w-4 text-gray-600" />
                               </a>
                             ))}
                           </div>
@@ -493,7 +493,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                       </p>
                       <button
                         onClick={() => handleEditSection('social')}
-                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90"
                       >
                         <PlusCircle className="h-4 w-4 mr-2" />
                         Add Social Links
@@ -507,7 +507,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
 
           {/* Profile Completion Card */}
           {completionPercentage < 100 && (
-            <div className="bg-gradient-to-r from-indigo-600 to-indigo-800 p-6 rounded-xl shadow-sm text-white">
+            <div className="bg-gradient-to-r from-purple-500 to-indigo-600 p-6 rounded-xl shadow-sm text-white">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-medium text-white flex items-center">
                   <Sparkles className="h-5 w-5 mr-2" />

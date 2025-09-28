@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 
+apply from: new File(["node", "--print", "require.resolve('@sentry/react-native/package.json')"].execute().text.trim(), "../sentry.gradle")
 android {
     namespace "com.dislink.app"
     compileSdkVersion rootProject.ext.compileSdkVersion

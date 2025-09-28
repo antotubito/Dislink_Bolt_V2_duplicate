@@ -98,7 +98,7 @@ export function ContactFollowUps({
         {onAddFollowUp && (
           <button
             onClick={() => setShowForm(!showForm)}
-            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-indigo-100 hover:bg-indigo-200"
+            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-indigo-100 hover:btn-captamundi-primary/20"
           >
             {showForm ? 'Cancel' : (
               <>
@@ -134,7 +134,7 @@ export function ContactFollowUps({
                 id="dueDate"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-500 sm:text-sm"
                 required
                 min={new Date().toISOString().split('T')[0]}
               />
@@ -149,7 +149,7 @@ export function ContactFollowUps({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-500 sm:text-sm"
                 placeholder="What needs to be done?"
                 required
               />
@@ -159,7 +159,7 @@ export function ContactFollowUps({
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
               >
                 {loading ? (
                   <>
@@ -214,7 +214,7 @@ export function ContactFollowUps({
                           className={`ml-4 p-1 rounded-full transition-colors ${
                             overdue
                               ? 'text-red-600 hover:bg-red-100'
-                              : 'text-gray-400 hover:bg-gray-100 hover:text-green-600'
+                              : 'text-gray-600 hover:bg-gray-100 hover:text-green-600'
                           }`}
                         >
                           <CheckCircle className="h-6 w-6" />
@@ -239,7 +239,7 @@ export function ContactFollowUps({
                       <p className="text-sm text-gray-500 line-through">
                         {followUp.description}
                       </p>
-                      <div className="mt-1 flex items-center text-sm text-gray-400">
+                      <div className="mt-1 flex items-center text-sm text-gray-600">
                         <Clock className="h-4 w-4 mr-1" />
                         Completed
                       </div>
@@ -247,7 +247,7 @@ export function ContactFollowUps({
                     {onToggleComplete && (
                       <button
                         onClick={() => onToggleComplete(followUp.id, false)}
-                        className="ml-4 p-1 text-green-500 hover:text-gray-400 rounded-full hover:bg-gray-100"
+                        className="ml-4 p-1 text-green-500 hover:text-gray-600 rounded-full hover:bg-gray-100"
                       >
                         <XCircle className="h-6 w-6" />
                       </button>

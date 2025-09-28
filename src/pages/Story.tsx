@@ -19,10 +19,10 @@ export function Story() {
           .from('feedback')
           .select('id')
           .eq('message', 'story_like');
-        
+
         if (error) throw error;
         setLikes(data?.length || 0);
-        
+
         // Check if user has already liked
         const hasLikedStory = localStorage.getItem('dislink_story_liked') === 'true';
         setHasLiked(hasLikedStory);
@@ -30,13 +30,13 @@ export function Story() {
         console.error('Error fetching likes:', error);
       }
     };
-    
+
     fetchLikes();
   }, []);
 
   const handleLike = async () => {
     if (hasLiked || isLiking) return;
-    
+
     setIsLiking(true);
     try {
       // Add like to database
@@ -45,13 +45,13 @@ export function Story() {
         .insert([
           { message: 'story_like' }
         ]);
-      
+
       if (error) throw error;
-      
+
       // Update local state
       setLikes(prev => prev + 1);
       setHasLiked(true);
-      
+
       // Save to localStorage to prevent multiple likes
       localStorage.setItem('dislink_story_liked', 'true');
     } catch (error) {
@@ -62,16 +62,16 @@ export function Story() {
   };
 
   return (
-    <div className="min-h-screen bg-cosmic-neutral py-12">
+    <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-xl shadow-lg border border-cosmic-secondary/10">
+        <div className="bg-white rounded-xl shadow-lg border border-purple-600/10">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-cosmic-secondary/20">
+          <div className="px-6 py-4 border-b border-purple-600/20">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-cosmic-primary">Our Story</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Our Story</h1>
               <Link
                 to="/"
-                className="inline-flex items-center text-sm text-cosmic-primary/60 hover:text-cosmic-secondary"
+                className="inline-flex items-center text-sm text-gray-900/60 hover:text-purple-600"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Back to Home
@@ -82,54 +82,54 @@ export function Story() {
           {/* Content */}
           <div className="px-6 py-8 prose max-w-none">
             <p className="text-lg leading-relaxed text-gray-700">
-              Dislink was born from a simple observation: in our increasingly connected world, 
+              Dislink was born from a simple observation: in our increasingly connected world,
               meaningful relationships often get lost in the digital noise. We saw people
-              and individuals struggling to maintain the connections they made at conferences, 
-              meetups, social events, and through mutual friends. Important details about where 
+              and individuals struggling to maintain the connections they made at conferences,
+              meetups, social events, and through mutual friends. Important details about where
               they met, shared interests, and common connections would fade with time.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              We believed there had to be a better way to nurture these relationships. That's why 
-              we created Dislink - not just as another networking app, but as a platform that 
-              understands the human side of connections. We focused on capturing the context of 
-              relationships - the where, when, and why of how people meet - because these details 
+              We believed there had to be a better way to nurture these relationships. That's why
+              we created Dislink - not just as another networking app, but as a platform that
+              understands the human side of connections. We focused on capturing the context of
+              relationships - the where, when, and why of how people meet - because these details
               matter in building lasting bonds.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              Dislink isn't about collecting contacts; it's about enriching relationships. It's 
-              about remembering that person you met at a conference who shared your passion for 
-              sustainable technology, or that fellow expat you connected with who introduced you 
-              to a whole new community. It's about turning chance encounters into meaningful 
+              Dislink isn't about collecting contacts; it's about enriching relationships. It's
+              about remembering that person you met at a conference who shared your passion for
+              sustainable technology, or that fellow expat you connected with who introduced you
+              to a whole new community. It's about turning chance encounters into meaningful
               connections that last.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              Our journey began in a small coffee shop in Lisbon, where our founding team first 
-              sketched out the idea on napkins. We were frustrated by how many potentially valuable 
-              connections we'd lost track of over the years - people we'd met at events, conferences, 
+              Our journey began in a small coffee shop in Lisbon, where our founding team first
+              sketched out the idea on napkins. We were frustrated by how many potentially valuable
+              connections we'd lost track of over the years - people we'd met at events, conferences,
               or through mutual friends, but whose context we'd forgotten.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              We realized that the missing piece in digital networking wasn't the ability to connect - 
-              it was the ability to remember the human stories behind those connections. The shared 
-              moments, the common interests, the circumstances that brought people together in the 
+              We realized that the missing piece in digital networking wasn't the ability to connect -
+              it was the ability to remember the human stories behind those connections. The shared
+              moments, the common interests, the circumstances that brought people together in the
               first place.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              And so, Dislink was born - a tool designed not just to connect people, but to help them 
-              stay meaningfully connected. A platform that values the quality of connections over quantity, 
-              and that understands that the most valuable relationships are built on 
+              And so, Dislink was born - a tool designed not just to connect people, but to help them
+              stay meaningfully connected. A platform that values the quality of connections over quantity,
+              and that understands that the most valuable relationships are built on
               authentic human connections.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              Today, we're proud to be helping thousands of people around the world build 
-              stronger, more meaningful connections. But we're just getting started. Our vision is to 
-              transform how people think about relationship building - from a transactional 
+              Today, we're proud to be helping thousands of people around the world build
+              stronger, more meaningful connections. But we're just getting started. Our vision is to
+              transform how people think about relationship building - from a transactional
               activity to a meaningful practice that enriches both professional and personal lives.
             </p>
 
@@ -139,16 +139,15 @@ export function Story() {
                 whileTap={{ scale: 0.95 }}
                 onClick={handleLike}
                 disabled={hasLiked || isLiking}
-                className={`inline-flex items-center px-6 py-3 rounded-full shadow-md text-white font-medium transition-colors ${
-                  hasLiked 
-                    ? 'bg-pink-500 cursor-default' 
-                    : 'bg-indigo-600 hover:bg-indigo-700'
-                }`}
+                className={`inline-flex items-center px-6 py-3 rounded-full shadow-md text-white font-medium transition-colors ${hasLiked
+                    ? 'bg-purple-600 cursor-default'
+                    : 'btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25'
+                  }`}
               >
                 <Heart className={`h-5 w-5 mr-2 ${hasLiked ? 'fill-current' : ''}`} />
                 {hasLiked ? 'Thank You!' : 'Like Our Story'}
               </motion.button>
-              
+
               <div className="mt-4 text-gray-600">
                 <span className="font-medium">{likes}</span> people liked this story
               </div>

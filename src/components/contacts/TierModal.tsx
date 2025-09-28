@@ -108,8 +108,8 @@ export function TierModal({
                     disabled={!selectedTier}
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       selectedTier
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        ? 'btn-captamundi-primary text-white hover:btn-captamundi-primary hover:opacity-90'
+                        : 'bg-gray-100 text-gray-600 cursor-not-allowed'
                     }`}
                   >
                     Save

@@ -16,13 +16,13 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const checkSession = async () => {
       try {
         logger.info('🔐 ProtectedRoute: Checking session for:', location.pathname);
-        
+
         // If AuthProvider is still loading, wait for it
         if (loading) {
           logger.info('🔐 ProtectedRoute: AuthProvider still loading, waiting...');
           return;
         }
-        
+
         // If we have a user from AuthProvider, trust it
         if (user) {
           logger.info('🔐 ProtectedRoute: User found in AuthProvider');
@@ -32,11 +32,11 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
           }
           return;
         }
-        
+
         // Only do direct session check if AuthProvider doesn't have user
         await waitForSupabaseReady();
         const { data: { session }, error } = await getSafeSession();
-        
+
         if (error) {
           logger.error('ProtectedRoute: Session check error:', error);
           if (isMounted) {
@@ -82,10 +82,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // Show loading while checking session or while AuthProvider is loading
   if (loading || sessionChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-cosmic-neutral">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cosmic-secondary mx-auto mb-4"></div>
-          <p className="text-cosmic-primary/70">Verifying authentication...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-900/70">Verifying authentication...</p>
         </div>
       </div>
     );
@@ -94,17 +94,17 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // If no valid session and no user, redirect to login with current path stored
   if (!hasValidSession && !user) {
     logger.info('🔐 ProtectedRoute: No valid session, redirecting to login');
-    
+
     // Store the current path for redirect after login (only for app routes)
     if (location.pathname.startsWith('/app') && location.pathname !== '/app/login') {
       localStorage.setItem('redirectUrl', location.pathname);
     }
-    
+
     return <Navigate to="/app/login" replace />;
   }
 
   // If user is logged in but onboarding not complete, redirect to onboarding
-  if (user && !user.onboardingComplete && location.pathname !== '/app/onboarding') {
+  if (user && hasValidSession && !user.onboardingComplete && location.pathname !== '/app/onboarding') {
     logger.info('🔐 ProtectedRoute: User needs onboarding, redirecting');
     return <Navigate to="/app/onboarding" replace />;
   }

@@ -270,7 +270,7 @@ export function FollowUpCalendar({ followUps, onToggleFollowUp, onViewContact }:
                         </div>
                         <div className={`mt-1 flex items-center text-xs ${
                           followUp.completed
-                            ? 'text-gray-400'
+                            ? 'text-gray-600'
                             : new Date(followUp.dueDate) < today
                             ? 'text-red-600'
                             : isToday(selectedDate.getDate())
@@ -292,8 +292,8 @@ export function FollowUpCalendar({ followUps, onToggleFollowUp, onViewContact }:
                           onClick={() => onToggleFollowUp(followUp.contactId, followUp.id, !followUp.completed)}
                           className={`p-1 rounded-full ${
                             followUp.completed
-                              ? 'text-gray-400 hover:text-red-600 hover:bg-red-50'
-                              : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+                              ? 'text-gray-600 hover:text-red-600 hover:bg-red-50'
+                              : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
                           }`}
                           title={followUp.completed ? "Mark as incomplete" : "Mark as complete"}
                         >
@@ -305,7 +305,7 @@ export function FollowUpCalendar({ followUps, onToggleFollowUp, onViewContact }:
                         </button>
                         <button
                           onClick={() => onViewContact(followUp.contactId)}
-                          className="p-1 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full ml-1"
+                          className="p-1 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full ml-1"
                           title="View contact"
                         >
                           <User className="h-5 w-5" />

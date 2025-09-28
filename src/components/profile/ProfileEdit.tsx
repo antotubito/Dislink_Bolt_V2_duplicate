@@ -1,18 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  User, Mail, Building2, Briefcase, MapPin, Globe, 
-  Camera, Heart, Link as LinkIcon, Eye, EyeOff, 
+import {
+  User, Mail, Building2, Briefcase, MapPin, Globe,
+  Camera, Heart, Link as LinkIcon, Eye, EyeOff,
   Save, X, ChevronDown, ChevronUp, Bell
 } from 'lucide-react';
 import type { User as UserType } from '../../types/user';
 import type { Industry } from '../../types/industry';
-import { IndustrySelect } from './IndustrySelect';
-import { JobTitleInput } from './JobTitleInput';
 import { SocialLinksInput } from './SocialLinksInput';
-import { ProfileImageUpload } from './ProfileImageUpload';
+import { EnhancedSocialLinksInput } from '../common/EnhancedSocialLinksInput';
 import { InterestsInput } from './InterestsInput';
-import { CityAutocomplete } from '../common/CityAutocomplete';
+import { 
+  LazyIndustrySelect, 
+  LazyJobTitleInput, 
+  LazyProfileImageUpload, 
+  LazyCityAutocomplete,
+  LazyLoadingFallback 
+} from '../lazy';
+import { Suspense } from 'react';
 import { TierNotificationToggle } from './TierNotificationToggle';
 import { NotificationPreview } from './NotificationPreview';
 import type { Location } from '../../types/location';
@@ -77,7 +82,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
   });
 
   const toggleSection = (section: string) => {
-    setExpandedSections(prev => 
+    setExpandedSections(prev =>
       prev.includes(section)
         ? prev.filter(s => s !== section)
         : [...prev, section]
@@ -92,7 +97,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
       if (!profileData.firstName.trim()) {
         throw new Error('First name is required');
       }
-      
+
       if (!profileData.lastName.trim()) {
         throw new Error('Last name is required');
       }
@@ -102,36 +107,36 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
 
       // Determine which fields have been updated
       const changedFields: string[] = [];
-      
-      if (profileData.firstName !== originalData.firstName || 
-          profileData.lastName !== originalData.lastName) {
+
+      if (profileData.firstName !== originalData.firstName ||
+        profileData.lastName !== originalData.lastName) {
         changedFields.push('firstName');
       }
-      
+
       if (profileData.jobTitle !== originalData.jobTitle) {
         changedFields.push('jobTitle');
       }
-      
+
       if (profileData.company !== originalData.company) {
         changedFields.push('company');
       }
-      
+
       if (profileData.bio.location !== originalData.bio.location) {
         changedFields.push('bio.location');
       }
-      
+
       if (profileData.bio.from !== originalData.bio.from) {
         changedFields.push('bio.from');
       }
-      
+
       if (profileData.bio.about !== originalData.bio.about) {
         changedFields.push('bio.about');
       }
-      
+
       // Check if any social links have been added, removed, or modified
       const originalLinks = Object.keys(originalData.socialLinks || {}).length;
       const currentLinks = Object.keys(profileData.socialLinks || {}).length;
-      
+
       if (originalLinks !== currentLinks) {
         changedFields.push('socialLinks');
       } else {
@@ -143,10 +148,10 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
           }
         }
       }
-      
+
       // Store updated fields for notification
       setUpdatedFields(changedFields);
-      
+
       // If fields have changed and tiers are selected, show notification preview
       if (changedFields.length > 0 && selectedTiers.length > 0) {
         setShowNotificationPreview(true);
@@ -168,17 +173,17 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
     try {
       // Construct the full name
       const fullName = `${profileData.firstName} ${profileData.lastName}`.trim();
-      
+
       // In a real implementation, you would send notifications to the selected tiers here
       console.log('Sending notifications to tiers:', selectedTiers);
       console.log('Updated fields:', updatedFields);
-      
+
       // Save the profile data
       await onSave({
         ...profileData,
         name: fullName
       }, selectedTiers);
-      
+
       // Close the notification preview
       setShowNotificationPreview(false);
     } catch (error) {
@@ -255,21 +260,21 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
 
       {/* Basic Information Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div 
+        <div
           className="flex items-center justify-between p-4 cursor-pointer"
           onClick={() => toggleSection('basic')}
         >
           <div className="flex items-center">
-            <User className="h-5 w-5 text-gray-400 mr-3" />
+            <User className="h-5 w-5 text-gray-600 mr-3" />
             <h3 className="text-lg font-medium text-gray-900">Basic Information</h3>
           </div>
           {expandedSections.includes('basic') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </div>
-        
+
         {expandedSections.includes('basic') && (
           <div className="p-4 border-t border-gray-200 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -281,7 +286,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
                   type="text"
                   id="firstName"
                   required
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                   value={profileData.firstName}
                   onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
                 />
@@ -295,24 +300,28 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
                   type="text"
                   id="lastName"
                   required
-                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                   value={profileData.lastName}
                   onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
                 />
               </div>
             </div>
 
-            <IndustrySelect
-              value={profileData.industry}
-              onChange={handleIndustryChange}
-            />
+            <Suspense fallback={<LazyLoadingFallback />}>
+              <LazyIndustrySelect
+                value={profileData.industry}
+                onChange={handleIndustryChange}
+              />
+            </Suspense>
 
-            <JobTitleInput
-              value={profileData.jobTitle}
-              onChange={(value) => setProfileData({ ...profileData, jobTitle: value })}
-              industry={profileData.industry}
-              required
-            />
+            <Suspense fallback={<LazyLoadingFallback />}>
+              <LazyJobTitleInput
+                value={profileData.jobTitle}
+                onChange={(value) => setProfileData({ ...profileData, jobTitle: value })}
+                industry={profileData.industry}
+                required
+              />
+            </Suspense>
 
             <div>
               <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
@@ -321,7 +330,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
               <input
                 type="text"
                 id="company"
-                className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                 value={profileData.company}
                 onChange={(e) => setProfileData({ ...profileData, company: e.target.value })}
               />
@@ -332,48 +341,52 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
 
       {/* Profile Images Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div 
+        <div
           className="flex items-center justify-between p-4 cursor-pointer"
           onClick={() => toggleSection('images')}
         >
           <div className="flex items-center">
-            <Camera className="h-5 w-5 text-gray-400 mr-3" />
+            <Camera className="h-5 w-5 text-gray-600 mr-3" />
             <h3 className="text-lg font-medium text-gray-900">Profile Images</h3>
           </div>
           {expandedSections.includes('images') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </div>
-        
+
         {expandedSections.includes('images') && (
           <div className="p-4 border-t border-gray-200 space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-4">
                 Profile Picture <span className="text-red-500">*</span>
               </label>
-              <ProfileImageUpload
-                currentImage={profileData.profileImage}
-                onImageChange={(imageData) => setProfileData({ ...profileData, profileImage: imageData })}
-                onImageRemove={() => setProfileData({ ...profileData, profileImage: undefined })}
-                required
-              />
+              <Suspense fallback={<LazyLoadingFallback />}>
+                <LazyProfileImageUpload
+                  currentImage={profileData.profileImage}
+                  onImageChange={(imageData) => setProfileData({ ...profileData, profileImage: imageData })}
+                  onImageRemove={() => setProfileData({ ...profileData, profileImage: undefined })}
+                  required
+                />
+              </Suspense>
               <p className="mt-2 text-xs text-gray-500">
                 Face verification is required for profile photos to ensure authenticity.
               </p>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-4">
                 Cover Image
               </label>
-              <ProfileImageUpload
-                currentImage={profileData.coverImage}
-                onImageChange={(imageData) => setProfileData({ ...profileData, coverImage: imageData })}
-                onImageRemove={() => setProfileData({ ...profileData, coverImage: undefined })}
-                isCover={true}
-              />
+              <Suspense fallback={<LazyLoadingFallback />}>
+                <LazyProfileImageUpload
+                  currentImage={profileData.coverImage}
+                  onImageChange={(imageData) => setProfileData({ ...profileData, coverImage: imageData })}
+                  onImageRemove={() => setProfileData({ ...profileData, coverImage: undefined })}
+                  isCover={true}
+                />
+              </Suspense>
               <p className="mt-2 text-xs text-gray-500">
                 A cover photo adds personality to your profile and makes it more engaging.
               </p>
@@ -384,42 +397,46 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
 
       {/* Bio & Location Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div 
+        <div
           className="flex items-center justify-between p-4 cursor-pointer"
           onClick={() => toggleSection('bio')}
         >
           <div className="flex items-center">
-            <Globe className="h-5 w-5 text-gray-400 mr-3" />
+            <Globe className="h-5 w-5 text-gray-600 mr-3" />
             <h3 className="text-lg font-medium text-gray-900">Bio & Location</h3>
           </div>
           {expandedSections.includes('bio') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </div>
-        
+
         {expandedSections.includes('bio') && (
           <div className="p-4 border-t border-gray-200 space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <CityAutocomplete
-                label="Current Location"
-                value={profileData.bio.location}
-                onSelect={handleLocationChange}
-                placeholder="Search your city..."
-                required
-                storageKey="profile"
-                fieldName="location"
-              />
+              <Suspense fallback={<LazyLoadingFallback />}>
+                <LazyCityAutocomplete
+                  label="Current Location"
+                  value={profileData.bio.location}
+                  onSelect={handleLocationChange}
+                  placeholder="Search your city..."
+                  required
+                  storageKey="profile"
+                  fieldName="location"
+                />
+              </Suspense>
 
-              <CityAutocomplete
-                label="From"
-                value={profileData.bio.from}
-                onSelect={handleFromChange}
-                placeholder="Where are you from?"
-                storageKey="profile"
-                fieldName="from"
-              />
+              <Suspense fallback={<LazyLoadingFallback />}>
+                <LazyCityAutocomplete
+                  label="From"
+                  value={profileData.bio.from}
+                  onSelect={handleFromChange}
+                  placeholder="Where are you from?"
+                  storageKey="profile"
+                  fieldName="from"
+                />
+              </Suspense>
             </div>
 
             <div>
@@ -429,7 +446,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
               <textarea
                 id="about"
                 rows={4}
-                className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                 value={profileData.bio.about}
                 onChange={(e) => setProfileData({
                   ...profileData,
@@ -447,21 +464,21 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
 
       {/* Interests Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div 
+        <div
           className="flex items-center justify-between p-4 cursor-pointer"
           onClick={() => toggleSection('interests')}
         >
           <div className="flex items-center">
-            <Heart className="h-5 w-5 text-gray-400 mr-3" />
+            <Heart className="h-5 w-5 text-gray-600 mr-3" />
             <h3 className="text-lg font-medium text-gray-900">Interests</h3>
           </div>
           {expandedSections.includes('interests') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </div>
-        
+
         {expandedSections.includes('interests') && (
           <div className="p-4 border-t border-gray-200">
             <InterestsInput
@@ -474,52 +491,53 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
 
       {/* Social Links Section */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div 
+        <div
           className="flex items-center justify-between p-4 cursor-pointer"
           onClick={() => toggleSection('social')}
         >
           <div className="flex items-center">
-            <LinkIcon className="h-5 w-5 text-gray-400 mr-3" />
+            <LinkIcon className="h-5 w-5 text-gray-600 mr-3" />
             <h3 className="text-lg font-medium text-gray-900">Social Links</h3>
           </div>
           {expandedSections.includes('social') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </div>
-        
+
         {expandedSections.includes('social') && (
           <div className="p-4 border-t border-gray-200">
-            <SocialLinksInput
+            <EnhancedSocialLinksInput
               links={profileData.socialLinks}
               onChange={(links) => setProfileData({ ...profileData, socialLinks: links })}
-              required
+              required={true}
+              minLinks={1}
+              recommendedLinks={3}
+              showPreview={true}
+              allowCustomPlatforms={true}
             />
-            <p className="mt-2 text-xs text-gray-500">
-              At least one social platform is required to complete your profile.
-            </p>
           </div>
         )}
       </div>
 
       {/* Notification Settings */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div 
+        <div
           className="flex items-center justify-between p-4 cursor-pointer"
           onClick={() => toggleSection('notifications')}
         >
           <div className="flex items-center">
-            <Bell className="h-5 w-5 text-gray-400 mr-3" />
+            <Bell className="h-5 w-5 text-gray-600 mr-3" />
             <h3 className="text-lg font-medium text-gray-900">Notification Settings</h3>
           </div>
           {expandedSections.includes('notifications') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </div>
-        
+
         {expandedSections.includes('notifications') && (
           <div className="p-4 border-t border-gray-200">
             <TierNotificationToggle
@@ -527,10 +545,10 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
               onChange={setSelectedTiers}
               disabled={saving}
             />
-            
+
             <div className="mt-4 bg-amber-50 p-3 rounded-lg">
               <p className="text-sm text-amber-700">
-                When you update your profile information, such as job title, company, or social links, 
+                When you update your profile information, such as job title, company, or social links,
                 your connections in the selected circles will be notified of these changes.
               </p>
             </div>
@@ -540,21 +558,21 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
 
       {/* Public Profile Settings */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <div 
+        <div
           className="flex items-center justify-between p-4 cursor-pointer"
           onClick={() => toggleSection('privacy')}
         >
           <div className="flex items-center">
-            <Eye className="h-5 w-5 text-gray-400 mr-3" />
+            <Eye className="h-5 w-5 text-gray-600 mr-3" />
             <h3 className="text-lg font-medium text-gray-900">Public Profile Settings</h3>
           </div>
           {expandedSections.includes('privacy') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </div>
-        
+
         {expandedSections.includes('privacy') && (
           <div className="p-4 border-t border-gray-200 space-y-6">
             {/* Public Profile Toggle */}
@@ -569,14 +587,12 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
                 type="button"
                 onClick={togglePublicProfile}
                 disabled={saving}
-                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
-                  profileData.publicProfile.enabled ? 'bg-indigo-600' : 'bg-gray-200'
-                } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 ${profileData.publicProfile.enabled ? 'btn-captamundi-primary' : 'bg-gray-200'
+                  } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <span
-                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                    profileData.publicProfile.enabled ? 'translate-x-5' : 'translate-x-0'
-                  }`}
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${profileData.publicProfile.enabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
                 />
               </button>
             </div>
@@ -602,11 +618,10 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
                           type="button"
                           onClick={() => toggleFieldVisibility(key as keyof typeof profileData.publicProfile.allowedFields)}
                           disabled={saving}
-                          className={`p-2 rounded-full transition-colors ${
-                            profileData.publicProfile.allowedFields[key as keyof typeof profileData.publicProfile.allowedFields]
+                          className={`p-2 rounded-full transition-colors ${profileData.publicProfile.allowedFields[key as keyof typeof profileData.publicProfile.allowedFields]
                               ? 'text-indigo-600 hover:bg-indigo-50'
-                              : 'text-gray-400 hover:bg-gray-100'
-                          } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              : 'text-gray-600 hover:bg-gray-100'
+                            } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
                           {profileData.publicProfile.allowedFields[key as keyof typeof profileData.publicProfile.allowedFields] ? (
                             <Eye className="h-5 w-5" />
@@ -631,11 +646,10 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
                             type="button"
                             onClick={() => toggleSocialLinkVisibility(platform)}
                             disabled={saving}
-                            className={`p-2 rounded-full transition-colors ${
-                              profileData.publicProfile.defaultSharedLinks[platform]
+                            className={`p-2 rounded-full transition-colors ${profileData.publicProfile.defaultSharedLinks[platform]
                                 ? 'text-indigo-600 hover:bg-indigo-50'
-                                : 'text-gray-400 hover:bg-gray-100'
-                            } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                : 'text-gray-600 hover:bg-gray-100'
+                              } ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             {profileData.publicProfile.defaultSharedLinks[platform] ? (
                               <Eye className="h-5 w-5" />
@@ -659,7 +673,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           <X className="h-4 w-4 inline mr-1.5" />
           Cancel
@@ -667,7 +681,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
         >
           {saving ? (
             <>
@@ -711,7 +725,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
                 selectedTiers={selectedTiers}
                 onClose={() => setShowNotificationPreview(false)}
               />
-              
+
               <div className="mt-6 flex justify-end space-x-3">
                 <button
                   type="button"
@@ -724,7 +738,7 @@ export function ProfileEdit({ user, onSave, onCancel, saving }: ProfileEditProps
                   type="button"
                   onClick={handleContinueWithNotification}
                   disabled={saving}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+                  className="px-4 py-2 btn-captamundi-primary text-white rounded-lg text-sm font-medium hover:btn-captamundi-primary hover:opacity-90 disabled:opacity-50"
                 >
                   {saving ? (
                     <>

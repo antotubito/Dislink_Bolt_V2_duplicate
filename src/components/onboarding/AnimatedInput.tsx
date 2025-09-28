@@ -36,20 +36,20 @@ export function AnimatedInput({
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <CalendarIcon className="h-5 w-5 text-gray-400" />
+            <CalendarIcon className="h-5 w-5 text-gray-600" />
           </div>
           <input
             type="date"
             className={`
               block w-full pl-10 pr-4 py-3 border rounded-lg shadow-sm
               text-gray-900 placeholder-gray-400
-              focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+              focus:ring-2 focus:ring-purple-500 focus:border-purple-600
               ${error ? 'border-red-300' : 'border-gray-300'}
               appearance-none
               bg-white
               cursor-pointer
               transition-colors
-              hover:border-indigo-300
+              hover:border-purple-600
             `}
             style={{
               // Override default date input appearance
@@ -67,7 +67,7 @@ export function AnimatedInput({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="text-sm text-gray-400"
+              className="text-sm text-gray-600"
             >
               {props.value ? (
                 new Date(props.value as string).toLocaleDateString('en-US', {
@@ -109,14 +109,14 @@ export function AnimatedInput({
       <div className="relative">
         {Icon && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Icon className="h-5 w-5 text-gray-400" />
+            <Icon className="h-5 w-5 text-gray-600" />
           </div>
         )}
         <input
           className={`
             block w-full ${Icon ? 'pl-10' : 'pl-4'} pr-4 py-3 border rounded-lg shadow-sm
             text-gray-900 placeholder-gray-400
-            focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+            focus:ring-2 focus:ring-purple-500 focus:border-purple-600
             ${error ? 'border-red-300' : 'border-gray-300'}
           `}
           {...props}

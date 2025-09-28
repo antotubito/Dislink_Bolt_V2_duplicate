@@ -34,8 +34,8 @@ export function ResetPassword() {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({ 
-        password: password 
+      const { error } = await supabase.auth.updateUser({
+        password: password
       });
 
       if (error) throw error;
@@ -74,7 +74,7 @@ export function ResetPassword() {
           </p>
           <button
             onClick={() => navigate('/app/login')}
-            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25"
           >
             Continue to Login
             <ArrowRight className="ml-2 h-5 w-5" />
@@ -105,12 +105,12 @@ export function ResetPassword() {
                 New Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
                 <input
                   type="password"
                   id="password"
                   required
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your new password"
@@ -123,12 +123,12 @@ export function ResetPassword() {
                 Confirm New Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
                 <input
                   type="password"
                   id="confirmPassword"
                   required
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm your new password"
@@ -139,7 +139,7 @@ export function ResetPassword() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center">

@@ -21,6 +21,37 @@ export function ProfileImageUpload({
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const validateImage = (file: File): { isValid: boolean; error?: string } => {
+    // Check file type - only allow specific image formats
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      return {
+        isValid: false,
+        error: 'Please upload a valid image file (JPEG, PNG, or WebP)'
+      };
+    }
+
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      return {
+        isValid: false,
+        error: 'Image size must be less than 5MB'
+      };
+    }
+
+    // Check minimum file size (at least 1KB)
+    const minSize = 1024; // 1KB
+    if (file.size < minSize) {
+      return {
+        isValid: false,
+        error: 'Image file appears to be corrupted or too small'
+      };
+    }
+
+    return { isValid: true };
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -29,17 +60,13 @@ export function ProfileImageUpload({
     setError(null);
 
     try {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        throw new Error('Please upload an image file');
+      // Validate file before processing
+      const validation = validateImage(file);
+      if (!validation.isValid) {
+        throw new Error(validation.error);
       }
 
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error('Image size should be less than 5MB');
-      }
-
-      // Create an image element for validation
+      // Create an image element for additional validation
       const img = new Image();
       const reader = new FileReader();
 
@@ -48,6 +75,26 @@ export function ProfileImageUpload({
           img.src = reader.result;
           img.onload = async () => {
             try {
+              // Additional image dimension validation
+              const minDimension = 100; // Minimum 100x100 pixels
+              const maxDimension = 4000; // Maximum 4000x4000 pixels
+
+              if (img.width < minDimension || img.height < minDimension) {
+                throw new Error(`Image must be at least ${minDimension}x${minDimension} pixels`);
+              }
+
+              if (img.width > maxDimension || img.height > maxDimension) {
+                throw new Error(`Image must be smaller than ${maxDimension}x${maxDimension} pixels`);
+              }
+
+              // Aspect ratio validation for profile images (not cover images)
+              if (!isCover) {
+                const aspectRatio = img.width / img.height;
+                if (aspectRatio < 0.5 || aspectRatio > 2) {
+                  throw new Error('Profile image should have a reasonable aspect ratio (not too wide or too tall)');
+                }
+              }
+
               onImageChange(reader.result);
               setError(null);
             } catch (err) {
@@ -57,7 +104,7 @@ export function ProfileImageUpload({
             }
           };
           img.onerror = () => {
-            setError('Failed to load image');
+            setError('Failed to load image. The file may be corrupted.');
             setLoading(false);
           };
         }
@@ -70,7 +117,7 @@ export function ProfileImageUpload({
       setError(err instanceof Error ? err.message : 'An error occurred while processing the image');
       setLoading(false);
     }
-    
+
     // Clear input value
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -117,13 +164,12 @@ export function ProfileImageUpload({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={loading}
-            className={`flex flex-col items-center justify-center hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors ${
-              isCover 
-                ? 'w-full h-40 rounded-lg' 
+            className={`flex flex-col items-center justify-center hover:bg-gray-50 border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors ${isCover
+                ? 'w-full h-40 rounded-lg'
                 : 'h-32 w-32 rounded-xl'
-            } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <Camera className="h-8 w-8 text-gray-400 mb-2" />
+            <Camera className="h-8 w-8 text-gray-600 mb-2" />
             <span className="text-sm text-gray-500">
               {isCover ? 'Add Cover Photo' : 'Add Profile Photo'}
             </span>
@@ -132,7 +178,7 @@ export function ProfileImageUpload({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/jpg,image/png,image/webp"
           onChange={handleFileUpload}
           className="hidden"
         />
@@ -146,7 +192,7 @@ export function ProfileImageUpload({
       )}
 
       <p className="text-xs text-gray-500">
-        {isCover 
+        {isCover
           ? 'A cover photo helps personalize your profile. Recommended size: 1200x400 pixels.'
           : 'Please provide a clear photo. The photo will be visible to your connections.'}
       </p>

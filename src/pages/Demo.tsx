@@ -29,7 +29,7 @@ export function Demo() {
         // Load location preferences
         const currentLocation = await userPreferences.getLocationPreference('location');
         const hometown = await userPreferences.getLocationPreference('from');
-        
+
         setSavedLocations({
           location: currentLocation,
           from: hometown
@@ -46,7 +46,7 @@ export function Demo() {
         setLoading(false);
       }
     };
-    
+
     loadSavedData();
   }, []);
 
@@ -57,7 +57,7 @@ export function Demo() {
         animate={{ opacity: 1, y: 0 }}
         className="mb-8"
       >
-        <h1 className="text-3xl font-bold text-cosmic-primary mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
           🌌 Dislink Component Demos
         </h1>
         <p className="text-gray-600">
@@ -72,13 +72,13 @@ export function Demo() {
         transition={{ delay: 0.1 }}
         className="mb-12"
       >
-        <div className="bg-cosmic-neutral rounded-xl p-6 mb-6">
+        <div className="bg-gray-50 rounded-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 cosmic-gradient rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
               <Palette className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-cosmic-primary">
+              <h2 className="text-xl font-semibold text-gray-900">
                 Cosmic Theme System
               </h2>
               <p className="text-sm text-gray-600">
@@ -92,7 +92,7 @@ export function Demo() {
             key={currentTheme}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="cosmic-gradient rounded-lg p-6 mb-6 text-white"
+            className="from-purple-500 to-indigo-600 rounded-lg p-6 mb-6 text-white"
           >
             <div className="flex items-center gap-3 mb-3">
               {currentTheme === 'nebula' && <Sparkles className="h-6 w-6" />}
@@ -106,7 +106,7 @@ export function Demo() {
             <p className="text-white/90 italic text-sm mb-4">
               "{currentPalette.philosophy}"
             </p>
-            
+
             {/* Color Palette Display */}
             <div className="flex gap-3">
               {Object.entries(currentPalette.colors).map(([key, color]) => (
@@ -133,7 +133,7 @@ export function Demo() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-cosmic-primary text-white px-6 py-3 rounded-lg font-medium cosmic-glow"
+              className="btn-captamundi-primary text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg hover:shadow-purple-500/25"
             >
               Primary Action
             </motion.button>
@@ -142,7 +142,7 @@ export function Demo() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-cosmic-secondary text-white px-6 py-3 rounded-lg font-medium"
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg font-medium"
             >
               Secondary Action
             </motion.button>
@@ -150,7 +150,7 @@ export function Demo() {
             {/* Accent Card */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="bg-cosmic-accent text-cosmic-primary p-4 rounded-lg"
+              className="bg-indigo-600 text-gray-900 p-4 rounded-lg"
             >
               <Star className="h-5 w-5 mb-2" />
               <p className="font-medium">Accent Element</p>
@@ -160,7 +160,7 @@ export function Demo() {
             {/* Pop Alert */}
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="bg-cosmic-pop text-white p-4 rounded-lg"
+              className="bg-pink-600 text-white p-4 rounded-lg"
             >
               <Zap className="h-5 w-5 mb-2" />
               <p className="font-medium">Pop Alert</p>
@@ -180,7 +180,7 @@ export function Demo() {
         transition={{ delay: 0.2 }}
         className="mb-8"
       >
-        <h2 className="text-xl font-semibold text-cosmic-primary mb-4">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">
           City Autocomplete Component
         </h2>
         <div className="bg-indigo-50 p-4 rounded-lg mb-4">
@@ -189,11 +189,11 @@ export function Demo() {
             It falls back to a local database when offline or when the API is unavailable.
           </p>
         </div>
-        <CityAutocompleteDemo 
+        <CityAutocompleteDemo
           onLanguageChange={handleLanguageChange}
         />
       </motion.section>
-      
+
       <div className="bg-indigo-50 p-4 rounded-lg mb-8">
         <p className="text-sm text-indigo-700">
           Current language: <strong>{language}</strong>
@@ -202,11 +202,11 @@ export function Demo() {
           The component will search for cities in the selected language, but display results in English for consistency.
         </p>
       </div>
-      
+
       {/* Saved Locations Section */}
       <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Saved Locations</h2>
-        
+
         {loading ? (
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
@@ -221,7 +221,7 @@ export function Demo() {
                   <p className="text-sm text-gray-500">
                     {savedLocations.location.country} ({savedLocations.location.countryCode})
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-600 mt-1">
                     Coordinates: {savedLocations.location.latitude.toFixed(4)}, {savedLocations.location.longitude.toFixed(4)}
                   </p>
                 </div>
@@ -229,7 +229,7 @@ export function Demo() {
                 <p className="mt-2 text-sm text-gray-500">No saved location</p>
               )}
             </div>
-            
+
             <div>
               <h3 className="text-sm font-medium text-gray-700">Hometown</h3>
               {savedLocations.from ? (
@@ -238,7 +238,7 @@ export function Demo() {
                   <p className="text-sm text-gray-500">
                     {savedLocations.from.country} ({savedLocations.from.countryCode})
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-600 mt-1">
                     Coordinates: {savedLocations.from.latitude.toFixed(4)}, {savedLocations.from.longitude.toFixed(4)}
                   </p>
                 </div>
@@ -246,14 +246,14 @@ export function Demo() {
                 <p className="mt-2 text-sm text-gray-500">No saved hometown</p>
               )}
             </div>
-            
+
             {/* Recent Searches Section */}
             {recentSearches.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Recent Searches</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {recentSearches.slice(0, 6).map((location, index) => (
-                    <div 
+                    <div
                       key={`${location.id}-${index}`}
                       className="p-2 bg-gray-50 rounded border border-gray-200 text-sm"
                     >
@@ -275,7 +275,7 @@ export function Demo() {
                 </button>
               </div>
             )}
-            
+
             <div className="pt-4 border-t border-gray-200">
               <p className="text-sm text-gray-600">
                 {user ? (
@@ -284,7 +284,7 @@ export function Demo() {
                   <>Your location preferences are saved to localStorage. Sign in to sync them with your profile.</>
                 )}
               </p>
-              
+
               <button
                 onClick={async () => {
                   try {

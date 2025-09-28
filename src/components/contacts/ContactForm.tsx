@@ -150,13 +150,13 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
             </label>
             <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
+                <User className="h-5 w-5 text-gray-600" />
               </div>
               <input
                 type="text"
                 id="name"
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="John Doe"
@@ -171,13 +171,13 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
             </label>
             <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MessageCircle className="h-5 w-5 text-gray-400" />
+                <MessageCircle className="h-5 w-5 text-gray-600" />
               </div>
               <input
                 type="tel"
                 id="whatsapp"
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                 value={formData.whatsapp}
                 onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                 placeholder="+1234567890"
@@ -193,13 +193,13 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
             </label>
             <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Calendar className="h-5 w-5 text-gray-400" />
+                <Calendar className="h-5 w-5 text-gray-600" />
               </div>
               <input
                 type="date"
                 id="meetingDate"
                 required
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                 value={formData.meetingDate}
                 onChange={(e) => setFormData({ ...formData, meetingDate: e.target.value })}
               />
@@ -222,7 +222,7 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
               <input
                 type="text"
                 placeholder="Venue (optional)"
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                 value={formData.meetingLocation.venue || ''}
                 onChange={(e) => setFormData({
                   ...formData,
@@ -258,12 +258,12 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
               </label>
               <div className="relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <Mail className="h-5 w-5 text-gray-600" />
                 </div>
                 <input
                   type="email"
                   id="email"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                   value={formData.email || ''}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="john@example.com"
@@ -277,12 +277,12 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
               </label>
               <div className="relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Phone className="h-5 w-5 text-gray-400" />
+                  <Phone className="h-5 w-5 text-gray-600" />
                 </div>
                 <input
                   type="tel"
                   id="phone"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                   value={formData.phone || ''}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="+1 (555) 000-0000"
@@ -296,12 +296,12 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
               </label>
               <div className="relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Building2 className="h-5 w-5 text-gray-400" />
+                  <Building2 className="h-5 w-5 text-gray-600" />
                 </div>
                 <input
                   type="text"
                   id="company"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                   value={formData.company || ''}
                   onChange={(e) => setFormData({ ...formData, company: e.target.value })}
                   placeholder="Company Name"
@@ -315,12 +315,12 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
               </label>
               <div className="relative rounded-md shadow-sm">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Briefcase className="h-5 w-5 text-gray-400" />
+                  <Briefcase className="h-5 w-5 text-gray-600" />
                 </div>
                 <input
                   type="text"
                   id="jobTitle"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                   value={formData.jobTitle || ''}
                   onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
                   placeholder="Software Engineer"
@@ -336,7 +336,7 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
             <textarea
               id="meetingContext"
               rows={3}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
               value={formData.meetingContext || ''}
               onChange={(e) => setFormData({ ...formData, meetingContext: e.target.value })}
               placeholder="Notes about how you met or what you discussed..."
@@ -349,12 +349,12 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
             </label>
             <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Tag className="h-5 w-5 text-gray-400" />
+                <Tag className="h-5 w-5 text-gray-600" />
               </div>
               <input
                 type="text"
                 id="tags"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagAdd}
@@ -372,7 +372,7 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
                     <button
                       type="button"
                       onClick={() => handleTagRemove(tag)}
-                      className="ml-1.5 inline-flex items-center justify-center h-4 w-4 rounded-full text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none"
+                      className="ml-1.5 inline-flex items-center justify-center h-4 w-4 rounded-full text-indigo-400 hover:btn-captamundi-primary/20 hover:text-indigo-500 focus:outline-none"
                     >
                       <span className="sr-only">Remove tag</span>
                       <X className="h-3 w-3" />
@@ -390,14 +390,14 @@ export function ContactForm({ contact, onSubmit, onCancel }: ContactFormProps) {
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+          className="inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:opacity-50"
         >
           {loading ? (
             <>

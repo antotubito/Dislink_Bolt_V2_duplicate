@@ -20,13 +20,28 @@ export function Login() {
   const [resetEmail, setResetEmail] = useState('');
   const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
   const [pendingRedirect, setPendingRedirect] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Check for email confirmation message
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+
+    if (message === 'email-confirmed') {
+      setSuccessMessage('Email confirmed successfully! Please log in to continue.');
+      // Clear the URL parameter
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   // Redirect if user is already authenticated - BUT only if they came from a protected route
   useEffect(() => {
     if (!loading && user) {
       // Check if there's a stored redirectUrl indicating they came from a protected route
       const redirectUrl = localStorage.getItem('redirectUrl');
-      
+
       if (redirectUrl) {
         // User was redirected here from a protected route, so redirect them after auth
         logger.info('🔄 User already authenticated with stored redirect URL, redirecting to:', redirectUrl);
@@ -36,7 +51,7 @@ export function Login() {
         // User navigated to login page directly while already authenticated
         // Don't auto-redirect, let them stay on the login page or navigate manually
         logger.info('🔄 User already authenticated but no redirect URL - staying on login page');
-        
+
         // Optionally show a message or state that they're already logged in
         // But don't force redirect to /app
       }
@@ -60,7 +75,7 @@ export function Login() {
           setPendingRedirect(false);
         }
       }, 3000); // 3 second fallback
-      
+
       return () => clearTimeout(timeoutId);
     }
   }, [pendingRedirect, isLoggingIn, navigate]);
@@ -77,6 +92,16 @@ export function Login() {
     e.preventDefault();
     setError(null);
     setPendingRedirect(false);
+
+    // Add timeout to prevent infinite loading
+    const loginTimeout = setTimeout(() => {
+      if (isLoggingIn) {
+        console.error('🔍 LOGIN TIMEOUT: Login taking too long, resetting state');
+        setError('Login is taking longer than expected. Please try again.');
+        setRetryCount(prev => prev + 1);
+        setIsLoggingIn(false);
+      }
+    }, 30000); // 30 second timeout
 
     // 🔍 PRODUCTION DEBUG LOGGING - START
     const debugInfo = {
@@ -103,7 +128,7 @@ export function Login() {
         localStorage: typeof localStorage !== 'undefined'
       }
     };
-    
+
     console.log('🔍 PRODUCTION LOGIN DEBUG:', debugInfo);
     logger.info('🔍 Production login attempt starting', debugInfo);
     // 🔍 PRODUCTION DEBUG LOGGING - END
@@ -124,20 +149,30 @@ export function Login() {
     setIsLoggingIn(true);
 
     try {
+      // Clear timeout on successful start
+      clearTimeout(loginTimeout);
       // Check connection status first
       if (connectionStatus === 'disconnected') {
         console.error('🔍 CONNECTION ERROR: Status is disconnected');
         setError('You appear to be offline. Please check your internet connection and try again.');
+        setRetryCount(prev => prev + 1);
         setIsLoggingIn(false);
         return;
       }
-      
+
       logger.info('🔐 Starting login process for:', email);
       console.log('🔍 About to call login function with:', { email: email.substring(0, 5) + '...' });
-      
+
+      // Set remember me flag before login
+      if (rememberMe) {
+        localStorage.setItem('stayLoggedIn', 'true');
+      } else {
+        localStorage.removeItem('stayLoggedIn');
+      }
+
       // Try the enhanced login function first
       const result = await login({ email, password });
-      
+
       console.log('🔍 Login function result:', {
         success: result.success,
         hasUser: !!result.user,
@@ -148,11 +183,11 @@ export function Login() {
         emailConfirmationRequired: result.emailConfirmationRequired,
         emailNotFound: result.emailNotFound
       });
-      
+
       if (result.success && result.session) {
         logger.info('✅ Login successful with session - navigating immediately');
         console.log('🔍 SUCCESS: Login completed, preparing navigation');
-        
+
         // Direct navigation after successful login with session
         const redirectUrl = localStorage.getItem('redirectUrl');
         if (redirectUrl) {
@@ -166,16 +201,16 @@ export function Login() {
           logger.info('🔄 Redirecting to app home');
           navigate('/app');
         }
-        
+
         // Clear any pending redirect since we've handled it
         setPendingRedirect(false);
         return;
-        
+
       } else if (result.success) {
         logger.info('✅ Login successful but no session yet - waiting for AuthProvider');
         // Fallback: AuthProvider will handle the redirect via onAuthStateChange
         setPendingRedirect(true);
-        
+
       } else if (result.emailConfirmationRequired) {
         logger.info('📧 Email confirmation required');
         setShowEmailConfirmation(true);
@@ -193,10 +228,10 @@ export function Login() {
         );
       } else if (result.error) {
         logger.error('❌ Login error:', result.error);
-        
+
         // If the enhanced login failed, try direct Supabase approach as backup
         logger.info('🔄 Trying direct Supabase sign-in as backup...');
-        
+
         const { data, error: directError } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
           password,
@@ -207,7 +242,7 @@ export function Login() {
           setError(result.error.message);
         } else if (data.session) {
           logger.info('✅ Direct login successful with session');
-          
+
           // Direct navigation after successful direct login
           const redirectUrl = localStorage.getItem('redirectUrl');
           if (redirectUrl) {
@@ -220,12 +255,13 @@ export function Login() {
         }
       }
     } catch (err) {
+      clearTimeout(loginTimeout);
       logger.error('❌ Critical login error:', err);
-      
+
       // Final fallback: try direct Supabase sign-in
       try {
         logger.info('🔄 Final fallback: direct Supabase sign-in...');
-        
+
         const { data, error: directError } = await supabase.auth.signInWithPassword({
           email: email.trim().toLowerCase(),
           password,
@@ -242,7 +278,7 @@ export function Login() {
           }
         } else if (data.session) {
           logger.info('✅ Final fallback login successful with session');
-          
+
           // Navigate after successful fallback login
           const redirectUrl = localStorage.getItem('redirectUrl');
           if (redirectUrl) {
@@ -258,6 +294,7 @@ export function Login() {
         setError('An unexpected error occurred. Please try again.');
       }
     } finally {
+      clearTimeout(loginTimeout);
       setIsLoggingIn(false);
     }
   };
@@ -268,7 +305,7 @@ export function Login() {
 
     try {
       logger.info('Resending confirmation email to:', email);
-      
+
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email,
@@ -283,7 +320,7 @@ export function Login() {
         }
         throw error;
       }
-      
+
       setError('Confirmation email resent. Please check your inbox.');
     } catch (err) {
       console.error('Error resending confirmation:', err);
@@ -295,7 +332,7 @@ export function Login() {
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!resetEmail.trim() || !resetEmail.includes('@')) {
       setError('Please enter a valid email address');
       return;
@@ -318,7 +355,7 @@ export function Login() {
         }
         throw resetError;
       }
-      
+
       setResetSent(true);
     } catch (err) {
       console.error('Password reset error:', err);
@@ -328,54 +365,6 @@ export function Login() {
     }
   };
 
-  const handleDirectSignIn = async () => {
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter both email and password for direct sign-in test');
-      return;
-    }
-
-    setIsLoggingIn(true);
-    setError(null);
-
-    try {
-      logger.info('🔐 Testing direct Supabase sign-in for:', email);
-      
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-      });
-
-      if (error) {
-        logger.error('❌ Direct login error:', error.message);
-        setError(`Direct login failed: ${error.message}`);
-        return;
-      }
-
-      if (data.session) {
-        logger.info('✅ Direct login successful with session - navigating immediately');
-        
-        // Save session info for debugging
-        console.log('Session:', data.session);
-        console.log('User:', data.user);
-        
-        // Navigate immediately
-        const redirectUrl = localStorage.getItem('redirectUrl');
-        if (redirectUrl) {
-          localStorage.removeItem('redirectUrl');
-          navigate(redirectUrl);
-        } else {
-          navigate('/app');
-        }
-      } else {
-        setError('Direct login succeeded but no session received');
-      }
-    } catch (err) {
-      logger.error('❌ Direct login critical error:', err);
-      setError('Direct login failed with critical error');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
 
   if (showEmailConfirmation) {
     return (
@@ -398,7 +387,7 @@ export function Login() {
             <button
               onClick={handleResendConfirmation}
               disabled={isLoggingIn}
-              className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50"
             >
               {isLoggingIn ? (
                 <div className="flex items-center">
@@ -415,7 +404,7 @@ export function Login() {
                 setEmail('');
                 setPassword('');
               }}
-              className="w-full text-center text-sm text-gray-500 hover:text-gray-700"
+              className="w-full text-center text-sm text-accessible-muted hover:text-gray-700"
             >
               <ArrowLeft className="h-4 w-4 inline mr-1" />
               Back to Login
@@ -458,19 +447,19 @@ export function Login() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-cosmic-neutral py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="text-center mb-8">
-        <div className="mx-auto w-20 h-20 bg-cosmic-secondary/10 rounded-full flex items-center justify-center mb-6 cosmic-glow">
-          <Sparkles className="h-10 w-10 text-cosmic-secondary" />
+        <div className="mx-auto w-20 h-20 bg-purple-600/10 rounded-full flex items-center justify-center mb-6 hover:shadow-lg hover:shadow-purple-500/25">
+          <Sparkles className="h-10 w-10 text-purple-600" />
         </div>
-        <h1 className="text-3xl font-bold text-cosmic-primary">Welcome back! 👋</h1>
-        <p className="mt-2 text-xl text-cosmic-primary/70">Great to see you again</p>
+        <h1 className="text-3xl font-bold text-gray-900">Welcome back! 👋</h1>
+        <p className="mt-2 text-xl text-gray-900/70">Great to see you again</p>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl border border-cosmic-secondary/10"
+        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl border border-purple-600/10"
       >
         {connectionStatus === 'disconnected' && (
           <div className="mb-4 rounded-md bg-red-50 p-4">
@@ -513,13 +502,38 @@ export function Login() {
             </div>
           </div>
         )}
-        
-        <form onSubmit={handleLogin} className="space-y-6">
+
+        <form onSubmit={handleLogin} className="space-y-6" role="form" aria-label="Login form">
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
+            <div className="rounded-md bg-red-50 p-4" role="alert" aria-live="polite">
               <div className="flex">
-                <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-                <div className="text-sm text-red-700">{error}</div>
+                <AlertCircle className="h-5 w-5 text-red-400 mr-2" aria-hidden="true" />
+                <div className="flex-1">
+                  <div className="text-sm text-red-700" id="error-message">{error}</div>
+                  {retryCount > 0 && (
+                    <button
+                      onClick={() => {
+                        setError(null);
+                        setRetryCount(0);
+                        setIsLoggingIn(false);
+                      }}
+                      className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
+                    >
+                      Try again
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="rounded-md bg-green-50 p-4">
+              <div className="flex">
+                <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
+                <div className="flex-1">
+                  <div className="text-sm text-green-700">{successMessage}</div>
+                </div>
               </div>
             </div>
           )}
@@ -529,19 +543,21 @@ export function Login() {
               Email Address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-accessible-muted" aria-hidden="true" />
               <input
                 type="email"
                 id="email"
                 required
                 disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 input-focus touch-target"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   setResetEmail(e.target.value);
                 }}
                 placeholder="you@example.com"
+                aria-describedby="error-message"
+                aria-invalid={error ? "true" : "false"}
               />
             </div>
           </div>
@@ -551,18 +567,36 @@ export function Login() {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-accessible-muted" aria-hidden="true" />
               <input
                 type="password"
                 id="password"
                 required
                 disabled={!loading && !!user}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 input-focus touch-target"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
+                aria-describedby="error-message"
+                aria-invalid={error ? "true" : "false"}
               />
             </div>
+          </div>
+
+          {/* Remember Me Checkbox */}
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              name="remember-me"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              disabled={!loading && !!user}
+              className="h-4 w-4 text-purple-600 focus:ring-purple-600 border-gray-300 rounded disabled:opacity-50"
+            />
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 disabled:text-accessible-muted">
+              Remember me (stay logged in)
+            </label>
           </div>
 
           <div className="flex items-center justify-between">
@@ -571,7 +605,7 @@ export function Login() {
                 type="button"
                 disabled={!loading && !!user}
                 onClick={handleForgotPassword}
-                className="font-medium text-cosmic-secondary hover:text-cosmic-accent disabled:text-gray-400 disabled:cursor-not-allowed"
+                className="font-medium text-purple-600 hover:text-indigo-600 disabled:text-accessible-muted disabled:cursor-not-allowed"
               >
                 Forgot your password?
               </button>
@@ -581,7 +615,8 @@ export function Login() {
           <button
             type="submit"
             disabled={isLoggingIn || connectionStatus === 'disconnected' || (!loading && !!user)}
-            className="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white cosmic-gradient hover:cosmic-glow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cosmic-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-captamundi-primary w-full flex justify-center items-center"
+            aria-label={isLoggingIn ? "Signing in, please wait" : "Sign in to your account"}
           >
             {!loading && user ? (
               'Already Signed In'
@@ -595,32 +630,14 @@ export function Login() {
             )}
           </button>
 
-          {/* Development Test Button */}
-          {process.env.NODE_ENV === 'development' && (
-            <button
-              type="button"
-              onClick={handleDirectSignIn}
-              disabled={isLoggingIn || connectionStatus === 'disconnected' || (!loading && !!user)}
-              className="w-full flex justify-center items-center px-6 py-3 border border-cosmic-secondary rounded-xl shadow-sm text-base font-medium text-cosmic-secondary bg-white hover:bg-cosmic-secondary/5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cosmic-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoggingIn ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-cosmic-secondary mr-2" />
-                  Testing Direct Sign-In...
-                </div>
-              ) : (
-                '🧪 Test Direct Supabase Sign-In'
-              )}
-            </button>
-          )}
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-cosmic-primary/70">
+          <p className="text-sm text-gray-900/70">
             Don't have an account yet?{' '}
             <Link
               to="/app/register"
-              className="font-medium text-cosmic-secondary hover:text-cosmic-accent"
+              className="font-medium text-purple-600 hover:text-indigo-600"
             >
               Create one now
             </Link>
@@ -629,8 +646,8 @@ export function Login() {
 
         <div className="mt-6 text-center">
           <Link
-            to="/waitlist"
-            className="inline-flex items-center text-sm text-cosmic-primary/60 hover:text-cosmic-secondary"
+            to="/"
+            className="inline-flex items-center text-sm text-gray-900/60 hover:text-purple-600"
           >
             <ArrowLeft className="h-4 w-4 mr-1" />
             Back to Home

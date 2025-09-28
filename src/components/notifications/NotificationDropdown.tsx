@@ -138,7 +138,7 @@ export function NotificationDropdown({
                         {/* Unread Indicator */}
                         {!notification.read && (
                           <div className="ml-3">
-                            <div className="h-2 w-2 bg-indigo-600 rounded-full"></div>
+                            <div className="h-2 w-2 btn-captamundi-primary rounded-full"></div>
                           </div>
                         )}
                       </div>

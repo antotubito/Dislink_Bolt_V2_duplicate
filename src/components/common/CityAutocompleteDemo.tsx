@@ -78,7 +78,7 @@ export function CityAutocompleteDemo({ initialValue = '', onLanguageChange }: Ci
               value={language}
               onChange={handleLanguageChange}
               disabled={useCustomLanguage}
-              className="block rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block rounded-lg border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
             >
               <option value="en">English</option>
               <option value="es">Spanish</option>
@@ -98,7 +98,7 @@ export function CityAutocompleteDemo({ initialValue = '', onLanguageChange }: Ci
                 type="checkbox"
                 checked={useCustomLanguage}
                 onChange={toggleCustomLanguage}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-indigo-600 focus:ring-purple-500 border-gray-300 rounded"
               />
               <label htmlFor="custom-language" className="ml-2 block text-sm text-gray-700">
                 Custom
@@ -117,7 +117,7 @@ export function CityAutocompleteDemo({ initialValue = '', onLanguageChange }: Ci
               value={customLanguage}
               onChange={handleCustomLanguageChange}
               placeholder="e.g., nl, sv, ko"
-              className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              className="block w-full rounded-lg border-gray-300 shadow-sm focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
             />
             <p className="mt-1 text-xs text-gray-500">
               Enter a valid ISO 639-1 language code (2 letters)

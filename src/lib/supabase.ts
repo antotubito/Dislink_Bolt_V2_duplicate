@@ -9,6 +9,9 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIU
 console.log('🔍 Supabase Environment Check:');
 console.log('- Environment variables loaded:', !!import.meta.env.VITE_SUPABASE_URL);
 console.log('- Using real Supabase:', !supabaseUrl.includes('placeholder'));
+console.log('- Supabase URL:', supabaseUrl?.substring(0, 30) + '...');
+console.log('- Anon Key available:', !!supabaseAnonKey);
+console.log('- Environment mode:', import.meta.env.MODE);
 console.log('✅ Supabase connection ready');
 
 // Enhanced environment validation - now using fallback values
@@ -24,8 +27,8 @@ if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KE
 }
 
 // Log environment variables for debugging (safe for production)
-logger.info('Supabase configuration:', { 
-  urlAvailable: !!supabaseUrl, 
+logger.info('Supabase configuration:', {
+  urlAvailable: !!supabaseUrl,
   keyAvailable: !!supabaseAnonKey,
   environment: import.meta.env.MODE,
   production: import.meta.env.PROD
@@ -33,8 +36,8 @@ logger.info('Supabase configuration:', {
 
 // Create Supabase client with enhanced production configuration
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co', 
-  supabaseAnonKey || 'placeholder-key', 
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
   {
     auth: {
       autoRefreshToken: true,
@@ -106,7 +109,7 @@ const retryConnection = async (maxRetries = 3, delay = 1000): Promise<boolean> =
   for (let i = 0; i < maxRetries; i++) {
     const isHealthy = await checkConnection();
     if (isHealthy) return true;
-    
+
     if (i < maxRetries - 1) {
       logger.info(`🔄 Retrying connection in ${delay}ms... (${i + 1}/${maxRetries})`);
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -120,7 +123,7 @@ const retryConnection = async (maxRetries = 3, delay = 1000): Promise<boolean> =
 export const getSafeSession = async (): Promise<{ data: { session: any }, error: any }> => {
   // Wait for Supabase to be ready before checking session
   await waitForSupabaseReady();
-  
+
   try {
     logger.info('🔐 Getting session (safe)...');
     const result = await supabase.auth.getSession();
@@ -137,20 +140,20 @@ export const waitForSupabaseReady = (): Promise<void> => {
   if (isSupabaseReady) {
     return Promise.resolve();
   }
-  
+
   if (sessionReadyPromise) {
     return sessionReadyPromise;
   }
-  
+
   sessionReadyPromise = new Promise((resolve) => {
     if (isSupabaseReady) {
       resolve();
       return;
     }
-    
+
     sessionReadyCallbacks.push(resolve);
   });
-  
+
   return sessionReadyPromise;
 };
 
@@ -169,7 +172,7 @@ export const initializeConnection = async (): Promise<void> => {
 
       // Try to recover any existing session first
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+
       if (sessionError) {
         logger.warn('Session recovery error (non-critical):', sessionError);
       } else if (session) {
@@ -178,7 +181,7 @@ export const initializeConnection = async (): Promise<void> => {
 
       // Check connection health
       const isHealthy = await retryConnection();
-      
+
       if (!isHealthy) {
         logger.error('❌ Failed to establish healthy Supabase connection after retries');
         // Still mark as ready even if connection failed - allow app to function
@@ -187,11 +190,11 @@ export const initializeConnection = async (): Promise<void> => {
       // Mark Supabase as ready
       isSupabaseReady = true;
       logger.info('✅ Supabase connection initialized successfully - ready for session checks');
-      
+
       // Notify all waiting callbacks
       sessionReadyCallbacks.forEach(callback => callback());
       sessionReadyCallbacks.length = 0; // Clear the array
-      
+
     } catch (error) {
       logger.error('❌ Critical error during Supabase initialization:', error);
       // Still mark as ready to prevent indefinite waiting
@@ -213,7 +216,7 @@ export const testProductionConnection = async (): Promise<{
 }> => {
   try {
     console.log('🧪 Testing Supabase production connection...');
-    
+
     // Check environment variables
     if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('placeholder')) {
       return {
@@ -243,7 +246,7 @@ export const testProductionConnection = async (): Promise<{
 
     // Test authentication state
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    
+
     return {
       status: 'success',
       message: 'Supabase connection successful',
@@ -269,9 +272,9 @@ export const testProductionConnection = async (): Promise<{
 // Live production test function
 export const runLiveProductionTest = async (): Promise<void> => {
   console.log('🚀 Starting LIVE Supabase Production Test...');
-  
+
   const result = await testProductionConnection();
-  
+
   if (result.status === 'success') {
     console.log('✅ SUPABASE CONNECTION SUCCESSFUL!');
     console.log('📊 Connection Details:', result.details);
@@ -279,7 +282,7 @@ export const runLiveProductionTest = async (): Promise<void> => {
     console.error('❌ SUPABASE CONNECTION FAILED!');
     console.error('💥 Error Details:', result.details);
   }
-  
+
   return result;
 };
 
@@ -289,35 +292,35 @@ export const isSupabaseSessionReady = (): boolean => isSupabaseReady;
 // Graceful error handling for auth operations
 export const handleSupabaseError = (error: any, operation: string) => {
   logger.error(`Supabase ${operation} error:`, error);
-  
+
   // Return user-friendly error messages
   if (error?.message?.includes('Invalid login credentials')) {
     return 'Invalid email or password. Please check your credentials and try again.';
   }
-  
+
   if (error?.message?.includes('Email not confirmed')) {
     return 'Please check your email and click the confirmation link before signing in.';
   }
-  
+
   if (error?.message?.includes('Too many requests')) {
     return 'Too many attempts. Please wait a moment before trying again.';
   }
-  
+
   if (error?.message?.includes('Network')) {
     return 'Network error. Please check your internet connection and try again.';
   }
-  
+
   return error?.message || `An error occurred during ${operation}. Please try again.`;
 };
 
 // Test email registration function
 export const testEmailRegistration = async (testEmail?: string): Promise<void> => {
   const email = testEmail || `test.${Date.now()}@example.com`;
-  
+
   console.log('🧪 Testing email registration...');
   console.log(`📧 Test email: ${email}`);
   console.log(`🔗 Redirect URL: ${window.location.origin}/confirmed`);
-  
+
   try {
     const { data, error } = await supabase.auth.signUp({
       email: email,
@@ -334,10 +337,10 @@ export const testEmailRegistration = async (testEmail?: string): Promise<void> =
 
     console.log('\n📊 Registration Result:');
     console.log('Data:', data);
-    
+
     if (error) {
       console.log('❌ Registration Error:', error.message);
-      
+
       if (error.message.includes('Email not confirmed')) {
         console.log('\n💡 ISSUE: Email confirmation required but not being sent');
         console.log('🔧 SOLUTION: Check Supabase Dashboard → Authentication → Settings');
@@ -353,7 +356,7 @@ export const testEmailRegistration = async (testEmail?: string): Promise<void> =
       console.log(`User ID: ${data.user?.id}`);
       console.log(`Email Confirmed: ${data.user?.email_confirmed_at ? 'Yes' : 'No'}`);
       console.log(`Session: ${data.session ? 'Active' : 'None (email confirmation required)'}`);
-      
+
       if (!data.session && !data.user?.email_confirmed_at) {
         console.log('\n📧 ✅ EMAIL CONFIRMATION REQUIRED');
         console.log('   User should receive confirmation email');
@@ -362,7 +365,7 @@ export const testEmailRegistration = async (testEmail?: string): Promise<void> =
         console.log('\n⚠️ User logged in immediately - email confirmation might be disabled');
       }
     }
-    
+
   } catch (err) {
     console.log('\n🚨 Network/Connection Error:', err.message);
     console.log('Check your internet connection and Supabase configuration');
@@ -371,13 +374,4 @@ export const testEmailRegistration = async (testEmail?: string): Promise<void> =
 
 // Make test functions available globally for console access
 if (typeof window !== 'undefined') {
-  (window as any).testSupabase = testProductionConnection;
-  (window as any).testConnection = runLiveProductionTest;
-  (window as any).testEmailRegistration = testEmailRegistration;
-  
-  console.log('🔧 Available test functions:');
-  console.log('  • window.testSupabase() - Test Supabase connection');
-  console.log('  • window.testConnection() - Comprehensive connection test');
-  console.log('  • window.testEmailRegistration() - Test email registration');
-  console.log('  • window.testEmailRegistration("your.email@example.com") - Test with specific email');
 }

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #333; }
+      .subtitle { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #666; }
+      .label { font-family: Arial, sans-serif; font-size: 12px; fill: #333; }
+      .error { font-family: Arial, sans-serif; font-size: 11px; fill: #d32f2f; font-weight: bold; }
+      .success { font-family: Arial, sans-serif; font-size: 11px; fill: #2e7d32; font-weight: bold; }
+      .box { fill: #f5f5f5; stroke: #ddd; stroke-width: 1; }
+      .netlify-box { fill: #00ad9f; stroke: #00ad9f; stroke-width: 2; }
+      .registrar-box { fill: #ff6b35; stroke: #ff6b35; stroke-width: 2; }
+      .error-box { fill: #ffebee; stroke: #d32f2f; stroke-width: 2; }
+      .arrow { stroke: #333; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .error-arrow { stroke: #d32f2f; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+    </marker>
+  </defs>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" class="title">Dislink.app DNS Configuration Flow</text>
+  
+  <!-- User Browser -->
+  <rect x="50" y="80" width="120" height="60" class="box" rx="5"/>
+  <text x="110" y="100" text-anchor="middle" class="subtitle">User Browser</text>
+  <text x="110" y="115" text-anchor="middle" class="label">dislink.app</text>
+  <text x="110" y="130" text-anchor="middle" class="label">www.dislink.app</text>
+  
+  <!-- DNS Resolver -->
+  <rect x="220" y="80" width="120" height="60" class="box" rx="5"/>
+  <text x="280" y="100" text-anchor="middle" class="subtitle">DNS Resolver</text>
+  <text x="280" y="115" text-anchor="middle" class="label">Looks up domain</text>
+  <text x="280" y="130" text-anchor="middle" class="label">records</text>
+  
+  <!-- Option A: Netlify DNS -->
+  <g id="option-a">
+    <text x="400" y="200" text-anchor="middle" class="subtitle">Option A: Netlify DNS (Recommended)</text>
+    
+    <!-- Namecheap with NS delegation -->
+    <rect x="50" y="220" width="120" height="80" class="registrar-box" rx="5"/>
+    <text x="110" y="240" text-anchor="middle" class="subtitle" fill="white">Namecheap</text>
+    <text x="110" y="255" text-anchor="middle" class="label" fill="white">NS Records:</text>
+    <text x="110" y="270" text-anchor="middle" class="label" fill="white">dns1.p01.nsone.net</text>
+    <text x="110" y="285" text-anchor="middle" class="label" fill="white">dns2.p01.nsone.net</text>
+    
+    <!-- Netlify DNS -->
+    <rect x="220" y="220" width="120" height="80" class="netlify-box" rx="5"/>
+    <text x="280" y="240" text-anchor="middle" class="subtitle" fill="white">Netlify DNS</text>
+    <text x="280" y="255" text-anchor="middle" class="label" fill="white">A: 75.2.60.5</text>
+    <text x="280" y="270" text-anchor="middle" class="label" fill="white">A: 99.83.190.102</text>
+    <text x="280" y="285" text-anchor="middle" class="label" fill="white">CNAME: www</text>
+    
+    <!-- Netlify CDN -->
+    <rect x="390" y="220" width="120" height="80" class="netlify-box" rx="5"/>
+    <text x="450" y="240" text-anchor="middle" class="subtitle" fill="white">Netlify CDN</text>
+    <text x="450" y="255" text-anchor="middle" class="label" fill="white">SSL Certificate</text>
+    <text x="450" y="270" text-anchor="middle" class="label" fill="white">Global Edge</text>
+    <text x="450" y="285" text-anchor="middle" class="label" fill="white">dislinkboltv2duplicate</text>
+    
+    <!-- Arrows for Option A -->
+    <line x1="170" y1="260" x2="220" y2="260" class="arrow"/>
+    <line x1="340" y1="260" x2="390" y2="260" class="arrow"/>
+  </g>
+  
+  <!-- Option B: Manual DNS -->
+  <g id="option-b">
+    <text x="400" y="350" text-anchor="middle" class="subtitle">Option B: Manual DNS Records</text>
+    
+    <!-- Namecheap with manual records -->
+    <rect x="50" y="370" width="120" height="100" class="registrar-box" rx="5"/>
+    <text x="110" y="390" text-anchor="middle" class="subtitle" fill="white">Namecheap</text>
+    <text x="110" y="405" text-anchor="middle" class="label" fill="white">A: @ → 75.2.60.5</text>
+    <text x="110" y="420" text-anchor="middle" class="label" fill="white">A: @ → 99.83.190.102</text>
+    <text x="110" y="435" text-anchor="middle" class="label" fill="white">CNAME: www →</text>
+    <text x="110" y="450" text-anchor="middle" class="label" fill="white">dislinkboltv2duplicate.netlify.app</text>
+    <text x="110" y="465" text-anchor="middle" class="label" fill="white">MX: (preserve email)</text>
+    
+    <!-- Direct to Netlify -->
+    <rect x="220" y="370" width="120" height="100" class="netlify-box" rx="5"/>
+    <text x="280" y="390" text-anchor="middle" class="subtitle" fill="white">Netlify</text>
+    <text x="280" y="405" text-anchor="middle" class="label" fill="white">Load Balancer</text>
+    <text x="280" y="420" text-anchor="middle" class="label" fill="white">SSL Certificate</text>
+    <text x="280" y="435" text-anchor="middle" class="label" fill="white">Auto-renewal</text>
+    <text x="280" y="450" text-anchor="middle" class="label" fill="white">Global CDN</text>
+    <text x="280" y="465" text-anchor="middle" class="label" fill="white">dislinkboltv2duplicate</text>
+    
+    <!-- Arrows for Option B -->
+    <line x1="170" y1="420" x2="220" y2="420" class="arrow"/>
+  </g>
+  
+  <!-- Common Errors Section -->
+  <g id="errors">
+    <text x="400" y="520" text-anchor="middle" class="subtitle">Common DNS Errors (RED FLAGS)</text>
+    
+    <!-- Error boxes -->
+    <rect x="50" y="540" width="150" height="40" class="error-box" rx="5"/>
+    <text x="125" y="555" text-anchor="middle" class="error">❌ URL Redirects</text>
+    <text x="125" y="570" text-anchor="middle" class="error">❌ Old A Records</text>
+    
+    <rect x="220" y="540" width="150" height="40" class="error-box" rx="5"/>
+    <text x="295" y="555" text-anchor="middle" class="error">❌ Conflicting CNAME</text>
+    <text x="295" y="570" text-anchor="middle" class="error">❌ Wrong IPs</text>
+    
+    <rect x="390" y="540" width="150" height="40" class="error-box" rx="5"/>
+    <text x="465" y="555" text-anchor="middle" class="error">❌ Missing NS</text>
+    <text x="465" y="570" text-anchor="middle" class="error">❌ Parking Page</text>
+  </g>
+  
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="580" y="80" width="200" height="120" class="box" rx="5"/>
+    <text x="680" y="100" text-anchor="middle" class="subtitle">Legend</text>
+    <rect x="590" y="110" width="15" height="10" class="netlify-box"/>
+    <text x="610" y="120" class="label">Netlify Services</text>
+    <rect x="590" y="125" width="15" height="10" class="registrar-box"/>
+    <text x="610" y="135" class="label">Registrar (Namecheap)</text>
+    <rect x="590" y="140" width="15" height="10" class="error-box"/>
+    <text x="610" y="150" class="label">Common Errors</text>
+    <rect x="590" y="155" width="15" height="10" class="box"/>
+    <text x="610" y="165" class="label">DNS Components</text>
+  </g>
+</svg>

@@ -23,7 +23,7 @@ export async function generateQRCode(userId: string): Promise<string> {
     // This ensures each QR code tracks a specific moment/intent
     const scanId = `scan_${Date.now()}_${Math.random().toString(36).substr(2, 12)}`;
     const connectionCode = `qr_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Create a unique connection code for THIS scan
     const { data: newCode, error: codeError } = await supabase
       .from('connection_codes')
@@ -63,14 +63,14 @@ export async function generateQRCode(userId: string): Promise<string> {
 
     // Return the unique scan URL that includes the scan ID
     const uniqueScanUrl = `${window.location.origin}/scan/${scanId}?code=${connectionCode}`;
-    logger.info('Generated UNIQUE QR code URL:', { 
-      url: uniqueScanUrl, 
-      userId, 
+    logger.info('Generated UNIQUE QR code URL:', {
+      url: uniqueScanUrl,
+      userId,
       code: connectionCode,
       scanId,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
     });
-    
+
     return uniqueScanUrl;
   } catch (error) {
     logger.error('Error generating QR code:', error);
@@ -85,26 +85,37 @@ export async function validateQRCode(code: string): Promise<QRScanResult | null>
 
     // Extract code from URL if it's a full URL
     let connectionCode = code;
-    
+
     // Check if it's a URL (starts with http or is a path)
     if (code.startsWith('http') || code.startsWith('/')) {
       // Extract the code from URL patterns like:
       // - https://domain.com/share/qr_123456789
+      // - https://domain.com/scan/scan_123?code=qr_456
       // - /share/qr_123456789
-      const urlMatch = code.match(/\/share\/([^/?]+)/);
-      if (urlMatch) {
-        connectionCode = urlMatch[1];
-        logger.info('Extracted connection code from URL:', { originalCode: code, extractedCode: connectionCode });
+      // - /scan/scan_123?code=qr_456
+
+      // First try to extract from /scan/ URLs with query parameters
+      const scanUrlMatch = code.match(/\/scan\/[^?]+\?code=([^&]+)/);
+      if (scanUrlMatch) {
+        connectionCode = scanUrlMatch[1];
+        logger.info('Extracted connection code from scan URL:', { originalCode: code, extractedCode: connectionCode });
       } else {
-        logger.warn('URL format not recognized:', { code });
-        return null;
+        // Try to extract from /share/ URLs
+        const shareUrlMatch = code.match(/\/share\/([^/?]+)/);
+        if (shareUrlMatch) {
+          connectionCode = shareUrlMatch[1];
+          logger.info('Extracted connection code from share URL:', { originalCode: code, extractedCode: connectionCode });
+        } else {
+          logger.warn('URL format not recognized:', { code });
+          return null;
+        }
       }
     }
 
     // First try to parse the code as JSON (for legacy QR codes)
     try {
       const qrData = JSON.parse(connectionCode);
-      
+
       // If it's a QR code data object with the expected format
       if (qrData && qrData.c) {
         // Use the embedded code to look up the connection code
@@ -114,7 +125,7 @@ export async function validateQRCode(code: string): Promise<QRScanResult | null>
       // Not JSON, try as direct connection code
       logger.debug('Code is not JSON format, trying as direct connection code');
     }
-    
+
     // If not JSON or missing required fields, try as a direct connection code
     return await validateConnectionCode(connectionCode);
   } catch (error) {
@@ -135,7 +146,8 @@ async function validateConnectionCode(code: string): Promise<QRScanResult | null
       .select(`
         id,
         user_id,
-        status,
+        is_active,
+        expires_at,
         profiles!connection_codes_user_id_fkey (
           id,
           first_name,
@@ -150,7 +162,7 @@ async function validateConnectionCode(code: string): Promise<QRScanResult | null
         )
       `)
       .eq('code', code)
-      .eq('status', 'active')
+      .eq('is_active', true)
       .maybeSingle();
 
     // Handle query errors
@@ -181,7 +193,7 @@ async function validateConnectionCode(code: string): Promise<QRScanResult | null
       socialLinks: connectionCode.profiles.social_links,
       interests: connectionCode.profiles.interests,
       publicProfile: connectionCode.profiles.public_profile,
-      isExpired: false, // We know it's not expired because we filtered for active status
+      isExpired: !connectionCode.is_active, // Use is_active field
       code: code, // Include the original code for reference
       codeId: connectionCode.id // Include the code ID for connection requests
     };
@@ -216,7 +228,7 @@ export async function trackQRCodeScan(
       .eq('code', code);
 
     if (error) throw error;
-    
+
     logger.info('QR code scan tracked successfully', { code, location });
   } catch (error) {
     logger.error('Error tracking QR code scan:', error);
@@ -236,10 +248,10 @@ export async function createConnectionRequest(
     if (!qrData) {
       throw new Error('Invalid QR code');
     }
-    
+
     // Track the scan with location data
     await trackQRCodeScan(code, location);
-    
+
     // Create connection request
     const { data: request, error } = await supabase
       .from('connection_requests')

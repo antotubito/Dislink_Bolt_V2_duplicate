@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Location } from '../../types/location';
 import { logger } from '../../lib/logger';
 import { useAuth } from '../auth/AuthProvider';
+import { supabase } from '../../lib/supabase';
 import { searchCities, debouncedSearchCities, getPopularCities, getLocalizedCityName, getEnglishCityName } from '../../lib/nominatimService';
+import { geolocationService, getCurrentLocationWithFallback } from '../../lib/geolocation';
 
 interface CityAutocompleteProps {
   value: string;
@@ -70,7 +72,7 @@ export function CityAutocomplete({
   const [lastSearchTerm, setLastSearchTerm] = useState('');
   const [isOffline, setIsOffline] = useState(false);
   const [showRecentPanel, setShowRecentPanel] = useState(false);
-  
+
   const selectRef = useRef<any>(null);
   const resultsPerPage = 50; // Increased from 10 to 50 for more results
 
@@ -80,12 +82,12 @@ export function CityAutocomplete({
       setUserLanguage(language);
       return;
     }
-    
+
     try {
       const browserLang = navigator.language || (navigator as any).userLanguage;
       const langCode = browserLang.split('-')[0].toLowerCase();
       setUserLanguage(langCode);
-      
+
       logger.info(`Detected user language: ${langCode}`);
     } catch (err) {
       logger.error('Error detecting user language:', err);
@@ -99,19 +101,19 @@ export function CityAutocomplete({
       setIsOffline(false);
       logger.info('Device is online, using Nominatim API');
     };
-    
+
     const handleOffline = () => {
       setIsOffline(true);
       logger.info('Device is offline, using local city data');
     };
-    
+
     // Set initial state
     setIsOffline(!navigator.onLine);
-    
+
     // Add event listeners
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     // Clean up
     return () => {
       window.removeEventListener('online', handleOnline);
@@ -126,7 +128,7 @@ export function CityAutocomplete({
       if (savedSearches) {
         setRecentSearches(JSON.parse(savedSearches).slice(0, maxRecentSearches));
       }
-      
+
       // Load saved locations from localStorage
       const savedLocationsData = localStorage.getItem('savedLocations');
       if (savedLocationsData) {
@@ -143,18 +145,18 @@ export function CityAutocomplete({
     try {
       const specificLocationKey = `${storageKey}_${fieldName}`;
       const savedLocation = localStorage.getItem(specificLocationKey);
-      
+
       if (savedLocation && !value) {
         const locationData = JSON.parse(savedLocation);
         const formattedLocation = `${locationData.name}${locationData.country ? `, ${locationData.country}` : ''}`;
-        
+
         onSelect({
           name: formattedLocation,
           location: locationData
         });
-        
+
         setSelectedLocation(locationData);
-        
+
         logger.info(`Loaded saved location for ${fieldName} from localStorage:`, locationData);
       }
     } catch (err) {
@@ -167,13 +169,13 @@ export function CityAutocomplete({
     if (value && !selectedLocation) {
       // If we have a value but no selected location, try to extract the city name
       const cityName = value.split(',')[0].trim();
-      
+
       // Check if this city is in our popular cities or recent searches
       const allKnownLocations = [...(initialSuggestions || []), ...recentSearches];
-      const matchingLocation = allKnownLocations.find(loc => 
+      const matchingLocation = allKnownLocations.find(loc =>
         loc.name.toLowerCase() === cityName.toLowerCase()
       );
-      
+
       if (matchingLocation) {
         setSelectedLocation(matchingLocation);
       }
@@ -188,10 +190,10 @@ export function CityAutocomplete({
         // Remove duplicates and add to beginning
         const filtered = prev.filter(item => item.id !== location.id);
         const updated = [location, ...filtered].slice(0, maxRecentSearches);
-        
+
         // Save to localStorage
         localStorage.setItem('recentLocationSearches', JSON.stringify(updated));
-        
+
         return updated;
       });
     } catch (err) {
@@ -217,19 +219,19 @@ export function CityAutocomplete({
       // Save to localStorage with specific key for this field
       const specificLocationKey = `${storageKey}_${fieldName}`;
       localStorage.setItem(specificLocationKey, JSON.stringify(location));
-      
+
       // Update saved locations object
       const updatedSavedLocations = {
         ...savedLocations,
         [fieldName]: location
       };
-      
+
       // Save all saved locations
       localStorage.setItem('savedLocations', JSON.stringify(updatedSavedLocations));
       setSavedLocations(updatedSavedLocations);
-      
+
       logger.info(`Saved location for ${fieldName} to localStorage:`, location);
-      
+
       // If user is logged in, update bio in profile
       if (user?.id) {
         // Get current bio
@@ -238,33 +240,33 @@ export function CityAutocomplete({
           .select('bio')
           .eq('id', user.id)
           .single();
-        
+
         if (profileError) {
           logger.error('Error fetching profile for location update:', profileError);
           return;
         }
-        
+
         // Format location string
         const locationString = `${location.name}${location.country ? `, ${location.country}` : ''}`;
-        
+
         // Update bio with location
         const currentBio = profile.bio || {};
         const updatedBio = {
           ...currentBio,
           [fieldName]: locationString
         };
-        
+
         // Save to Supabase
         const { error: updateError } = await supabase
           .from('profiles')
           .update({ bio: updatedBio })
           .eq('id', user.id);
-        
+
         if (updateError) {
           logger.error('Error updating profile with location:', updateError);
           return;
         }
-        
+
         logger.info(`Saved location for ${fieldName} to profile bio:`, locationString);
       }
     } catch (err) {
@@ -275,23 +277,23 @@ export function CityAutocomplete({
   // Load more results when scrolling
   const loadMoreResults = async () => {
     if (!lastSearchTerm || isLoadingMore || !hasMoreResults) return;
-    
+
     try {
       setIsLoadingMore(true);
       const nextPage = currentPage + 1;
-      
+
       // Search for more cities
       const moreResults = await searchCities(
         lastSearchTerm,
         userLanguage,
         resultsPerPage
       );
-      
+
       // Filter out duplicates
       const newResults = moreResults.filter(
         city => !allResults.some(existing => existing.id === city.id)
       );
-      
+
       // Update state with new results
       if (newResults.length > 0) {
         setAllResults(prev => [...prev, ...newResults]);
@@ -300,11 +302,11 @@ export function CityAutocomplete({
       } else {
         setHasMoreResults(false);
       }
-      
+
       // Update cache with combined results
       const cacheKey = `${lastSearchTerm.toLowerCase().trim()}-${userLanguage}`;
       searchCache.set(cacheKey, [...allResults, ...newResults]);
-      
+
     } catch (error) {
       logger.error('Error loading more results:', error);
       setHasMoreResults(false);
@@ -339,16 +341,16 @@ export function CityAutocomplete({
     try {
       // Search cities using Nominatim with debounce
       const locations = await debouncedSearchCities(inputValue, userLanguage);
-      
+
       // Cache the results
       searchCache.set(cacheKey, locations);
-      
+
       // Update all results for pagination
       setAllResults(locations);
-      
+
       // Set has more results flag
       setHasMoreResults(locations.length >= resultsPerPage);
-      
+
       return locations;
     } catch (err) {
       logger.error('Error searching cities:', err);
@@ -363,15 +365,15 @@ export function CityAutocomplete({
   const formatOptionLabel = (option: Location) => {
     // Check if we have a localized name stored
     const displayName = option.localizedName || option.name;
-    
+
     // If the name is different from the English name, show both
-    const showBothNames = option.localizedName && 
-                          option.localizedName !== option.name && 
-                          userLanguage !== 'en';
-    
+    const showBothNames = option.localizedName &&
+      option.localizedName !== option.name &&
+      userLanguage !== 'en';
+
     return (
       <div className="flex items-start">
-        <MapPin className="h-4 w-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" />
+        <MapPin className="h-4 w-4 text-gray-600 mt-0.5 mr-2 flex-shrink-0" />
         <div>
           <div className="font-medium">
             {displayName}
@@ -394,45 +396,45 @@ export function CityAutocomplete({
     if (selectedOption) {
       // Format the location string (always use English name for consistency)
       const formattedLocation = `${selectedOption.name}${selectedOption.country ? `, ${selectedOption.country}` : ''}`;
-      
+
       // Save the selected location
       setSelectedLocation(selectedOption);
-      
+
       // Add to recent searches
       saveToRecentSearches(selectedOption);
-      
+
       // Save location preference to localStorage and Supabase
       saveLocationPreference(selectedOption);
-      
+
       // Clear any errors
       setError(null);
-      
+
       // Call the onSelect callback with the formatted name and location object
       onSelect({
         name: formattedLocation,
         location: selectedOption
       });
-      
+
       console.log('Selected location:', selectedOption);
     } else {
       // Clear the selection
       setSelectedLocation(null);
-      
+
       // Call the onSelect callback with empty values
       onSelect({
         name: '',
         location: null
       });
-      
+
       // Remove saved location
       try {
         const specificLocationKey = `${storageKey}_${fieldName}`;
         localStorage.removeItem(specificLocationKey);
-        
+
         // Update saved locations object
         const updatedSavedLocations = { ...savedLocations };
         delete updatedSavedLocations[fieldName];
-        
+
         // Save updated saved locations
         localStorage.setItem('savedLocations', JSON.stringify(updatedSavedLocations));
         setSavedLocations(updatedSavedLocations);
@@ -445,14 +447,14 @@ export function CityAutocomplete({
   // Handle input change
   const handleInputChange = (newValue: string) => {
     setInputValue(newValue);
-    
+
     // Clear error if input is valid
     if (newValue.length >= 2 || newValue === '') {
       setError(null);
     } else if (newValue.length > 0 && newValue.length < 2) {
       setError('Please enter at least 2 characters to search');
     }
-    
+
     return newValue;
   };
 
@@ -460,7 +462,7 @@ export function CityAutocomplete({
   const handleMenuScroll = (event: React.UIEvent<HTMLDivElement>) => {
     const target = event.target as HTMLDivElement;
     const scrollBottom = target.scrollHeight - target.scrollTop - target.clientHeight;
-    
+
     // Load more results when user scrolls near the bottom
     if (scrollBottom < 50 && hasMoreResults && !isLoadingMore && lastSearchTerm) {
       loadMoreResults();
@@ -473,22 +475,22 @@ export function CityAutocomplete({
       ...base,
       minHeight: '44px',
       borderRadius: '0.5rem',
-      borderColor: state.isFocused 
-        ? '#6366F1' 
-        : errorMessage || error 
-        ? '#EF4444' 
-        : '#D1D5DB',
-      boxShadow: state.isFocused 
-        ? '0 0 0 1px #6366F1' 
-        : errorMessage || error 
-        ? '0 0 0 1px #EF4444' 
-        : 'none',
+      borderColor: state.isFocused
+        ? '#6366F1'
+        : errorMessage || error
+          ? '#EF4444'
+          : '#D1D5DB',
+      boxShadow: state.isFocused
+        ? '0 0 0 1px #6366F1'
+        : errorMessage || error
+          ? '0 0 0 1px #EF4444'
+          : 'none',
       '&:hover': {
-        borderColor: state.isFocused 
-          ? '#6366F1' 
-          : errorMessage || error 
-          ? '#EF4444' 
-          : '#9CA3AF',
+        borderColor: state.isFocused
+          ? '#6366F1'
+          : errorMessage || error
+            ? '#EF4444'
+            : '#9CA3AF',
       },
       backgroundColor: disabled ? '#F9FAFB' : '#FFFFFF',
       cursor: disabled ? 'not-allowed' : 'text',
@@ -515,13 +517,13 @@ export function CityAutocomplete({
     }),
     option: (base: any, state: any) => ({
       ...base,
-      backgroundColor: state.isSelected 
-        ? '#6366F1' 
-        : state.isFocused 
-        ? '#F3F4F6' 
-        : '#FFFFFF',
-      color: state.isSelected 
-        ? '#FFFFFF' 
+      backgroundColor: state.isSelected
+        ? '#6366F1'
+        : state.isFocused
+          ? '#F3F4F6'
+          : '#FFFFFF',
+      color: state.isSelected
+        ? '#FFFFFF'
         : '#111827',
       cursor: 'pointer',
       padding: '12px 16px',
@@ -564,17 +566,17 @@ export function CityAutocomplete({
   const customComponents = {
     DropdownIndicator: () => (
       <div className="px-3">
-        <MapPin className="h-5 w-5 text-gray-400" />
+        <MapPin className="h-5 w-5 text-gray-600" />
       </div>
     ),
     LoadingIndicator: () => (
       <div className="px-3">
-        <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+        <Loader2 className="h-5 w-5 text-gray-600 animate-spin" />
       </div>
     ),
     ClearIndicator: (props: any) => (
-      <div 
-        className="px-3 cursor-pointer text-gray-400 hover:text-gray-600 transition-colors"
+      <div
+        className="px-3 cursor-pointer text-gray-600 hover:text-gray-600 transition-colors"
         onClick={props.clearValue}
       >
         <X className="h-5 w-5" />
@@ -583,24 +585,24 @@ export function CityAutocomplete({
     NoOptionsMessage: ({ children }: any) => (
       <div className="p-4 text-center text-gray-500">
         <div className="flex flex-col items-center gap-2">
-          <MapPin className="h-8 w-8 text-gray-300" />
+          <MapPin className="h-8 w-8 text-gray-600" />
           <div>
-            {inputValue.length < 2 
-              ? 'Type at least 2 characters to search' 
+            {inputValue.length < 2
+              ? 'Type at least 2 characters to search'
               : children || noOptionsMessage}
           </div>
         </div>
       </div>
     ),
     MenuList: (props: any) => (
-      <div 
+      <div
         onScroll={handleMenuScroll}
         className="max-h-[320px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
       >
         {props.children}
         {isLoadingMore && (
           <div className="text-center py-4">
-            <Loader2 className="h-5 w-5 text-gray-400 animate-spin mx-auto" />
+            <Loader2 className="h-5 w-5 text-gray-600 animate-spin mx-auto" />
             <p className="text-xs text-gray-500 mt-2">Loading more results...</p>
           </div>
         )}
@@ -614,7 +616,7 @@ export function CityAutocomplete({
   };
 
   // Default options to show when the menu is first opened
-  const defaultOptions = [...recentSearches, ...(initialSuggestions || getPopularCities(8)).filter(city => 
+  const defaultOptions = [...recentSearches, ...(initialSuggestions || getPopularCities(8)).filter(city =>
     !recentSearches.some(recent => recent.id === city.id)
   )].slice(0, 8);
 
@@ -626,7 +628,7 @@ export function CityAutocomplete({
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      
+
       <div className="relative">
         <AsyncSelect
           ref={selectRef}
@@ -660,21 +662,21 @@ export function CityAutocomplete({
             }, 200);
             if (onBlur) onBlur();
           }}
-          noOptionsMessage={({ inputValue }) => 
-            inputValue && inputValue.length < 2 
-              ? 'Type at least 2 characters to search' 
+          noOptionsMessage={({ inputValue }) =>
+            inputValue && inputValue.length < 2
+              ? 'Type at least 2 characters to search'
               : noOptionsMessage
           }
           loadingMessage={() => loadingMessage}
           value={selectedLocation}
         />
-        
+
         {/* Recent searches button */}
         {showRecentSearches && recentSearches.length > 0 && !isMenuOpen && (
           <button
             type="button"
             onClick={() => setShowRecentPanel(!showRecentPanel)}
-            className="absolute right-10 top-1/2 transform -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full"
+            className="absolute right-10 top-1/2 transform -translate-y-1/2 p-1 text-gray-600 hover:text-gray-600 hover:bg-gray-100 rounded-full"
             title="Recent searches"
           >
             <Clock className="h-4 w-4" />
@@ -710,7 +712,7 @@ export function CityAutocomplete({
                     onClick={() => handleSelectRecentSearch(location)}
                     className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center"
                   >
-                    <Clock className="h-4 w-4 text-gray-400 mr-2 flex-shrink-0" />
+                    <Clock className="h-4 w-4 text-gray-600 mr-2 flex-shrink-0" />
                     <div>
                       <div className="text-sm font-medium text-gray-900">{location.name}</div>
                       <div className="text-xs text-gray-500">

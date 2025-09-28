@@ -1,39 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, ArrowRight, Home, AlertCircle } from 'lucide-react';
+import { Check, ArrowRight, Home, AlertCircle, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
 import { completeQRConnection } from '../lib/qrConnectionHandler';
+import { verifyEmailWithPKCE, validateUserProfile } from '../lib/authUtils';
 
 export function Confirmed() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [verificationStatus, setVerificationStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
 
-  // On mount, try to verify the email if there are URL parameters
+  // Enhanced email verification with PKCE support and retry logic
   useEffect(() => {
     const verifyEmail = async () => {
+      // Set a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        if (loading && retryCount < 1) { // Reduced to 1 retry only
+          logger.warn('Email verification timeout, attempting retry');
+          setRetryCount(prev => prev + 1);
+          // Don't call verifyEmail() recursively - let the effect handle retry
+        } else if (loading) {
+          logger.error('Email verification timeout after retries');
+          setError('Email verification is taking too long. Please try again or contact support.');
+          setVerificationStatus('error');
+          setLoading(false);
+        }
+      }, 20000); // Reduced to 20 second timeout per attempt
+
       try {
-        // Get parameters from URL
-        const token = searchParams.get('token_hash') || searchParams.get('token');
-        const code = searchParams.get('code');
-        const type = searchParams.get('type') || 'signup';
-        const email = searchParams.get('email') || localStorage.getItem('confirmEmail');
-        
+        setVerificationStatus('verifying');
+
         // Check for error parameters first
         const urlError = searchParams.get('error');
         const urlErrorCode = searchParams.get('error_code');
         const errorDescription = searchParams.get('error_description');
-        
+
         if (urlError || urlErrorCode) {
           logger.error('Email confirmation error from URL:', { urlError, urlErrorCode, errorDescription });
-          
           setErrorCode(urlErrorCode);
-          
+
           if (urlErrorCode === 'otp_expired' || errorDescription?.includes('expired')) {
             setError('The email confirmation link has expired. Please request a new one.');
           } else if (urlError === 'access_denied') {
@@ -41,141 +52,155 @@ export function Confirmed() {
           } else {
             setError(errorDescription || urlError || 'Email confirmation failed. Please try again.');
           }
-          
+          setVerificationStatus('error');
           setLoading(false);
           return;
         }
-        
-        // If no token or code in URL, assume already confirmed and just show success
-        if (!token && !code) {
-          logger.info('No token or code in URL, assuming already confirmed');
-          setLoading(false);
-          return;
-        }
-        
-        // Log all URL parameters for debugging
-        const allParams: Record<string, string> = {};
-        searchParams.forEach((value, key) => {
-          allParams[key] = value;
-        });
-        
-        logger.info('Email confirmation parameters:', { 
-          token: token ? `${token.substring(0, 5)}...` : 'missing',
-          code: code ? `${code.substring(0, 5)}...` : 'missing',
-          type,
-          email: email ? `${email.substring(0, 3)}...` : 'missing',
-          allParams
-        });
-        
-        setDebugInfo({
-          token: token ? `${token.substring(0, 5)}...` : 'missing',
-          code: code ? `${code.substring(0, 5)}...` : 'missing',
-          type,
-          email: email ? `${email.substring(0, 3)}...` : 'missing',
-          allParams,
-          url: window.location.href
+
+        // Use enhanced PKCE verification
+        logger.info('🔐 Starting enhanced email verification with PKCE support');
+        console.log('🔍 EMAIL VERIFICATION: Using enhanced verification with URL:', window.location.href);
+
+        const result = await verifyEmailWithPKCE(window.location.href);
+
+        console.log('🔍 EMAIL VERIFICATION: Enhanced verification result:', {
+          success: result.success,
+          hasUser: !!result.user,
+          hasSession: !!result.session,
+          error: result.error?.message || 'none'
         });
 
-        // Try different verification approaches
-        let verificationSuccessful = false;
-        
-        // Approach 1: Handle 'code' parameter (newer Supabase format)
-        if (code) {
-          logger.info('Attempting verification with code parameter');
-          try {
-            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-            
-            if (!error && data.session) {
-              verificationSuccessful = true;
-              logger.info('Verification successful with code parameter');
+        if (!result.success || result.error) {
+          logger.error('Enhanced email verification failed:', result.error);
+
+          if (result.error?.message?.includes('User already confirmed') ||
+            result.error?.message?.includes('already been confirmed') ||
+            result.error?.message?.includes('Email already confirmed')) {
+            logger.info('User already confirmed, redirecting to login');
+            navigate('/app/login?message=email-already-confirmed');
+            return;
+          } else if (result.error?.message?.includes('Invalid code') ||
+            result.error?.message?.includes('Code has expired') ||
+            result.error?.message?.includes('expired')) {
+            setError('The email confirmation link has expired or is invalid. Please request a new confirmation email.');
+            setErrorCode('code_expired');
+          } else {
+            setError(`Email confirmation failed: ${result.error?.message || 'Unknown error'}`);
+            setErrorCode(result.error?.message || 'unknown_error');
+          }
+          setVerificationStatus('error');
+          setLoading(false);
+          return;
+        }
+
+        if (!result.session || !result.user) {
+          logger.error('No session or user data returned from enhanced verification');
+          setError('Email confirmation failed. Please try again or contact support.');
+          setVerificationStatus('error');
+          setLoading(false);
+          return;
+        }
+
+        logger.info('✅ Enhanced email verification successful, user:', result.user.id);
+        console.log('✅ EMAIL VERIFICATION: Enhanced verification successful!');
+
+        // Handle QR connection completion if user just registered
+        try {
+          await completeQRConnection(result.user.id);
+          logger.info('QR connection completion processed');
+        } catch (qrError) {
+          logger.error('Error completing QR connection:', qrError);
+          // Don't fail the verification process for QR connection errors
+        }
+
+        // Enhanced profile handling with validation and timeout protection
+        try {
+          logger.info('Attempting to fetch and validate user profile');
+
+          // Add timeout protection for profile query
+          const profilePromise = supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', result.user.id)
+            .single();
+
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Profile query timeout')), 10000)
+          );
+
+          const { data: profile, error: profileError } = await Promise.race([
+            profilePromise,
+            timeoutPromise
+          ]) as any;
+
+          if (profileError && profileError.code === 'PGRST116') {
+            // Profile doesn't exist, create one with enhanced data
+            logger.info('Profile not found, creating new profile with enhanced data');
+            const { error: insertError } = await supabase
+              .from('profiles')
+              .insert({
+                id: result.user.id,
+                email: result.user.email,
+                first_name: result.user.user_metadata?.firstName || '',
+                last_name: result.user.user_metadata?.lastName || '',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              });
+
+            if (insertError) {
+              logger.error('Failed to create profile:', insertError);
+              // Don't fail the flow, just log the error
             } else {
-              logger.warn('Verification failed with code parameter:', error);
+              logger.info('Enhanced profile created successfully');
             }
-          } catch (codeError) {
-            logger.warn('Error with code verification:', codeError);
-          }
-        }
-        
-        // Approach 2: Use token_hash with email (if code approach failed)
-        if (!verificationSuccessful && token && email) {
-          logger.info('Attempting verification with email and token_hash');
-          const { data: data1, error: error1 } = await supabase.auth.verifyOtp({
-            token_hash: token,
-            type: type as any,
-            email
-          });
-          
-          if (!error1) {
-            verificationSuccessful = true;
-            logger.info('Verification successful with email and token_hash');
+          } else if (profileError) {
+            logger.error('Profile query failed:', profileError);
+            // Don't fail the flow, just log the error
           } else {
-            logger.warn('Verification failed with email and token_hash:', error1);
-          }
-        }
-        
-        // Approach 3: Use token_hash without email if previous approaches failed
-        if (!verificationSuccessful && token) {
-          logger.info('Attempting verification with token_hash only');
-          const { data: data2, error: error2 } = await supabase.auth.verifyOtp({
-            token_hash: token,
-            type: type as any
-          });
-          
-          if (!error2) {
-            verificationSuccessful = true;
-            logger.info('Verification successful with token_hash only');
-          } else {
-            logger.warn('Verification failed with token_hash only:', error2);
-            
-            // Check if error is due to already verified email
-            if (error2.message?.includes('User already confirmed')) {
-              logger.info('User already confirmed');
-              verificationSuccessful = true;
-            } else if (error2.message?.includes('rate limit') || error2.message?.includes('security purposes')) {
-              setError('Rate limit exceeded. Please try again in a moment.');
-            } else if (!verificationSuccessful) {
-              throw error2;
+            logger.info('Profile found and validated:', profile.id);
+
+            // Validate profile completeness
+            const validation = validateUserProfile(profile);
+            if (!validation.isValid) {
+              logger.warn('Profile validation failed:', validation.missingFields);
             }
           }
+        } catch (profileErr) {
+          logger.error('Profile operation failed:', profileErr);
+          // Don't fail the flow, just log the error
         }
 
-        // If verification was successful with any approach
-        if (verificationSuccessful) {
-          logger.info('Email verification successful');
-          
-          // Try to get the session to ensure it was created
-          const { data: { session } } = await supabase.auth.getSession();
-          logger.info('Session after verification:', { 
-            hasSession: !!session,
-            userId: session?.user?.id
-          });
+        // Wait a moment for session to be properly established
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-          // Handle QR connection completion if user just registered
-          if (session?.user?.id) {
-            try {
-              await completeQRConnection(session.user.id);
-              logger.info('QR connection completion processed');
-            } catch (qrError) {
-              logger.error('Error completing QR connection:', qrError);
-              // Don't fail the verification process for QR connection errors
-            }
-          }
-          
-          // Automatically redirect to onboarding after a short delay
-          setTimeout(() => {
-            navigate('/app/onboarding');
-          }, 2000);
+        // Enhanced redirect logic based on profile completeness
+        logger.info('Redirecting user after successful verification');
+        localStorage.removeItem('redirectUrl');
+
+        // Check if user needs onboarding or can go directly to app
+        const needsOnboarding = !result.user.user_metadata?.onboardingComplete;
+
+        if (needsOnboarding) {
+          navigate('/app/onboarding');
+        } else {
+          navigate('/app');
         }
-      } catch (err) {
-        logger.error('Verification error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to verify email');
-      } finally {
+
+        setVerificationStatus('success');
+
+      } catch (err: any) {
+        logger.error('Critical error during enhanced email verification:', err);
+        setError(err.message || 'An unexpected error occurred during email confirmation.');
+        setErrorCode(err.code || 'critical_error');
+        setVerificationStatus('error');
         setLoading(false);
+      } finally {
+        clearTimeout(timeoutId);
       }
     };
 
     verifyEmail();
-  }, [searchParams]);
+  }, [searchParams, navigate, retryCount]); // retryCount dependency will trigger retry
 
   const handleContinue = () => {
     navigate('/app/onboarding');
@@ -189,13 +214,67 @@ export function Confirmed() {
     navigate('/');
   };
 
+  const handleResendConfirmation = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Get the email from URL parameters or localStorage
+      const email = searchParams.get('email') || localStorage.getItem('confirmEmail');
+
+      if (!email) {
+        setError('Email address not found. Please try registering again.');
+        setLoading(false);
+        return;
+      }
+
+      // Resend confirmation email
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/confirmed`
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      // Show success message
+      setError(null);
+      setErrorCode(null);
+
+      // Show success state
+      setLoading(false);
+
+      // You could show a success message here or redirect
+      alert('A new confirmation email has been sent! Please check your inbox.');
+
+    } catch (err) {
+      console.error('Error resending confirmation:', err);
+      setError('Failed to resend confirmation email. Please try again.');
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <h2 className="text-xl font-medium text-gray-900">Verifying your email...</h2>
-          <p className="mt-2 text-gray-500">This will only take a moment</p>
+          <h2 className="text-xl font-medium text-gray-900">
+            {verificationStatus === 'verifying' ? 'Verifying your email...' : 'Processing...'}
+          </h2>
+          <p className="mt-2 text-gray-500">
+            {retryCount > 0 ? `Retry attempt ${retryCount + 1} of 3` : 'This will only take a moment'}
+          </p>
+          {retryCount > 0 && (
+            <div className="mt-4 flex items-center justify-center space-x-2 text-sm text-blue-600">
+              <RefreshCw className="h-4 w-4 animate-spin" />
+              <span>Retrying verification...</span>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -218,18 +297,11 @@ export function Confirmed() {
           <p className="text-gray-600 mb-6">
             {error}
           </p>
-          
-          {debugInfo && (
-            <div className="mb-6 p-4 bg-gray-50 rounded-lg text-left text-xs text-gray-500 overflow-auto max-h-40">
-              <p className="font-semibold mb-1">Debug Information:</p>
-              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
-            </div>
-          )}
-          
+
           <div className="flex flex-col space-y-3">
             <button
               onClick={handleStartJourney}
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
             >
               🚀 Start Journey
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -241,16 +313,34 @@ export function Confirmed() {
               <Home className="h-4 w-4 mr-2" />
               Go to Home Page
             </button>
-            
+
             {/* Show resend option for expired links */}
-            {errorCode === 'otp_expired' && (
+            {(errorCode === 'otp_expired' || errorCode === 'code_expired' || (error && error.includes('expired'))) && (
               <button
-                onClick={() => navigate('/app/register')}
-                className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+                onClick={handleResendConfirmation}
+                disabled={loading}
+                className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                📧 Get New Confirmation Email
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    📧 Get New Confirmation Email
+                  </>
+                )}
               </button>
             )}
+
+            {/* Show login option for users who might already be confirmed */}
+            <button
+              onClick={() => navigate('/app/login')}
+              className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              🔑 Try Logging In
+            </button>
           </div>
         </motion.div>
       </div>
@@ -262,7 +352,7 @@ export function Confirmed() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ 
+        transition={{
           type: "spring",
           stiffness: 300,
           damping: 30
@@ -277,7 +367,7 @@ export function Confirmed() {
         >
           <Check className="h-10 w-10 text-green-600" />
         </motion.div>
-        
+
         <motion.h2
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -286,7 +376,7 @@ export function Confirmed() {
         >
           ✅ Your email has been successfully confirmed!
         </motion.h2>
-        
+
         <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -295,7 +385,7 @@ export function Confirmed() {
         >
           Thank you for verifying your email address. Your account is now active and ready! Next, we'll help you personalize your Dislink experience with a quick onboarding process.
         </motion.p>
-        
+
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -304,12 +394,12 @@ export function Confirmed() {
         >
           <button
             onClick={handleStartJourney}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
           >
             🚀 Start Your Journey
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
-          
+
           <button
             onClick={handleGoToHome}
             className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50"

@@ -117,7 +117,7 @@ export function ConnectionCircles({ contacts }: ConnectionCirclesProps) {
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="absolute w-12 h-12 rounded-full bg-indigo-600 flex items-center justify-center"
+            className="absolute w-12 h-12 rounded-full btn-captamundi-primary flex items-center justify-center"
           >
             <Users className="h-6 w-6 text-white" />
           </motion.div>

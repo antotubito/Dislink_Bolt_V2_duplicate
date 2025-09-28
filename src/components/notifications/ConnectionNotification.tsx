@@ -89,7 +89,7 @@ export function ConnectionNotification({
               {/* Close Button */}
               <div className="ml-4 flex-shrink-0 flex">
                 <button
-                  className="rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+                  className="rounded-md inline-flex text-gray-600 hover:text-gray-500 focus:outline-none"
                   onClick={(e) => {
                     e.stopPropagation();
                     onClose();

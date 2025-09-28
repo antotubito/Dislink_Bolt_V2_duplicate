@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Rendering Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="test-container">
+        <h1>🔍 React App Rendering Test</h1>
+        <div id="test-results"></div>
+
+        <h2>Test Instructions:</h2>
+        <ol>
+            <li>Open your browser's Developer Tools (F12)</li>
+            <li>Go to the Console tab</li>
+            <li>Visit <a href="http://localhost:3001" target="_blank">localhost:3001</a></li>
+            <li>Copy and paste this script into the console:</li>
+        </ol>
+
+        <textarea style="width: 100%; height: 200px; font-family: monospace; font-size: 12px;">
+// React App Diagnostic Script
+console.log('🔍 Starting React App Diagnostic...');
+
+// Check if React is loaded
+console.log('React available:', typeof React !== 'undefined');
+console.log('ReactDOM available:', typeof ReactDOM !== 'undefined');
+
+// Check root element
+const rootElement = document.getElementById('root');
+console.log('Root element found:', !!rootElement);
+console.log('Root element content length:', rootElement ? rootElement.innerHTML.length : 0);
+
+// Check for errors
+window.addEventListener('error', (event) => {
+    console.error('❌ JavaScript Error:', event.error);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('❌ Unhandled Promise Rejection:', event.reason);
+});
+
+// Check environment
+console.log('Environment:', {
+    MODE: import.meta?.env?.MODE || 'unknown',
+    DEV: import.meta?.env?.DEV || 'unknown',
+    PROD: import.meta?.env?.PROD || 'unknown'
+});
+
+// Check if main script loaded
+const scripts = document.querySelectorAll('script[src]');
+console.log('Scripts found:', scripts.length);
+scripts.forEach((script, index) => {
+    console.log(`Script ${index + 1}:`, script.src);
+});
+
+console.log('🔍 Diagnostic complete. Check results above.');
+        </textarea>
+
+        <h2>Expected Results:</h2>
+        <ul>
+            <li>✅ React should be available</li>
+            <li>✅ Root element should have content (length > 0)</li>
+            <li>✅ No JavaScript errors</li>
+            <li>✅ Scripts should be loading properly</li>
+        </ul>
+    </div>
+</body>
+
+</html>

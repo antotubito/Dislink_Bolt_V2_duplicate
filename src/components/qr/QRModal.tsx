@@ -216,7 +216,7 @@ export function QRModal({ isOpen, onClose, user }: QRModalProps) {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleCopyLink}
-                      className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 shadow-sm"
+                      className="flex items-center px-4 py-2 btn-captamundi-primary text-white rounded-lg hover:btn-captamundi-primary hover:opacity-90 shadow-sm"
                     >
                       <Copy className="h-4 w-4 mr-1.5" />
                       {copySuccess ? 'Copied!' : 'Copy Link'}

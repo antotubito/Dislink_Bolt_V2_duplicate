@@ -92,7 +92,7 @@ export function NeedChatView({ need, onBack }: NeedChatViewProps) {
       case 'active': return 'bg-green-500 text-white';
       case 'food': return 'bg-yellow-500 text-white';
       case 'travel': return 'bg-red-500 text-white';
-      case 'creative': return 'bg-pink-500 text-white';
+      case 'creative': return 'bg-purple-600 text-white';
       case 'learning': return 'bg-indigo-500 text-white';
       case 'work-career': return 'bg-sky-500 text-white';
       case 'ideas': return 'bg-amber-500 text-white';
@@ -238,7 +238,7 @@ export function NeedChatView({ need, onBack }: NeedChatViewProps) {
               </p>
               <button
                 onClick={() => document.querySelector('input')?.focus()}
-                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700"
+                className="mt-4 px-4 py-2 btn-captamundi-primary text-white rounded-lg text-sm hover:btn-captamundi-primary hover:opacity-90"
               >
                 Start Conversation
               </button>

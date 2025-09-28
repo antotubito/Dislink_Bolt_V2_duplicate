@@ -107,7 +107,7 @@ export function InterestsInput({ interests, onChange }: InterestsInputProps) {
                 <button
                   type="button"
                   onClick={() => handleRemoveInterest(interest)}
-                  className="ml-1.5 inline-flex items-center justify-center h-4 w-4 rounded-full text-indigo-400 hover:bg-indigo-200 hover:text-indigo-500 focus:outline-none"
+                  className="ml-1.5 inline-flex items-center justify-center h-4 w-4 rounded-full text-indigo-400 hover:btn-captamundi-primary/20 hover:text-indigo-500 focus:outline-none"
                 >
                   <span className="sr-only">Remove interest</span>
                   <X className="h-3 w-3" />
@@ -125,12 +125,12 @@ export function InterestsInput({ interests, onChange }: InterestsInputProps) {
         </label>
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+            <Search className="h-5 w-5 text-gray-600" />
           </div>
           <input
             type="text"
             id="interest"
-            className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
             placeholder="Type an interest and press Enter"
             value={inputValue}
             onChange={(e) => {
@@ -147,7 +147,7 @@ export function InterestsInput({ interests, onChange }: InterestsInputProps) {
               onClick={(e) => handleAddInterest(e)}
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
             >
-              <Plus className="h-5 w-5 text-gray-400 hover:text-indigo-500" />
+              <Plus className="h-5 w-5 text-gray-600 hover:text-indigo-500" />
             </button>
           )}
         </div>

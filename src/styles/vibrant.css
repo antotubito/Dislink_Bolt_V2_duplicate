@@ -1,0 +1,369 @@
+/* Vibrant Modern Landing Page Styles */
+
+/* Custom gradient animations */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(236, 72, 153, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(236, 72, 153, 0.6); }
+}
+
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Animated gradient backgrounds - Lighter and more sleek */
+.animated-gradient {
+  background: linear-gradient(-45deg, 
+    rgba(236, 72, 153, 0.1), 
+    rgba(139, 92, 246, 0.1), 
+    rgba(6, 182, 212, 0.1), 
+    rgba(16, 185, 129, 0.1)
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 20s ease infinite;
+}
+
+/* Sleek dark background with better contrast */
+.sleek-background {
+  background: linear-gradient(135deg, 
+    rgba(15, 23, 42, 0.98) 0%,
+    rgba(30, 41, 59, 0.95) 25%,
+    rgba(51, 65, 85, 0.92) 50%,
+    rgba(30, 41, 59, 0.95) 75%,
+    rgba(15, 23, 42, 0.98) 100%
+  );
+  backdrop-filter: blur(10px);
+}
+
+/* High contrast text for better readability - WCAG AA compliant */
+.text-high-contrast {
+  color: rgba(255, 255, 255, 1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.text-medium-contrast {
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.text-low-contrast {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Accessibility-focused text colors */
+.text-accessible-primary {
+  color: #ffffff; /* 21:1 contrast ratio on dark backgrounds */
+}
+
+.text-accessible-secondary {
+  color: #f3f4f6; /* 12.6:1 contrast ratio on dark backgrounds */
+}
+
+.text-accessible-muted {
+  color: #e5e7eb; /* 9.1:1 contrast ratio on dark backgrounds */
+}
+
+/* Targeted text visibility fixes */
+/* Only override the most problematic low-contrast text classes */
+.text-gray-300 { color: #f3f4f6 !important; }
+.text-gray-400 { color: #e5e7eb !important; }
+.text-gray-500 { color: #d1d5db !important; }
+
+/* Floating elements */
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Glowing buttons */
+.glow-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.glow-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.glow-button:hover::before {
+  left: 100%;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #ec4899, #8b5cf6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #f472b6, #a855f7);
+}
+
+/* Text glow effects */
+.text-glow {
+  text-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+}
+
+/* Neon border effects */
+.neon-border {
+  border: 2px solid transparent;
+  background: linear-gradient(45deg, #ec4899, #8b5cf6, #06b6d4, #10b981) border-box;
+  border-radius: 12px;
+  position: relative;
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(45deg, #ec4899, #8b5cf6, #06b6d4, #10b981);
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+/* Particle effects */
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #ec4899;
+  border-radius: 50%;
+  animation: float 4s ease-in-out infinite;
+}
+
+.particle:nth-child(2) {
+  background: #8b5cf6;
+  animation-delay: -1s;
+  animation-duration: 5s;
+}
+
+.particle:nth-child(3) {
+  background: #06b6d4;
+  animation-delay: -2s;
+  animation-duration: 6s;
+}
+
+.particle:nth-child(4) {
+  background: #10b981;
+  animation-delay: -3s;
+  animation-duration: 4.5s;
+}
+
+/* Hover effects for cards */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Gradient text with animation */
+.animated-text {
+  background: linear-gradient(-45deg, #ec4899, #8b5cf6, #06b6d4, #10b981);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* Enhanced focus styles for accessibility */
+.focus-glow:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.3);
+}
+
+/* WCAG AA compliant focus indicators */
+.focus-visible:focus-visible {
+  outline: 2px solid #A259FF;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast focus for better visibility */
+.focus-high-contrast:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px #000000;
+}
+
+/* Button focus states */
+.btn-focus:focus-visible {
+  outline: 2px solid #A259FF;
+  outline-offset: 2px;
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+/* Input focus states */
+.input-focus:focus {
+  outline: 2px solid #A259FF;
+  outline-offset: 2px;
+  border-color: #A259FF;
+  box-shadow: 0 0 0 3px rgba(162, 89, 255, 0.1);
+}
+
+/* Loading animation */
+.loading-dots {
+  display: inline-block;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .animated-gradient {
+    background-size: 200% 200%;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 10px rgba(236, 72, 153, 0.3);
+  }
+}
+
+/* Dark mode enhancements */
+@media (prefers-color-scheme: dark) {
+  .neon-border {
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.2);
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .animated-gradient {
+    background: linear-gradient(-45deg, #ff0080, #8000ff, #0080ff, #00ff80);
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* Sleek glassmorphism effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+}
+
+/* Subtle gradient overlays */
+.gradient-overlay {
+  background: linear-gradient(135deg, 
+    rgba(236, 72, 153, 0.05) 0%,
+    rgba(139, 92, 246, 0.05) 50%,
+    rgba(6, 182, 212, 0.05) 100%
+  );
+}
+
+/* Light background variants */
+.light-background {
+  background: linear-gradient(135deg, 
+    rgba(248, 250, 252, 0.95) 0%,
+    rgba(241, 245, 249, 0.9) 25%,
+    rgba(226, 232, 240, 0.85) 50%,
+    rgba(241, 245, 249, 0.9) 75%,
+    rgba(248, 250, 252, 0.95) 100%
+  );
+  backdrop-filter: blur(10px);
+}
+
+/* Touch target accessibility - minimum 44px */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-small {
+  min-height: 40px;
+  min-width: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure all buttons meet touch target requirements */
+button, .btn, [role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 16px;
+}
+
+/* Icon buttons should be at least 44px */
+.icon-btn {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient,
+  .float-animation,
+  .loading-dots::after {
+    animation: none;
+  }
+  
+  .hover-lift:hover {
+    transform: none;
+  }
+  
+  .btn-focus:focus-visible {
+    transform: none;
+  }
+}

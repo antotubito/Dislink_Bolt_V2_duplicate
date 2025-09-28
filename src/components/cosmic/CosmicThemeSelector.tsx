@@ -53,8 +53,8 @@ export function CosmicThemeSelector({
     <div className={`cosmic-theme-selector ${className}`}>
       {showLabels && (
         <div className="flex items-center gap-2 mb-4">
-          <Palette className="h-5 w-5 text-cosmic-secondary" />
-          <span className="font-medium text-cosmic-primary">Cosmic Theme</span>
+          <Palette className="h-5 w-5 text-purple-600" />
+          <span className="font-medium text-gray-900">Cosmic Theme</span>
         </div>
       )}
 
@@ -110,7 +110,7 @@ export function CosmicThemeSelector({
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
                       exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -top-1 -right-1 w-5 h-5 bg-cosmic-pop rounded-full flex items-center justify-center"
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-pink-600 rounded-full flex items-center justify-center"
                     >
                       <Check className="h-3 w-3 text-white" />
                     </motion.div>
@@ -193,10 +193,10 @@ export function CosmicThemeSelector({
           animate={{ opacity: 1, y: 0 }}
           className={`mt-3 text-center ${classes.text}`}
         >
-          <div className="font-medium text-cosmic-primary">
+          <div className="font-medium text-gray-900">
             {COSMIC_PALETTES[currentTheme].name}
           </div>
-          <div className="text-cosmic-secondary opacity-80">
+          <div className="text-purple-600 opacity-80">
             {COSMIC_PALETTES[currentTheme].description}
           </div>
         </motion.div>
@@ -222,13 +222,13 @@ export function CosmicThemeSelectorCard({ className = '' }: { className?: string
   const { currentTheme, allThemes, changeTheme } = useCosmicTheme();
 
   return (
-    <div className={`cosmic-theme-card bg-cosmic-neutral rounded-xl p-6 ${className}`}>
+    <div className={`cosmic-theme-card bg-gray-50 rounded-xl p-6 ${className}`}>
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-cosmic-gradient rounded-lg flex items-center justify-center">
+        <div className="w-10 h-10 from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
           <Palette className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h3 className="font-semibold text-cosmic-primary">Cosmic Themes</h3>
+          <h3 className="font-semibold text-gray-900">Cosmic Themes</h3>
           <p className="text-sm text-gray-600">Choose your constellation mood</p>
         </div>
       </div>
@@ -245,8 +245,8 @@ export function CosmicThemeSelectorCard({ className = '' }: { className?: string
               onClick={() => changeTheme(theme.value)}
               className={`
                 w-full p-4 rounded-xl text-left transition-all duration-300
-                border-2 ${isActive ? 'border-cosmic-secondary' : 'border-gray-200'}
-                ${isActive ? 'bg-cosmic-secondary bg-opacity-10' : 'bg-white hover:bg-gray-50'}
+                border-2 ${isActive ? 'border-purple-600' : 'border-gray-200'}
+                ${isActive ? 'bg-purple-600 bg-opacity-10' : 'bg-white hover:bg-gray-50'}
               `}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -259,7 +259,7 @@ export function CosmicThemeSelectorCard({ className = '' }: { className?: string
                   <IconComponent className="h-5 w-5 text-white drop-shadow-lg" />
                   {isActive && (
                     <div className="absolute top-1 right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                      <Check className="h-2.5 w-2.5 text-cosmic-primary" />
+                      <Check className="h-2.5 w-2.5 text-gray-900" />
                     </div>
                   )}
                 </div>

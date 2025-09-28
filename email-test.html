@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Email Registration Test</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+    <h1>🧪 Email Registration Test</h1>
+    <div id="results"></div>
+
+    <script>
+        // Initialize Supabase (you'll need to add your keys)
+        const supabaseUrl = 'YOUR_SUPABASE_URL';
+        const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+
+        async function testEmailRegistration() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<p>🔄 Testing email registration...</p>';
+
+            const testEmail = `test.${Date.now()}@example.com`;
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: testEmail,
+                    password: 'testpassword123',
+                    options: {
+                        emailRedirectTo: `${window.location.origin}/confirmed`
+                    }
+                });
+
+                if (error) {
+                    resultsDiv.innerHTML = `
+                        <h3>❌ Error Found:</h3>
+                        <p><strong>Message:</strong> ${error.message}</p>
+                        <p><strong>Code:</strong> ${error.status}</p>
+                        <h4>🔧 Likely Solutions:</h4>
+                        <ul>
+                            <li>Check Supabase Dashboard → Authentication → Settings</li>
+                            <li>Enable "Confirm email" setting</li>
+                            <li>Add redirect URLs to URL Configuration</li>
+                        </ul>
+                    `;
+                } else if (data.user && !data.session) {
+                    resultsDiv.innerHTML = `
+                        <h3>✅ Registration Successful!</h3>
+                        <p><strong>Email:</strong> ${testEmail}</p>
+                        <p><strong>Status:</strong> Email confirmation required</p>
+                        <p>📧 Check your email (including spam folder) for confirmation link</p>
+                        <p>⏰ Email should arrive within 1-2 minutes</p>
+                    `;
+                } else if (data.session) {
+                    resultsDiv.innerHTML = `
+                        <h3>⚠️ Registration Successful but No Email Required</h3>
+                        <p><strong>Email:</strong> ${testEmail}</p>
+                        <p><strong>Status:</strong> User logged in immediately</p>
+                        <p>🔧 This suggests email confirmation is disabled in Supabase</p>
+                    `;
+                }
+            } catch (err) {
+                resultsDiv.innerHTML = `
+                    <h3>❌ Connection Error:</h3>
+                    <p>${err.message}</p>
+                    <p>Check your Supabase URL and API key</p>
+                `;
+            }
+        }
+
+        // Auto-run test when page loads
+        window.onload = testEmailRegistration;
+    </script>
+</body>
+
+</html>

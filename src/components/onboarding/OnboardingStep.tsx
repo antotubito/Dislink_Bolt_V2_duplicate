@@ -40,7 +40,7 @@ export function OnboardingStep({
         </div>
         <div className="h-2 bg-indigo-100 rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-indigo-600 rounded-full"
+            className="h-full btn-captamundi-primary rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${(step / totalSteps) * 100}%` }}
             transition={{ duration: 0.5 }}

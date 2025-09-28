@@ -140,9 +140,9 @@ export function SocialSharingModal({
                         Select All
                       </button>
                       {expandedCategories.includes(category.id) ? (
-                        <ChevronUp className="h-5 w-5 text-gray-400" />
+                        <ChevronUp className="h-5 w-5 text-gray-600" />
                       ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-400" />
+                        <ChevronDown className="h-5 w-5 text-gray-600" />
                       )}
                     </div>
                   </div>
@@ -187,7 +187,7 @@ export function SocialSharingModal({
                               className={`p-2 rounded-full ${
                                 isSelected
                                   ? 'text-indigo-600 hover:bg-indigo-100'
-                                  : 'text-gray-400 hover:bg-gray-100'
+                                  : 'text-gray-600 hover:bg-gray-100'
                               }`}
                             >
                               {isSelected ? (
@@ -221,7 +221,7 @@ export function SocialSharingModal({
                   <button
                     onClick={handleSubmit}
                     disabled={!Object.values(selectedLinks).some(value => value)}
-                    className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg text-base font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2.5 btn-captamundi-primary text-white rounded-lg text-base font-medium hover:btn-captamundi-primary hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Continue
                   </button>

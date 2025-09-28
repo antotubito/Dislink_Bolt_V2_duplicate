@@ -222,9 +222,9 @@ export function FaceVerification({ onVerified, onError, isVerified = false }: Fa
                 </div>
               ) : (
                 <>
-                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <Upload className="h-8 w-8 text-gray-600 mb-2" />
                   <span className="text-sm text-gray-500">Upload Photo</span>
-                  <span className="text-xs text-gray-400 mt-1">Face required</span>
+                  <span className="text-xs text-gray-600 mt-1">Face required</span>
                 </>
               )}
             </motion.button>

@@ -38,7 +38,7 @@ export function ConnectionStats({ totalConnections, pendingRequests }: Connectio
         className="flex-1 min-w-[180px] bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-xl shadow-sm border border-indigo-200"
       >
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center shadow-md">
+          <div className="h-10 w-10 rounded-full btn-captamundi-primary flex items-center justify-center shadow-md">
             <Users className="h-5 w-5 text-white" />
           </div>
           <div>

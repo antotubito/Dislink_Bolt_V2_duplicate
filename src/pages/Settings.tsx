@@ -1,32 +1,32 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../components/auth/AuthProvider';
-import { 
-  User, 
-  Bell, 
-  Lock, 
-  Shield, 
-  Key, 
-  Smartphone, 
-  Mail, 
-  Users, 
-  UserCircle, 
-  UserPlus, 
-  BellOff, 
-  ChevronDown, 
-  ChevronUp, 
-  Check, 
-  X, 
-  Building2, 
-  Calendar, 
-  MapPin, 
-  Heart, 
-  Briefcase, 
-  Link as LinkIcon, 
-  MessageCircle, 
-  Info, 
-  Settings as SettingsIcon, 
-  ToggleLeft as Toggle 
+import {
+  User,
+  Bell,
+  Lock,
+  Shield,
+  Key,
+  Smartphone,
+  Mail,
+  Users,
+  UserCircle,
+  UserPlus,
+  BellOff,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  X,
+  Building2,
+  Calendar,
+  MapPin,
+  Heart,
+  Briefcase,
+  Link as LinkIcon,
+  MessageCircle,
+  Info,
+  Settings as SettingsIcon,
+  ToggleLeft as Toggle
 } from 'lucide-react';
 import { getAccessRequests, approveAccessRequest, declineAccessRequest } from '../lib/auth';
 import type { TestUser } from '../types/user';
@@ -69,9 +69,9 @@ export function Settings() {
 
   const handleApprove = (id: string) => {
     if (!isOwner) return;
-    
+
     if (approveAccessRequest(id)) {
-      setPendingRequests(prev => prev.map(request => 
+      setPendingRequests(prev => prev.map(request =>
         request.id === id ? { ...request, approved: true } : request
       ));
     }
@@ -79,14 +79,14 @@ export function Settings() {
 
   const handleDecline = (id: string) => {
     if (!isOwner) return;
-    
+
     if (declineAccessRequest(id)) {
       setPendingRequests(prev => prev.filter(request => request.id !== id));
     }
   };
 
   const toggleSetting = (settingId: string) => {
-    setExpandedSettings(prev => 
+    setExpandedSettings(prev =>
       prev.includes(settingId)
         ? prev.filter(id => id !== settingId)
         : [...prev, settingId]
@@ -96,15 +96,15 @@ export function Settings() {
   const handleSaveNotificationSettings = async () => {
     try {
       setSaving(true);
-      
+
       // In a real implementation, this would save to the database
       // For now, we'll just simulate a delay
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // Show success message
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-      
+
       // In a real implementation, we would refresh the user data
       // await refreshUser();
     } catch (error) {
@@ -143,16 +143,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <User className="h-5 w-5 text-gray-400 mr-3" />
+            <User className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Profile Information</h3>
               <p className="text-sm text-gray-500">Update your personal information</p>
             </div>
           </div>
           {expandedSettings.includes('profile') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('profile') && (
@@ -161,9 +161,9 @@ export function Settings() {
               <label className="block text-sm font-medium text-gray-700">Name</label>
               <input
                 type="text"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm"
                 value={user?.name || ''}
-                onChange={() => {}}
+                onChange={() => { }}
                 placeholder="Your name"
               />
             </div>
@@ -171,9 +171,9 @@ export function Settings() {
               <label className="block text-sm font-medium text-gray-700">Job Title</label>
               <input
                 type="text"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm"
                 value={user?.jobTitle || ''}
-                onChange={() => {}}
+                onChange={() => { }}
                 placeholder="Your job title"
               />
             </div>
@@ -181,15 +181,15 @@ export function Settings() {
               <label className="block text-sm font-medium text-gray-700">Company</label>
               <input
                 type="text"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-600 sm:text-sm"
                 value={user?.company || ''}
-                onChange={() => {}}
+                onChange={() => { }}
                 placeholder="Your company"
               />
             </div>
             <button
               type="button"
-              className="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
             >
               Save Changes
             </button>
@@ -204,16 +204,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <Key className="h-5 w-5 text-gray-400 mr-3" />
+            <Key className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Security</h3>
               <p className="text-sm text-gray-500">Manage your security settings</p>
             </div>
           </div>
           {expandedSettings.includes('security') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('security') && (
@@ -226,7 +226,7 @@ export function Settings() {
                 </div>
                 <button
                   type="button"
-                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
                 >
                   Enable
                 </button>
@@ -238,7 +238,7 @@ export function Settings() {
                 </div>
                 <button
                   type="button"
-                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
                 >
                   Update
                 </button>
@@ -255,16 +255,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <Smartphone className="h-5 w-5 text-gray-400 mr-3" />
+            <Smartphone className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Connected Devices</h3>
               <p className="text-sm text-gray-500">Manage your connected devices</p>
             </div>
           </div>
           {expandedSettings.includes('devices') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('devices') && (
@@ -300,16 +300,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <Users className="h-5 w-5 text-gray-400 mr-3" />
+            <Users className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Notification Circles</h3>
               <p className="text-sm text-gray-500">Choose which relationship circles receive notifications</p>
             </div>
           </div>
           {expandedSettings.includes('notification-tiers') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('notification-tiers') && (
@@ -329,17 +329,16 @@ export function Settings() {
                     <button
                       key={tier.id}
                       onClick={() => {
-                        setNotificationTiers(prev => 
+                        setNotificationTiers(prev =>
                           prev.includes(tier.id)
                             ? prev.filter(id => id !== tier.id)
                             : [...prev, tier.id]
                         );
                       }}
-                      className={`flex items-center justify-between p-3 rounded-lg border ${
-                        notificationTiers.includes(tier.id) 
+                      className={`flex items-center justify-between p-3 rounded-lg border ${notificationTiers.includes(tier.id)
                           ? tier.color
                           : 'bg-gray-100 text-gray-600 border-gray-200'
-                      }`}
+                        }`}
                     >
                       <span>{tier.name}</span>
                       {notificationTiers.includes(tier.id) ? (
@@ -351,7 +350,7 @@ export function Settings() {
                   ))}
                 </div>
               </div>
-              
+
               <div className="pt-4 border-t border-gray-100">
                 <h4 className="text-sm font-medium text-gray-900 mb-3">Notification Types</h4>
                 <p className="text-sm text-gray-500 mb-3">
@@ -371,9 +370,9 @@ export function Settings() {
                         <p className="text-xs text-gray-500">{type.description}</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only peer" 
+                        <input
+                          type="checkbox"
+                          className="sr-only peer"
                           checked={notificationTypes[type.id as keyof typeof notificationTypes]}
                           onChange={() => {
                             setNotificationTypes(prev => ({
@@ -382,32 +381,31 @@ export function Settings() {
                             }));
                           }}
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
                       </label>
                     </div>
                   ))}
                 </div>
               </div>
-              
+
               <div className="bg-indigo-50 p-4 rounded-lg">
                 <div className="flex items-center mb-2">
                   <Info className="h-4 w-4 text-indigo-600 mr-2" />
                   <p className="text-sm text-indigo-700 font-medium">About Notification Circles</p>
                 </div>
                 <p className="text-sm text-indigo-600">
-                  Choose which relationship circles receive notifications when you update your profile information. 
+                  Choose which relationship circles receive notifications when you update your profile information.
                   This helps keep your network informed about your latest changes.
                 </p>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {/* Inner Circle */}
-                <div 
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                    notificationSettings.tiers.tier1 
-                      ? 'border-red-500 bg-red-50' 
+                <div
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${notificationSettings.tiers.tier1
+                      ? 'border-red-500 bg-red-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                   onClick={() => toggleTierNotification('tier1')}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -418,19 +416,18 @@ export function Settings() {
                     {notificationSettings.tiers.tier1 ? (
                       <Bell className="h-4 w-4 text-red-600" />
                     ) : (
-                      <BellOff className="h-4 w-4 text-gray-400" />
+                      <BellOff className="h-4 w-4 text-gray-600" />
                     )}
                   </div>
                   <p className="text-xs text-gray-500">Close connections, frequent contact</p>
                 </div>
-                
+
                 {/* Middle Circle */}
-                <div 
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                    notificationSettings.tiers.tier2 
-                      ? 'border-amber-500 bg-amber-50' 
+                <div
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${notificationSettings.tiers.tier2
+                      ? 'border-amber-500 bg-amber-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                   onClick={() => toggleTierNotification('tier2')}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -441,19 +438,18 @@ export function Settings() {
                     {notificationSettings.tiers.tier2 ? (
                       <Bell className="h-4 w-4 text-amber-600" />
                     ) : (
-                      <BellOff className="h-4 w-4 text-gray-400" />
+                      <BellOff className="h-4 w-4 text-gray-600" />
                     )}
                   </div>
                   <p className="text-xs text-gray-500">Regular connections, occasional contact</p>
                 </div>
-                
+
                 {/* Outer Circle */}
-                <div 
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${
-                    notificationSettings.tiers.tier3 
-                      ? 'border-blue-500 bg-blue-50' 
+                <div
+                  className={`p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer ${notificationSettings.tiers.tier3
+                      ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                   onClick={() => toggleTierNotification('tier3')}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -464,13 +460,13 @@ export function Settings() {
                     {notificationSettings.tiers.tier3 ? (
                       <Bell className="h-4 w-4 text-blue-600" />
                     ) : (
-                      <BellOff className="h-4 w-4 text-gray-400" />
+                      <BellOff className="h-4 w-4 text-gray-600" />
                     )}
                   </div>
                   <p className="text-xs text-gray-500">Acquaintances, infrequent contact</p>
                 </div>
               </div>
-              
+
               <div className="flex justify-end">
                 <button
                   onClick={() => {
@@ -502,16 +498,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <Bell className="h-5 w-5 text-gray-400 mr-3" />
+            <Bell className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Notification Types</h3>
               <p className="text-sm text-gray-500">Choose what updates you receive</p>
             </div>
           </div>
           {expandedSettings.includes('notification-types') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('notification-types') && (
@@ -563,12 +559,12 @@ export function Settings() {
               ].map((notification) => {
                 const Icon = notification.icon;
                 const isEnabled = notificationSettings.types[notification.id];
-                
+
                 return (
                   <div key={notification.id} className="flex items-center justify-between">
                     <div className="flex items-center">
                       <div className={`p-2 rounded-lg mr-3 ${isEnabled ? 'bg-indigo-100' : 'bg-gray-100'}`}>
-                        <Icon className={`h-4 w-4 ${isEnabled ? 'text-indigo-600' : 'text-gray-400'}`} />
+                        <Icon className={`h-4 w-4 ${isEnabled ? 'text-indigo-600' : 'text-gray-600'}`} />
                       </div>
                       <div>
                         <h4 className="text-sm font-medium text-gray-900">{notification.title}</h4>
@@ -577,20 +573,18 @@ export function Settings() {
                     </div>
                     <button
                       onClick={() => toggleNotificationType(notification.id)}
-                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        isEnabled ? 'bg-indigo-600' : 'bg-gray-200'
-                      }`}
+                      className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isEnabled ? 'bg-purple-600' : 'bg-gray-200'
+                        }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                          isEnabled ? 'translate-x-5' : 'translate-x-0'
-                        }`}
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isEnabled ? 'translate-x-5' : 'translate-x-0'
+                          }`}
                       />
                     </button>
                   </div>
                 );
               })}
-              
+
               <div className="flex justify-end pt-4">
                 <button
                   onClick={() => {
@@ -600,7 +594,7 @@ export function Settings() {
                       acc[key] = newValue;
                       return acc;
                     }, {});
-                    
+
                     setNotificationSettings(prev => ({
                       ...prev,
                       types: newTypes
@@ -611,12 +605,12 @@ export function Settings() {
                   {Object.values(notificationSettings.types).every(v => v) ? 'Disable All' : 'Enable All'}
                 </button>
               </div>
-              
+
               <div className="pt-4 flex justify-end">
                 <button
                   onClick={handleSaveNotificationSettings}
                   disabled={saving}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50"
                 >
                   {saving ? (
                     <>
@@ -652,16 +646,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <Mail className="h-5 w-5 text-gray-400 mr-3" />
+            <Mail className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Email Preferences</h3>
               <p className="text-sm text-gray-500">Manage your email settings</p>
             </div>
           </div>
           {expandedSettings.includes('email-preferences') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('email-preferences') && (
@@ -670,7 +664,7 @@ export function Settings() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Email Format</label>
                 <select
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm rounded-md"
                   defaultValue="html"
                 >
                   <option value="html">HTML</option>
@@ -680,7 +674,7 @@ export function Settings() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Email Frequency</label>
                 <select
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm rounded-md"
                   defaultValue="realtime"
                 >
                   <option value="realtime">Real-time</option>
@@ -704,16 +698,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <Lock className="h-5 w-5 text-gray-400 mr-3" />
+            <Lock className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Privacy & Security Controls</h3>
               <p className="text-sm text-gray-500">Manage your privacy settings</p>
             </div>
           </div>
           {expandedSettings.includes('privacy-controls') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('privacy-controls') && (
@@ -739,7 +733,7 @@ export function Settings() {
                     <p className="text-sm text-gray-500">{setting.description}</p>
                   </div>
                   <select
-                    className="ml-3 block pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                    className="ml-3 block pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-600 focus:border-purple-600 sm:text-sm rounded-md"
                     defaultValue="everyone"
                   >
                     <option value="everyone">Everyone</option>
@@ -749,7 +743,7 @@ export function Settings() {
                 </div>
               ))}
             </div>
-            
+
             <div className="mt-6 pt-6 border-t border-gray-100">
               <h4 className="text-sm font-medium text-gray-900 mb-4">Security Settings</h4>
               <div className="space-y-4">
@@ -759,12 +753,12 @@ export function Settings() {
                     <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
                   </div>
                   <button
-                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
                   >
                     Enable
                   </button>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <h5 className="text-sm font-medium text-gray-900">Password strength</h5>
@@ -774,14 +768,14 @@ export function Settings() {
                     <div className="h-full bg-green-500 w-5/6"></div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <h5 className="text-sm font-medium text-gray-900">Change password</h5>
                     <p className="text-sm text-gray-500">Update your password</p>
                   </div>
                   <button
-                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
                   >
                     Update
                   </button>
@@ -799,16 +793,16 @@ export function Settings() {
           className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
         >
           <div className="flex items-center">
-            <Shield className="h-5 w-5 text-gray-400 mr-3" />
+            <Shield className="h-5 w-5 text-gray-600 mr-3" />
             <div className="text-left">
               <h3 className="text-sm font-medium text-gray-900">Data & Privacy</h3>
               <p className="text-sm text-gray-500">Manage your data and privacy choices</p>
             </div>
           </div>
           {expandedSettings.includes('data-privacy') ? (
-            <ChevronUp className="h-5 w-5 text-gray-400" />
+            <ChevronUp className="h-5 w-5 text-gray-600" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-gray-600" />
           )}
         </button>
         {expandedSettings.includes('data-privacy') && (
@@ -821,7 +815,7 @@ export function Settings() {
                 </p>
                 <button
                   type="button"
-                  className="mt-2 inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="mt-2 inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
                 >
                   Request data export
                 </button>
@@ -848,46 +842,45 @@ export function Settings() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Settings</h1>
-      
+
       {/* Access Requests Section - Only visible to owner */}
       {isOwner && (
         <div className="bg-white shadow rounded-lg divide-y divide-gray-200 mb-8">
           <div className="p-6">
             <h2 className="text-lg font-medium text-gray-900 mb-4">Access Requests</h2>
-            
+
             {pendingRequests.length === 0 ? (
               <p className="text-gray-500 text-center py-4">No pending access requests</p>
             ) : (
               <div className="space-y-4">
                 {pendingRequests.map(request => (
-                  <div 
+                  <div
                     key={request.id}
-                    className={`flex items-center justify-between p-4 rounded-lg border ${
-                      request.approved ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
-                    }`}
+                    className={`flex items-center justify-between p-4 rounded-lg border ${request.approved ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'
+                      }`}
                   >
                     <div className="flex-1">
                       <div className="flex items-center space-x-3">
                         <div className="flex-1">
                           <h3 className="text-sm font-medium text-gray-900">{request.name}</h3>
                           <div className="mt-1 flex items-center text-sm text-gray-500">
-                            <Mail className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+                            <Mail className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-600" />
                             {request.email}
                           </div>
                           {request.company && (
                             <div className="mt-1 flex items-center text-sm text-gray-500">
-                              <Building2 className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+                              <Building2 className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-600" />
                               {request.company}
                             </div>
                           )}
                           <div className="mt-1 flex items-center text-sm text-gray-500">
-                            <Calendar className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400" />
+                            <Calendar className="flex-shrink-0 mr-1.5 h-4 w-4 text-gray-600" />
                             Requested: {new Date(request.requestDate).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="ml-4 flex items-center space-x-3">
                       {request.approved ? (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
@@ -928,11 +921,10 @@ export function Settings() {
             <motion.button
               whileHover={{ backgroundColor: activeSection !== 'account' ? '#F3F4F6' : undefined }}
               onClick={() => setActiveSection('account')}
-              className={`flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium ${
-                activeSection === 'account'
-                  ? 'border-indigo-500 text-indigo-600'
+              className={`flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium ${activeSection === 'account'
+                  ? 'border-purple-600 text-indigo-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               <User className="h-4 w-4 inline-block mr-2" />
               Account
@@ -940,11 +932,10 @@ export function Settings() {
             <motion.button
               whileHover={{ backgroundColor: activeSection !== 'email' ? '#F3F4F6' : undefined }}
               onClick={() => setActiveSection('email')}
-              className={`flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium ${
-                activeSection === 'email'
-                  ? 'border-indigo-500 text-indigo-600'
+              className={`flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium ${activeSection === 'email'
+                  ? 'border-purple-600 text-indigo-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               <Bell className="h-4 w-4 inline-block mr-2" />
               Email
@@ -952,11 +943,10 @@ export function Settings() {
             <motion.button
               whileHover={{ backgroundColor: activeSection !== 'privacy' ? '#F3F4F6' : undefined }}
               onClick={() => setActiveSection('privacy')}
-              className={`flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium ${
-                activeSection === 'privacy'
-                  ? 'border-indigo-500 text-indigo-600'
+              className={`flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium ${activeSection === 'privacy'
+                  ? 'border-purple-600 text-indigo-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               <Lock className="h-4 w-4 inline-block mr-2" />
               Privacy
@@ -971,7 +961,7 @@ export function Settings() {
           {activeSection === 'privacy' && renderPrivacySettings()}
         </div>
       </div>
-    
+
       {/* Success Toast */}
       <AnimatePresence>
         {saveSuccess && (

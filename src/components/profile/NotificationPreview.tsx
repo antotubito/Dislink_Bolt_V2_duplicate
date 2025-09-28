@@ -101,7 +101,7 @@ export function NotificationPreview({
         </div>
         <button
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-500 p-1 hover:bg-gray-100 rounded-full transition-colors"
+          className="text-gray-600 hover:text-gray-500 p-1 hover:bg-gray-100 rounded-full transition-colors"
         >
           <X className="h-5 w-5" />
         </button>

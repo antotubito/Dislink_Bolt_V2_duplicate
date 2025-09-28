@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  Building2, Mail, Phone, MapPin, Calendar, Tag, 
+import {
+  Building2, Mail, Phone, MapPin, Calendar, Tag,
   MessageCircle, Heart, ArrowLeft, User, Link as LinkIcon,
   ChevronDown, ChevronUp, Globe, Share2, Settings
 } from 'lucide-react';
@@ -23,10 +23,10 @@ interface ContactProfileProps {
   onUpdateSharing?: (contactId: string, sharedLinks: Record<string, boolean>) => Promise<void>;
 }
 
-export function ContactProfile({ 
-  contact, 
-  onClose, 
-  onEdit, 
+export function ContactProfile({
+  contact,
+  onClose,
+  onEdit,
   onDelete,
   onAddNote,
   onAddFollowUp,
@@ -51,9 +51,9 @@ export function ContactProfile({
         return <Icon className="h-5 w-5" style={{ color: category.links[platform].color }} />;
       }
     }
-    
+
     // Fallback icon if platform not found
-    return <LinkIcon className="h-5 w-5 text-gray-400" />;
+    return <LinkIcon className="h-5 w-5 text-gray-600" />;
   };
 
   const handleSharingUpdate = async (sharedLinks: Record<string, boolean>) => {
@@ -75,10 +75,10 @@ export function ContactProfile({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-r from-indigo-600 to-indigo-800"></div>
+            <div className="w-full h-full bg-gradient-to-r from-purple-500 to-indigo-600"></div>
           )}
           <div className="absolute inset-0 bg-black/20"></div>
-          
+
           <button
             onClick={onClose}
             className="absolute top-4 left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white"
@@ -139,7 +139,7 @@ export function ContactProfile({
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                  <User className="h-5 w-5 mr-2 text-gray-400" />
+                  <User className="h-5 w-5 mr-2 text-gray-600" />
                   About
                 </h2>
               </div>
@@ -149,13 +149,13 @@ export function ContactProfile({
                 <div className="flex flex-wrap gap-6 mb-4">
                   {contact.bio?.location && (
                     <div className="flex items-center text-gray-600">
-                      <MapPin className="h-5 w-5 mr-2 text-gray-400" />
+                      <MapPin className="h-5 w-5 mr-2 text-gray-600" />
                       <span>Located in {contact.bio.location}</span>
                     </div>
                   )}
                   {contact.bio?.from && (
                     <div className="flex items-center text-gray-600">
-                      <Globe className="h-5 w-5 mr-2 text-gray-400" />
+                      <Globe className="h-5 w-5 mr-2 text-gray-600" />
                       <span>From {contact.bio.from}</span>
                     </div>
                   )}
@@ -175,7 +175,7 @@ export function ContactProfile({
               {contact.interests && contact.interests.length > 0 && (
                 <div>
                   <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                    <Heart className="h-4 w-4 mr-2 text-gray-400" />
+                    <Heart className="h-4 w-4 mr-2 text-gray-600" />
                     Interests
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -195,7 +195,7 @@ export function ContactProfile({
               {contact.tags && contact.tags.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <h3 className="text-sm font-medium text-gray-900 mb-3 flex items-center">
-                    <Tag className="h-4 w-4 mr-2 text-gray-400" />
+                    <Tag className="h-4 w-4 mr-2 text-gray-600" />
                     Tags
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -215,21 +215,21 @@ export function ContactProfile({
             {/* Social Links */}
             {contact.socialLinks && Object.keys(contact.socialLinks).length > 0 && (
               <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div 
+                <div
                   className="flex items-center justify-between cursor-pointer"
                   onClick={() => toggleSection('social')}
                 >
                   <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                    <LinkIcon className="h-5 w-5 mr-2 text-gray-400" />
+                    <LinkIcon className="h-5 w-5 mr-2 text-gray-600" />
                     Social Links
                   </h2>
                   {activeSection === 'social' ? (
-                    <ChevronUp className="h-5 w-5 text-gray-400" />
+                    <ChevronUp className="h-5 w-5 text-gray-600" />
                   ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                    <ChevronDown className="h-5 w-5 text-gray-600" />
                   )}
                 </div>
-                
+
                 <AnimatePresence>
                   {activeSection === 'social' && (
                     <motion.div
@@ -254,7 +254,7 @@ export function ContactProfile({
                               <span className="ml-3 font-medium text-gray-700">
                                 {platform.charAt(0).toUpperCase() + platform.slice(1)}
                               </span>
-                              <ChevronUp className="h-4 w-4 ml-auto text-gray-400 rotate-90" />
+                              <ChevronUp className="h-4 w-4 ml-auto text-gray-600 rotate-90" />
                             </a>
                           );
                         })}
@@ -267,21 +267,21 @@ export function ContactProfile({
 
             {/* Notes Section */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <div 
+              <div
                 className="flex items-center justify-between cursor-pointer"
                 onClick={() => toggleSection('notes')}
               >
                 <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                  <MessageCircle className="h-5 w-5 mr-2 text-gray-400" />
+                  <MessageCircle className="h-5 w-5 mr-2 text-gray-600" />
                   Notes
                 </h2>
                 {activeSection === 'notes' ? (
-                  <ChevronUp className="h-5 w-5 text-gray-400" />
+                  <ChevronUp className="h-5 w-5 text-gray-600" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                  <ChevronDown className="h-5 w-5 text-gray-600" />
                 )}
               </div>
-              
+
               <AnimatePresence>
                 {activeSection === 'notes' && (
                   <motion.div
@@ -304,21 +304,21 @@ export function ContactProfile({
 
             {/* Follow-ups Section */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-              <div 
+              <div
                 className="flex items-center justify-between cursor-pointer"
                 onClick={() => toggleSection('followups')}
               >
                 <h2 className="text-lg font-medium text-gray-900 flex items-center">
-                  <Calendar className="h-5 w-5 mr-2 text-gray-400" />
+                  <Calendar className="h-5 w-5 mr-2 text-gray-600" />
                   Follow-ups
                 </h2>
                 {activeSection === 'followups' ? (
-                  <ChevronUp className="h-5 w-5 text-gray-400" />
+                  <ChevronUp className="h-5 w-5 text-gray-600" />
                 ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                  <ChevronDown className="h-5 w-5 text-gray-600" />
                 )}
               </div>
-              
+
               <AnimatePresence>
                 {activeSection === 'followups' && (
                   <motion.div
@@ -343,14 +343,14 @@ export function ContactProfile({
             {/* Meeting Details */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
-                <Calendar className="h-5 w-5 mr-2 text-gray-400" />
+                <Calendar className="h-5 w-5 mr-2 text-gray-600" />
                 Meeting Details
               </h2>
-              
+
               <div className="space-y-4">
                 {contact.meetingDate && (
                   <div className="flex items-center">
-                    <Calendar className="h-5 w-5 text-gray-400 mr-3" />
+                    <Calendar className="h-5 w-5 text-gray-600 mr-3" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Date</p>
                       <p className="text-sm text-gray-700">
@@ -363,10 +363,10 @@ export function ContactProfile({
                     </div>
                   </div>
                 )}
-                
+
                 {contact.meetingLocation && (
                   <div className="flex items-start">
-                    <MapPin className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                    <MapPin className="h-5 w-5 text-gray-600 mr-3 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Location</p>
                       <p className="text-sm text-gray-700">
@@ -385,10 +385,10 @@ export function ContactProfile({
                     </div>
                   </div>
                 )}
-                
+
                 {contact.meetingContext && (
                   <div className="flex items-start">
-                    <MessageCircle className="h-5 w-5 text-gray-400 mr-3 mt-0.5" />
+                    <MessageCircle className="h-5 w-5 text-gray-600 mr-3 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-gray-900">Context</p>
                       <p className="text-sm text-gray-700">{contact.meetingContext}</p>

@@ -54,7 +54,7 @@ const shouldUseLocalData = (): boolean => {
     logger.info('Using local city data because device is offline');
     return true;
   }
-  
+
   // Check if we've had too many API failures recently
   const now = Date.now();
   if (now - lastApiAttemptTime > API_FAILURE_RESET_TIME) {
@@ -62,12 +62,12 @@ const shouldUseLocalData = (): boolean => {
     apiFailureCount = 0;
     return false;
   }
-  
+
   if (apiFailureCount >= MAX_API_FAILURES) {
     logger.info(`Using local city data due to ${apiFailureCount} recent API failures`);
     return true;
   }
-  
+
   return false;
 };
 
@@ -78,13 +78,13 @@ export const getLocalizedCityName = (cityName: string, language: string): string
   if (languageMap && languageMap[cityName]) {
     return languageMap[cityName];
   }
-  
+
   // Then check the cities data for alternate names
   const city = citiesData?.cities?.find(c => c.name.toLowerCase() === cityName.toLowerCase());
   if (city?.alternateNames && city.alternateNames[language]) {
     return city.alternateNames[language];
   }
-  
+
   return cityName;
 };
 
@@ -98,7 +98,7 @@ export const getEnglishCityName = (localizedName: string, language: string): str
     );
     if (englishName) return englishName[0];
   }
-  
+
   // Then check the cities data for alternate names
   if (citiesData?.cities) {
     for (const city of citiesData.cities) {
@@ -107,7 +107,7 @@ export const getEnglishCityName = (localizedName: string, language: string): str
       }
     }
   }
-  
+
   return localizedName;
 };
 
@@ -115,87 +115,93 @@ export const getEnglishCityName = (localizedName: string, language: string): str
 const enforceRateLimit = async (): Promise<void> => {
   const now = Date.now();
   const timeElapsed = now - lastNominatimRequest;
-  
+
   if (timeElapsed < NOMINATIM_RATE_LIMIT) {
     // Wait for the remaining time to respect the rate limit
     const waitTime = NOMINATIM_RATE_LIMIT - timeElapsed;
     await new Promise(resolve => setTimeout(resolve, waitTime));
   }
-  
+
   // Update the last request timestamp
   lastNominatimRequest = Date.now();
 };
 
 // Search cities using Nominatim API
 export const searchCities = async (
-  query: string, 
+  query: string,
   language: string = 'en',
   limit: number = 50 // Increased limit to show more results
 ): Promise<Location[]> => {
+  // Define cacheKey outside try block so it's available in catch block
+  const cacheKey = `${query.toLowerCase().trim()}-${language}`;
+
   try {
     // Validate input
     if (!query || query.length < 2) {
       return [];
     }
-    
+
     // Check cache first
-    const cacheKey = `${query.toLowerCase().trim()}-${language}`;
     if (searchCache.has(cacheKey)) {
       return searchCache.get(cacheKey) || [];
     }
-    
+
     // Check if we should use local data
     if (shouldUseLocalData()) {
       logger.info('Using local city data for search');
       const localResults = await searchLocalCities(query, language, limit);
-      
+
       // Cache results
       searchCache.set(cacheKey, localResults);
-      
+
       return localResults;
     }
-    
+
     // Enforce rate limit before making the request
     await enforceRateLimit();
-    
+
     // Update last API attempt time
     lastApiAttemptTime = Date.now();
-    
+
     // Build the Nominatim API URL with improved parameters
     // Using featuretype to focus on cities, towns, and villages
     // viewbox parameter helps prioritize more populated areas
     const apiUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=${limit}&accept-language=${language}&featuretype=city&featuretype=town&featuretype=village&featuretype=hamlet&dedupe=1`;
-    
-    // Call Nominatim API with proper language header
+
+    // Call Nominatim API with proper language header and CORS
     const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
         'User-Agent': 'Dislink City Search (https://dislink.com)',
-        'Accept-Language': language === 'auto' ? navigator.language : language
-      }
+        'Accept-Language': language === 'auto' ? navigator.language : language,
+        'Accept': 'application/json'
+      },
+      mode: 'cors', // Enable CORS
+      credentials: 'omit' // Don't send credentials for CORS
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to search cities: ${response.status} ${response.statusText}`);
     }
-    
+
     const data = await response.json();
-    
+
     // Reset API failure count on success
     apiFailureCount = 0;
-    
+
     // Filter results to only include places (cities, towns, villages, hamlets)
     // Improved filtering to prioritize actual cities
     const filteredResults = data
       .filter((place: any) => {
         // Check if it's a place (city, town, village, hamlet)
-        const isPlace = place.class === 'place' && 
+        const isPlace = place.class === 'place' &&
           ['city', 'town', 'village', 'hamlet', 'suburb', 'municipality'].includes(place.type);
-        
+
         // Check if it has address details
-        const hasAddress = place.address && 
-          (place.address.city || place.address.town || place.address.village || 
-           place.address.hamlet || place.address.municipality);
-        
+        const hasAddress = place.address &&
+          (place.address.city || place.address.town || place.address.village ||
+            place.address.hamlet || place.address.municipality);
+
         return isPlace || hasAddress;
       })
       .sort((a: any, b: any) => {
@@ -205,26 +211,26 @@ export const searchCities = async (
         const bType = b.type || 'other';
         return (typeOrder[aType] || 99) - (typeOrder[bType] || 99);
       });
-    
+
     // Transform Nominatim results to our Location format
     const locations = filteredResults.map((place: any) => {
       // Extract country and region from address details
       const country = place.address.country || '';
       const countryCode = place.address.country_code?.toUpperCase() || '';
       const region = place.address.state || place.address.county || '';
-      
+
       // Get the city name - prioritize address components over place name
-      const name = place.address.city || 
-                   place.address.town || 
-                   place.address.village || 
-                   place.address.hamlet || 
-                   place.address.municipality || 
-                   place.name;
-      
+      const name = place.address.city ||
+        place.address.town ||
+        place.address.village ||
+        place.address.hamlet ||
+        place.address.municipality ||
+        place.name;
+
       // Store both the localized name and the English name
       const localizedName = name;
       const englishName = language !== 'en' ? getEnglishCityName(name, language) : name;
-      
+
       return {
         id: `nominatim-${place.place_id}`,
         name: englishName || name, // Use English name for consistency
@@ -242,24 +248,24 @@ export const searchCities = async (
         value: name
       };
     });
-    
+
     // Cache results
     searchCache.set(cacheKey, locations);
-    
+
     return locations;
   } catch (error) {
     logger.error('Error searching cities with Nominatim:', error);
-    
+
     // Increment API failure count
     apiFailureCount++;
-    
+
     // Fall back to local search
     logger.info(`Falling back to local city data after API error (failure count: ${apiFailureCount})`);
     const localResults = await searchLocalCities(query, language, limit);
-    
+
     // Cache results
     searchCache.set(cacheKey, localResults);
-    
+
     return localResults;
   }
 };
@@ -270,9 +276,9 @@ export const debouncedSearchCities = debounce(searchCities, 500);
 // Get popular cities filtered by query
 export const getPopularCitiesByQuery = (query: string = ''): Location[] => {
   if (!query) return POPULAR_CITIES;
-  
+
   const searchTerm = query.toLowerCase();
-  return POPULAR_CITIES.filter(city => 
+  return POPULAR_CITIES.filter(city =>
     city.name.toLowerCase().includes(searchTerm) ||
     city.country.toLowerCase().includes(searchTerm) ||
     (city.region && city.region.toLowerCase().includes(searchTerm))

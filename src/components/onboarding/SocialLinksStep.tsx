@@ -12,11 +12,11 @@ interface SocialLinksStepProps {
   onBack: () => void;
 }
 
-export function SocialLinksStep({ 
-  socialLinks, 
-  onUpdate, 
-  onNext, 
-  onBack 
+export function SocialLinksStep({
+  socialLinks,
+  onUpdate,
+  onNext,
+  onBack
 }: SocialLinksStepProps) {
   const [showPlatformSelector, setShowPlatformSelector] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,20 +27,20 @@ export function SocialLinksStep({
   useEffect(() => {
     const newValidLinks: Record<string, boolean> = {};
     let hasValid = false;
-    
+
     Object.entries(socialLinks).forEach(([platform, value]) => {
       const isValid = value.trim() !== '' && isValidLink(platform, value);
       newValidLinks[platform] = isValid;
       if (isValid) hasValid = true;
     });
-    
+
     setValidLinks(newValidLinks);
     setHasAtLeastOneValidLink(hasValid);
   }, [socialLinks]);
 
   const isValidLink = (platform: string, value: string): boolean => {
     if (!value.trim()) return false; // Empty values are invalid
-    
+
     // Basic validation patterns for common platforms
     const patterns: Record<string, RegExp> = {
       linkedin: /^https:\/\/(www\.)?linkedin\.com\/in\/[\w-]+\/?$/,
@@ -50,12 +50,12 @@ export function SocialLinksStep({
       facebook: /^https:\/\/(www\.)?facebook\.com\/[\w.]+\/?$/,
       portfolio: /^https?:\/\/.+/
     };
-    
+
     // If we have a pattern for this platform, test it
     if (patterns[platform]) {
       return patterns[platform].test(value);
     }
-    
+
     // For other platforms, just ensure it's not empty
     return value.trim() !== '';
   };
@@ -65,12 +65,12 @@ export function SocialLinksStep({
       setError(`You've already added ${platform}`);
       return;
     }
-    
+
     const updatedLinks = {
       ...socialLinks,
       [platform]: ''
     };
-    
+
     onUpdate(updatedLinks);
     setShowPlatformSelector(false);
     setError(null);
@@ -95,15 +95,15 @@ export function SocialLinksStep({
       setError('Please add at least one social platform to continue');
       return;
     }
-    
+
     // Check if any links are invalid
     const hasInvalidLinks = Object.entries(validLinks).some(([platform, isValid]) => !isValid);
-    
+
     if (hasInvalidLinks) {
       setError('Please fix the invalid social links before continuing');
       return;
     }
-    
+
     // Filter out empty links
     const filteredLinks = Object.entries(socialLinks)
       .filter(([_, value]) => value.trim() !== '')
@@ -111,10 +111,10 @@ export function SocialLinksStep({
         ...acc,
         [key]: value
       }), {});
-    
+
     // Update with filtered links
     onUpdate(filteredLinks);
-    
+
     // Clear error and continue
     setError(null);
     onNext();
@@ -154,18 +154,18 @@ export function SocialLinksStep({
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <motion.div
-            className="bg-gradient-to-r from-indigo-500 to-purple-500 h-2 rounded-full"
+            className="bg-gradient-to-r from-purple-500 to-indigo-600 h-2 rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${Math.min((getValidLinksCount() / 3) * 100, 100)}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>
         <p className="text-xs text-gray-500 mt-2">
-          {getValidLinksCount() === 0 
-            ? "Start by adding your first platform" 
-            : getValidLinksCount() === 1 
-            ? "Great! Add a couple more for better visibility"
-            : "Excellent! You're well connected"}
+          {getValidLinksCount() === 0
+            ? "Start by adding your first platform"
+            : getValidLinksCount() === 1
+              ? "Great! Add a couple more for better visibility"
+              : "Excellent! You're well connected"}
         </p>
       </div>
 
@@ -188,7 +188,7 @@ export function SocialLinksStep({
           <div>
             <h3 className="text-lg font-medium text-gray-900">Your Social Platforms</h3>
             <p className="text-sm text-gray-500">
-              {getValidLinksCount() > 0 
+              {getValidLinksCount() > 0
                 ? `${getValidLinksCount()} platform${getValidLinksCount() > 1 ? 's' : ''} added`
                 : "No platforms added yet"}
             </p>
@@ -196,7 +196,7 @@ export function SocialLinksStep({
           <button
             type="button"
             onClick={() => setShowPlatformSelector(true)}
-            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Platform
@@ -219,13 +219,13 @@ export function SocialLinksStep({
               Ready to Connect? 🚀
             </h3>
             <p className="text-gray-600 mb-6 max-w-sm mx-auto">
-              Add your social platforms to help others discover and connect with you. 
+              Add your social platforms to help others discover and connect with you.
               At least one platform is required to continue.
             </p>
             <button
               type="button"
               onClick={() => setShowPlatformSelector(true)}
-              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-medium rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-medium rounded-lg hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Plus className="h-5 w-5 mr-2" />
               Add Your First Platform
@@ -294,7 +294,7 @@ export function SocialLinksStep({
         <AnimatedButton
           onClick={handleContinue}
           disabled={!hasAtLeastOneValidLink}
-          className={hasAtLeastOneValidLink ? "bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600" : ""}
+          className={hasAtLeastOneValidLink ? "bg-gradient-to-r from-purple-500 to-indigo-600 hover:opacity-90" : ""}
         >
           {hasAtLeastOneValidLink ? 'Continue' : 'Add at least 1 platform'}
         </AnimatedButton>

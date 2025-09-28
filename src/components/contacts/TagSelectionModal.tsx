@@ -183,7 +183,7 @@ export function TagSelectionModal({
                         onClick={() => handleTagToggle(tag)}
                         className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                           selectedTags.includes(tag)
-                            ? 'bg-indigo-100 text-indigo-800 ring-2 ring-indigo-500 ring-offset-2'
+                            ? 'bg-indigo-100 text-indigo-800 ring-2 ring-purple-500 ring-offset-2'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -208,7 +208,7 @@ export function TagSelectionModal({
                           onClick={() => handleTagToggle(tag)}
                           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                             selectedTags.includes(tag)
-                              ? 'bg-indigo-100 text-indigo-800 ring-2 ring-indigo-500 ring-offset-2'
+                              ? 'bg-indigo-100 text-indigo-800 ring-2 ring-purple-500 ring-offset-2'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
@@ -228,7 +228,7 @@ export function TagSelectionModal({
                 <input
                   type="text"
                   id="customTag"
-                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600"
                   placeholder="Type and press Enter to add"
                   value={customTag}
                   onChange={(e) => setCustomTag(e.target.value)}
@@ -251,7 +251,7 @@ export function TagSelectionModal({
                         {tag}
                         <button
                           onClick={() => handleTagToggle(tag)}
-                          className="ml-1.5 p-0.5 hover:bg-indigo-200 rounded-full"
+                          className="ml-1.5 p-0.5 hover:btn-captamundi-primary/20 rounded-full"
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -283,7 +283,7 @@ export function TagSelectionModal({
                   </button>
                   <button
                     onClick={handleSubmit}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700"
+                    className="px-4 py-2 btn-captamundi-primary text-white rounded-lg text-sm font-medium hover:btn-captamundi-primary hover:opacity-90"
                   >
                     Continue
                   </button>

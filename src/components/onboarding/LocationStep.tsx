@@ -4,6 +4,8 @@ import { MapPin, Globe, ArrowLeft, AlertCircle } from 'lucide-react';
 import { CityAutocomplete } from '../common/CityAutocomplete';
 import { AnimatedButton } from './AnimatedButton';
 import type { Location } from '../../types/location';
+import { getCurrentLocationWithFallback } from '../../lib/geolocation';
+import { logger } from '../../lib/logger';
 
 interface LocationStepProps {
   location: string;
@@ -13,12 +15,12 @@ interface LocationStepProps {
   onBack: () => void;
 }
 
-export function LocationStep({ 
-  location, 
-  from, 
-  onUpdate, 
-  onNext, 
-  onBack 
+export function LocationStep({
+  location,
+  from,
+  onUpdate,
+  onNext,
+  onBack
 }: LocationStepProps) {
   const [currentLocation, setCurrentLocation] = useState(location);
   const [hometown, setHometown] = useState(from);
@@ -29,30 +31,48 @@ export function LocationStep({
 
   // Try to detect user's location on mount if no location is set
   useEffect(() => {
-    if (!currentLocation && navigator.geolocation) {
-      setIsDetectingLocation(true);
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
+    const detectLocation = async () => {
+      if (!currentLocation) {
+        setIsDetectingLocation(true);
+
+        try {
+          // Use the new geolocation service
+          const position = await getCurrentLocationWithFallback();
+
+          if (position) {
             // Use reverse geocoding to get location name
+            const apiKey = import.meta.env.VITE_OPENCAGE_API_KEY;
+            if (!apiKey) {
+              logger.warn('OpenCage API key not configured, skipping location detection');
+              setIsDetectingLocation(false);
+              return;
+            }
+
             const response = await fetch(
-              `https://api.opencagedata.com/geocode/v1/json?q=${position.coords.latitude}+${position.coords.longitude}&key=${import.meta.env.VITE_OPENCAGE_API_KEY || 'f4b0b7ef11msh663d761ebea1d2fp15c6eajsnbb69d673cce0'}&no_annotations=1`
+              `https://api.opencagedata.com/geocode/v1/json?q=${position.latitude}+${position.longitude}&key=${apiKey}&no_annotations=1`,
+              {
+                method: 'GET',
+                headers: {
+                  'Accept': 'application/json'
+                },
+                mode: 'cors'
+              }
             );
-            
+
             if (response.ok) {
               const data = await response.json();
               if (data.results && data.results.length > 0) {
                 const result = data.results[0];
-                const city = result.components.city || 
-                             result.components.town || 
-                             result.components.village || 
-                             result.components.county;
-                
+                const city = result.components.city ||
+                  result.components.town ||
+                  result.components.village ||
+                  result.components.county;
+
                 if (city) {
                   const country = result.components.country;
                   const locationString = `${city}, ${country}`;
                   setCurrentLocation(locationString);
-                  
+
                   // Create location object
                   const locationObj: Location = {
                     id: `detected-${Date.now()}`,
@@ -60,54 +80,58 @@ export function LocationStep({
                     country: country,
                     countryCode: result.components.country_code?.toUpperCase() || '',
                     region: result.components.state || result.components.region || '',
-                    latitude: position.coords.latitude,
-                    longitude: position.coords.longitude
+                    latitude: position.latitude,
+                    longitude: position.longitude
                   };
-                  
+
                   setSelectedCurrentLocation(locationObj);
-                  
+
                   // Update parent component
                   onUpdate({
                     location: locationString,
                     from: hometown
                   });
+
+                  logger.info('Location detected successfully:', locationString);
                 }
               }
+            } else {
+              logger.warn('OpenCage API error:', response.status, response.statusText);
             }
-          } catch (error) {
-            console.error('Error detecting location:', error);
-          } finally {
-            setIsDetectingLocation(false);
+          } else {
+            logger.info('Geolocation not available or permission denied');
           }
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
+        } catch (error) {
+          logger.error('Error detecting location:', error);
+        } finally {
           setIsDetectingLocation(false);
         }
-      );
-    }
+      }
+    };
+
+    detectLocation();
   }, [currentLocation, hometown, onUpdate]);
 
   const handleContinue = () => {
     setError(null);
-    
+
     // Validate that both locations are provided
     if (!currentLocation.trim()) {
       setError('Please enter your current location');
       return;
     }
-    
+
     if (!hometown.trim()) {
       setError('Please enter your hometown');
       return;
     }
-    
+
     // Update parent component with location data
     onUpdate({
       location: currentLocation,
       from: hometown
     });
-    
+
     // Proceed to next step
     onNext();
   };

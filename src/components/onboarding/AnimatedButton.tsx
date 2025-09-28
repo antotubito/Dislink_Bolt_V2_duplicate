@@ -17,7 +17,7 @@ export function AnimatedButton({
 }: AnimatedButtonProps) {
   const baseStyles = "w-full flex justify-center items-center px-6 py-3 rounded-xl text-base font-medium transition-all duration-200 disabled:opacity-50";
   const variantStyles = {
-    primary: "border border-transparent shadow-sm text-white bg-indigo-600 hover:bg-indigo-700",
+    primary: "border border-transparent shadow-sm text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90",
     secondary: "border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
   };
 

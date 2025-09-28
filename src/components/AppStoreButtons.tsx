@@ -65,7 +65,7 @@ export function AppStoreButtons({
           href={APP_STORE_LINKS.android}
           target="_blank"
           rel="noopener noreferrer"
-          className={`flex items-center justify-center ${sizeClasses[size].button} bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors`}
+          className={`flex items-center justify-center ${sizeClasses[size].button} btn-captamundi-primary text-white rounded-xl hover:btn-captamundi-primary hover:opacity-90 transition-colors`}
         >
           <ShoppingBag className={sizeClasses[size].icon} />
           Google Play

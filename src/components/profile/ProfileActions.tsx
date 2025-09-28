@@ -71,7 +71,7 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setShowQRModal(true)}
-          className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90"
         >
           <QrCode className="h-5 w-5 mr-2" />
           Show QR Code
@@ -81,7 +81,7 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => setShowScanner(true)}
-          className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90"
         >
           <Scan className="h-5 w-5 mr-2" />
           Scan QR
@@ -117,7 +117,7 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowQRModal(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90"
         >
           <QrCode className="h-5 w-5 mr-2" />
           Show QR Code
@@ -127,7 +127,7 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowScanner(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90"
         >
           <Scan className="h-5 w-5 mr-2" />
           Scan QR

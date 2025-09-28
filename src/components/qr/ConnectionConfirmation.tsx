@@ -143,7 +143,7 @@ export function ConnectionConfirmation({
                 </button>
                 <button
                   onClick={handleConfirm}
-                  className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+                  className="flex-1 px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90 disabled:opacity-50"
                   disabled={loading}
                 >
                   {loading ? (

@@ -130,7 +130,7 @@ export function ContactNotes({ notes, onAddNote, onDeleteNote }: ContactNotesPro
                 id="note"
                 rows={3}
                 placeholder="Add a note..."
-                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 resize-none"
+                className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-600 focus:ring-purple-500 resize-none"
                 value={newNote}
                 onChange={(e) => {
                   setNewNote(e.target.value);
@@ -141,7 +141,7 @@ export function ContactNotes({ notes, onAddNote, onDeleteNote }: ContactNotesPro
               <button
                 type="submit"
                 disabled={loading || !newNote.trim()}
-                className="absolute bottom-2 right-2 inline-flex items-center rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="absolute bottom-2 right-2 inline-flex items-center rounded-lg btn-captamundi-primary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <div className="flex items-center">
@@ -184,7 +184,7 @@ export function ContactNotes({ notes, onAddNote, onDeleteNote }: ContactNotesPro
                 {onDeleteNote && (
                   <button
                     onClick={() => handleDeleteClick(note.id)}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-400 hover:text-red-600 rounded-full hover:bg-gray-100"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-gray-600 hover:text-red-600 rounded-full hover:bg-gray-100"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

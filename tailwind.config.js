@@ -5,7 +5,7 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          'Inter var',
+          'Inter',
           'system-ui',
           '-apple-system',
           'BlinkMacSystemFont',
@@ -13,6 +13,12 @@ export default {
           'Roboto',
           'Helvetica Neue',
           'Arial',
+          'sans-serif',
+        ],
+        display: [
+          'Space Grotesk',
+          'Inter',
+          'system-ui',
           'sans-serif',
         ],
       },
@@ -46,6 +52,16 @@ export default {
         '3xl': '1920px',
       },
       colors: {
+        // Captamundi-inspired color palette
+        captamundi: {
+          primary: '#a855f7',      // Purple-500
+          'primary-dark': '#9333ea', // Purple-600
+          secondary: '#6366f1',    // Indigo-500
+          'secondary-dark': '#4f46e5', // Indigo-600
+          accent: '#ec4899',       // Pink-500
+          'accent-dark': '#db2777', // Pink-600
+        },
+        
         // Dynamic theme colors using CSS custom properties
         cosmic: {
           primary: 'var(--color-cosmic-primary)',

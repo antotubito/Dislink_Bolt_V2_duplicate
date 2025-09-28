@@ -22,12 +22,12 @@ export function IndustrySelect({
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       <div className="relative">
-        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
         <select
           id="industry"
           value={value || ''}
           onChange={(e) => onChange(e.target.value as Industry)}
-          className="block w-full pl-10 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg"
+          className="block w-full pl-10 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-600 sm:text-sm rounded-lg"
           required={required}
         >
           <option value="">Select an industry</option>
@@ -36,7 +36,7 @@ export function IndustrySelect({
           ))}
         </select>
         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-          <ChevronDown className="h-5 w-5 text-gray-400" />
+          <ChevronDown className="h-5 w-5 text-gray-600" />
         </div>
       </div>
     </div>

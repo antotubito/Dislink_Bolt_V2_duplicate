@@ -90,13 +90,13 @@ export function MeetingNoteModal({
             <div className="p-6">
               <div className="relative">
                 <div className="absolute top-3 left-3">
-                  <FileText className="h-5 w-5 text-gray-400" />
+                  <FileText className="h-5 w-5 text-gray-600" />
                 </div>
                 <textarea
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder={`What did you discuss with ${username}?`}
-                  className="w-full pl-10 pr-4 py-2 h-32 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+                  className="w-full pl-10 pr-4 py-2 h-32 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 resize-none"
                 />
               </div>
               <p className="mt-2 text-sm text-gray-500">
@@ -129,14 +129,14 @@ export function MeetingNoteModal({
                           </label>
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <Calendar className="h-5 w-5 text-gray-400" />
+                              <Calendar className="h-5 w-5 text-gray-600" />
                             </div>
                             <input
                               type="date"
                               value={followUpDate}
                               onChange={(e) => setFollowUpDate(e.target.value)}
                               min={defaultDate}
-                              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                             />
                           </div>
                         </div>
@@ -147,14 +147,14 @@ export function MeetingNoteModal({
                           </label>
                           <div className="relative">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <Clock className="h-5 w-5 text-gray-400" />
+                              <Clock className="h-5 w-5 text-gray-600" />
                             </div>
                             <input
                               type="text"
                               value={followUpDescription}
                               onChange={(e) => setFollowUpDescription(e.target.value)}
                               placeholder="What needs to be done?"
-                              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-600 sm:text-sm"
                             />
                           </div>
                         </div>
@@ -186,7 +186,7 @@ export function MeetingNoteModal({
                   </button>
                   <button
                     onClick={handleSubmit}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700"
+                    className="px-4 py-2 btn-captamundi-primary text-white rounded-lg text-sm font-medium hover:btn-captamundi-primary hover:opacity-90"
                   >
                     Continue
                   </button>

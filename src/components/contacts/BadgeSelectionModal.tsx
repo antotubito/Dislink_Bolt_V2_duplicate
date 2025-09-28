@@ -146,7 +146,7 @@ export function BadgeSelectionModal({
                     onClick={() => toggleBadge(badge.id)}
                     className={`cursor-pointer p-4 rounded-xl border-2 transition-colors ${
                       isSelected
-                        ? 'border-indigo-500 bg-indigo-50'
+                        ? 'border-purple-600 bg-indigo-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -195,8 +195,8 @@ export function BadgeSelectionModal({
                     onClick={handleSubmit}
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       selectedBadges.length > 0
-                        ? 'bg-indigo-600 text-white hover:bg-indigo-700'
-                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        ? 'btn-captamundi-primary text-white hover:btn-captamundi-primary hover:opacity-90'
+                        : 'bg-gray-100 text-gray-600 cursor-not-allowed'
                     }`}
                     disabled={selectedBadges.length === 0}
                   >

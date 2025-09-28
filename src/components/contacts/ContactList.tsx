@@ -283,7 +283,7 @@ export function ContactList() {
           isPulling ? 'translate-y-0' : '-translate-y-full'
         }`}
       >
-        <div className="bg-indigo-600 text-white px-4 py-2 rounded-b-lg shadow-lg">
+        <div className="btn-captamundi-primary text-white px-4 py-2 rounded-b-lg shadow-lg">
           {refreshing ? 'Refreshing...' : 'Pull to refresh'}
         </div>
       </div>
@@ -299,7 +299,7 @@ export function ContactList() {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowForm(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           <Plus className="h-5 w-5 mr-2" />
           Add Contact
@@ -424,18 +424,18 @@ export function ContactList() {
         >
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-600" />
               <input
                 type="text"
                 placeholder="Search contacts..."
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-500 focus:border-purple-600"
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
               />
               {filters.search && (
                 <button
                   onClick={() => setFilters({ ...filters, search: '' })}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-500"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-500"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -516,7 +516,7 @@ export function ContactList() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200"
         >
-          <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
           <h3 className="mt-2 text-lg font-medium text-gray-900">No contacts found</h3>
           <p className="mt-1 text-gray-500">
             {activeTab === 'recent'
@@ -533,7 +533,7 @@ export function ContactList() {
           <div className="mt-6">
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:btn-captamundi-primary hover:opacity-90"
             >
               <Plus className="h-5 w-5 mr-1.5" />
               Add Contact
@@ -651,7 +651,7 @@ export function ContactList() {
                     setShowTierFilter(false);
                   }}
                   disabled={!selectedTier}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50"
+                  className="px-4 py-2 btn-captamundi-primary text-white rounded-lg font-medium hover:btn-captamundi-primary hover:opacity-90 disabled:opacity-50"
                 >
                   View Contacts
                 </button>

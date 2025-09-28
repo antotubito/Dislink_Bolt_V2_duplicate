@@ -65,12 +65,12 @@ export function TierNotificationToggle({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-sm font-medium text-gray-900 flex items-center">
-          <Bell className="h-4 w-4 mr-2 text-gray-400" />
+          <Bell className="h-4 w-4 mr-2 text-gray-600" />
           Notify Relationship Circles
           <button
             type="button"
             onClick={() => setShowInfo(!showInfo)}
-            className="ml-2 text-gray-400 hover:text-gray-500"
+            className="ml-2 text-gray-600 hover:text-gray-500"
           >
             <Info className="h-4 w-4" />
           </button>
@@ -80,7 +80,7 @@ export function TierNotificationToggle({
           onClick={toggleAll}
           disabled={disabled}
           className={`text-sm font-medium ${
-            disabled ? 'text-gray-400 cursor-not-allowed' : 'text-indigo-600 hover:text-indigo-700 hover:underline'
+            disabled ? 'text-gray-600 cursor-not-allowed' : 'text-indigo-600 hover:text-indigo-700 hover:underline'
           }`}
         >
           {selectedTiers.length === tiers.length ? 'Deselect All' : 'Select All'}

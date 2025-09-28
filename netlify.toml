@@ -43,11 +43,63 @@
   to = "/app/register?from=qr_scan&connect=:connect&scan_id=:scan_id"
   status = 302
 
-# SPA routing - catch all other routes
+# SPA routing - specific routes only (excludes assets)
+[[redirects]]
+  from = "/confirmed"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/waitlist"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/story"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/privacy"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/verify"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/confirm"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/share/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo"
+  to = "/index.html"
+  status = 200
+
+# Catch-all for other app routes (but not assets)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  conditions = {Path = ["!/assets/*", "!/icons/*", "!/sw.js", "!/manifest.json", "!/robots.txt", "!/security.txt", "!/favicon.ico", "!/apple-touch-icon.png"]}
 
 # Headers for better security and performance
 [[headers]]
@@ -57,6 +109,8 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co wss://bbonxxvifycwpoeaxsor.supabase.co https://o4510074051756032.ingest.us.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org; frame-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co; worker-src 'self' blob:;"
+    Permissions-Policy = "geolocation=*"
 
 [[headers]]
   for = "/assets/*"

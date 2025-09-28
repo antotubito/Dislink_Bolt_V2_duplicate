@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Mail, ArrowRight, Check, Lock, AlertCircle, Home, Timer, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
+import { getEmailRedirectUrl } from '../lib/authUtils';
 
 export function EmailConfirmation() {
   const navigate = useNavigate();
@@ -36,20 +37,20 @@ export function EmailConfirmation() {
         const token = searchParams.get('token_hash') || searchParams.get('token');
         const type = searchParams.get('type') || 'signup';
         const email = searchParams.get('email') || localStorage.getItem('confirmEmail');
-        
+
         // Log all URL parameters for debugging
         const allParams: Record<string, string> = {};
         searchParams.forEach((value, key) => {
           allParams[key] = value;
         });
-        
-        logger.info('Email verification parameters:', { 
+
+        logger.info('Email verification parameters:', {
           token: token ? `${token.substring(0, 5)}...` : 'missing',
           type,
           email: email ? `${email.substring(0, 3)}...` : 'missing',
           allParams
         });
-        
+
         setDebugInfo({
           token: token ? `${token.substring(0, 5)}...` : 'missing',
           type,
@@ -65,7 +66,7 @@ export function EmailConfirmation() {
 
         // Try different verification approaches
         let verificationSuccessful = false;
-        
+
         // Approach 1: Use token_hash with email
         if (email) {
           logger.info('Attempting verification with email and token_hash');
@@ -74,7 +75,7 @@ export function EmailConfirmation() {
             type: type as any,
             email
           });
-          
+
           if (!error1) {
             verificationSuccessful = true;
             logger.info('Verification successful with email and token_hash');
@@ -82,7 +83,7 @@ export function EmailConfirmation() {
             logger.warn('Verification failed with email and token_hash:', error1);
           }
         }
-        
+
         // Approach 2: Use token_hash without email if first approach failed
         if (!verificationSuccessful) {
           logger.info('Attempting verification with token_hash only');
@@ -90,13 +91,13 @@ export function EmailConfirmation() {
             token_hash: token,
             type: type as any
           });
-          
+
           if (!error2) {
             verificationSuccessful = true;
             logger.info('Verification successful with token_hash only');
           } else {
             logger.warn('Verification failed with token_hash only:', error2);
-            
+
             // Check if error is due to already verified email
             if (error2.message?.includes('User already confirmed')) {
               setSuccess(true);
@@ -109,7 +110,7 @@ export function EmailConfirmation() {
               setLoading(false);
               return;
             }
-            
+
             // If both approaches failed, throw the error from the second attempt
             if (!verificationSuccessful) {
               throw error2;
@@ -121,7 +122,7 @@ export function EmailConfirmation() {
         if (verificationSuccessful) {
           setSuccess(true);
           logger.info('Email verification successful');
-          
+
           // Automatically redirect to onboarding after a short delay
           setTimeout(() => {
             navigate('/app/onboarding');
@@ -151,14 +152,14 @@ export function EmailConfirmation() {
       setError(`Please wait ${cooldownTime} seconds before trying again`);
       return;
     }
-    
+
     setResendingEmail(true);
     setError(null);
     setResendSuccess(false);
 
     try {
       const email = localStorage.getItem('confirmEmail');
-      
+
       if (!email) {
         throw new Error('Email address not found. Please try signing up again.');
       }
@@ -167,7 +168,7 @@ export function EmailConfirmation() {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirmed`
+          emailRedirectTo: getEmailRedirectUrl()
         }
       });
 
@@ -178,7 +179,7 @@ export function EmailConfirmation() {
         }
         throw error;
       }
-      
+
       setResendSuccess(true);
     } catch (error) {
       console.error('Error resending verification email:', error);
@@ -217,19 +218,19 @@ export function EmailConfirmation() {
           <p className="text-gray-600 mb-6">
             {error}
           </p>
-          
+
           {debugInfo && (
             <div className="mb-6 p-4 bg-gray-50 rounded-lg text-left text-xs text-gray-500 overflow-auto max-h-40">
               <p className="font-semibold mb-1">Debug Information:</p>
               <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
             </div>
           )}
-          
+
           <div className="flex flex-col space-y-3">
             <button
               onClick={handleResendEmail}
               disabled={resendingEmail || cooldownTime > 0}
-              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50"
+              className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50"
             >
               {resendingEmail ? (
                 <div className="flex items-center">
@@ -277,7 +278,7 @@ export function EmailConfirmation() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ 
+        transition={{
           type: "spring",
           stiffness: 300,
           damping: 30
@@ -292,7 +293,7 @@ export function EmailConfirmation() {
         >
           <Check className="h-10 w-10 text-green-600" />
         </motion.div>
-        
+
         <motion.h2
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -301,7 +302,7 @@ export function EmailConfirmation() {
         >
           ✅ Your email has been successfully confirmed!
         </motion.h2>
-        
+
         <motion.p
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -310,7 +311,7 @@ export function EmailConfirmation() {
         >
           Thank you for verifying your email address. Your account is now active. Let's get you set up with your personalized experience!
         </motion.p>
-        
+
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -319,12 +320,12 @@ export function EmailConfirmation() {
         >
           <button
             onClick={handleContinue}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
           >
             🚀 Start Your Journey
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
-          
+
           <button
             onClick={handleGoToHome}
             className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50"
