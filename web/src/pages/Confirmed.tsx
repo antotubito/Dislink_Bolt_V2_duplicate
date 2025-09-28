@@ -111,78 +111,16 @@ export function Confirmed() {
           // Don't fail the verification process for QR connection errors
         }
 
-        // Enhanced profile handling with validation and timeout protection
-        try {
-          logger.info('Attempting to fetch and validate user profile');
-
-          // Add timeout protection for profile query
-          const profilePromise = supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', result.user.id)
-            .single();
-
-          const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Profile query timeout')), 10000)
-          );
-
-          const { data: profile, error: profileError } = await Promise.race([
-            profilePromise,
-            timeoutPromise
-          ]) as any;
-
-          if (profileError && profileError.code === 'PGRST116') {
-            // Profile doesn't exist, create one with enhanced data
-            logger.info('Profile not found, creating new profile with enhanced data');
-            const { error: insertError } = await supabase
-              .from('profiles')
-              .insert({
-                id: result.user.id,
-                email: result.user.email,
-                first_name: result.user.user_metadata?.firstName || '',
-                last_name: result.user.user_metadata?.lastName || '',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              });
-
-            if (insertError) {
-              logger.error('Failed to create profile:', insertError);
-              // Don't fail the flow, just log the error
-            } else {
-              logger.info('Enhanced profile created successfully');
-            }
-          } else if (profileError) {
-            logger.error('Profile query failed:', profileError);
-            // Don't fail the flow, just log the error
-          } else {
-            logger.info('Profile found and validated:', profile.id);
-
-            // Validate profile completeness
-            const validation = validateUserProfile(profile);
-            if (!validation.isValid) {
-              logger.warn('Profile validation failed:', validation.missingFields);
-            }
-          }
-        } catch (profileErr) {
-          logger.error('Profile operation failed:', profileErr);
-          // Don't fail the flow, just log the error
-        }
+        // Skip profile query in email confirmation - let AuthProvider handle it
+        logger.info('Email confirmation successful, letting AuthProvider handle profile loading');
 
         // Wait a moment for session to be properly established
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Enhanced redirect logic based on profile completeness
+        // Simple redirect - let AuthProvider handle onboarding detection
         logger.info('Redirecting user after successful verification');
         localStorage.removeItem('redirectUrl');
-
-        // Check if user needs onboarding or can go directly to app
-        const needsOnboarding = result.requiresOnboarding || !result.user.user_metadata?.onboardingComplete;
-
-        if (needsOnboarding) {
-          navigate('/app/onboarding');
-        } else {
-          navigate('/app');
-        }
+        navigate('/app');
 
         setVerificationStatus('success');
 

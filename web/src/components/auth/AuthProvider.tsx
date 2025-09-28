@@ -425,7 +425,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           logger.warn('🔍 AUTH TIMEOUT: Auth state change taking too long, forcing loading to false');
           setLoading(false);
         }
-      }, 15000); // 15 second timeout
+      }, 10000); // 10 second timeout
 
       if (session?.user) {
         // User signed in or session restored
