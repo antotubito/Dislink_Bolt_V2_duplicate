@@ -12,17 +12,17 @@ import {
   Smartphone, ArrowUpRight, Clock, Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { validateQRCode, requestConnection } from "@dislink/shared/lib/qr"';
+import { validateQRCode, requestConnection } from "@dislink/shared/lib/qr";
 import {
   trackEnhancedQRScan,
   sendEmailInvitation,
   createConnectionMemory,
   validateInvitationCode
-} from "@dislink/shared/lib/qr"Enhanced';
-import { SOCIAL_CATEGORIES } from '../config/social';
-import { supabase } from '../lib/supabase';
+} from "@dislink/shared/lib/qrEnhanced";
+import { SOCIAL_CATEGORIES } from '@dislink/shared/constants';
+import { supabase } from '@dislink/shared/lib/supabase';
 import { AppStoreButtons } from '../components/AppStoreButtons';
-import { shareContent, isMobileApp } from "@dislink/shared/lib/mobileUtils"';
+import { shareContent, isMobileApp } from "@dislink/shared/lib/mobileUtils";
 
 export function PublicProfile() {
   const { code, scanId } = useParams<{ code?: string; scanId?: string }>();

@@ -18,8 +18,8 @@ import {
   sendEmailInvitation, 
   createConnectionMemory,
   validateInvitationCode 
-} from "@dislink/shared/lib/qr"Enhanced';
-import { generateQRCode } from "@dislink/shared/lib/qr"';
+} from "@dislink/shared/lib/qrEnhanced";
+import { generateQRCode } from "@dislink/shared/lib/qr";
 import { useAuth } from '../auth/AuthProvider';
 
 interface TestResult {

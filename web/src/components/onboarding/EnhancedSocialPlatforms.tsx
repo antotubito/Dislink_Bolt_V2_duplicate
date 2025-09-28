@@ -5,7 +5,7 @@ import {
     AlertCircle, ExternalLink, Loader2, Search, Copy, X, ChevronDown, ChevronUp,
     Link2, User, Building2, Video, Heart, Calendar, MessageCircle, Music, Gamepad2
 } from 'lucide-react';
-import { AnimatedButton } from './AnimatedButton';
+import { AnimatedButton } from '@dislink/shared/components/ui/AnimatedButton';
 
 interface SocialLinksStepProps {
     socialLinks: Record<string, string>;

@@ -1,10 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import type { User } from '../../types/user';
-import { supabase, isConnectionHealthy, initializeConnection } from '../../lib/supabase';
-import { logger } from '../../lib/logger';
-import { initUserPreferences } from "@dislink/shared/lib/userPreferences"';
-import { setupAuthStateListener } from '../../lib/authFlow';
+import type { User } from '@dislink/shared/types';
+import { supabase, isConnectionHealthy, initializeConnection } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
+import { initUserPreferences } from "@dislink/shared/lib/userPreferences";
+import { setupAuthStateListener } from '@dislink/shared/lib/authFlow';
 
 interface AuthContextType {
   user: User | null;

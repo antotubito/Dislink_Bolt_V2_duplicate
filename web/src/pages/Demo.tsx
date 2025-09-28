@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { CityAutocompleteDemo } from '../components/common/CityAutocompleteDemo';
-import { userPreferences } from "@dislink/shared/lib/userPreferences"';
-import { Location } from '../types/location';
+import { CityAutocompleteDemo } from '@dislink/shared/components/CityAutocompleteDemo';
+import { userPreferences } from "@dislink/shared/lib/userPreferences";
+import { Location } from '@dislink/shared/types';
 import { useAuth } from '../components/auth/AuthProvider';
 import { CosmicThemeSelector, CosmicThemeSelectorCard } from '../components/cosmic/CosmicThemeSelector';
 import { useCosmicTheme } from '../lib/cosmicThemes';

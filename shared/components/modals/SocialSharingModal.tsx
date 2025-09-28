@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, ChevronDown, ChevronUp, ArrowLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SOCIAL_CATEGORIES } from '../../config/social';
-import type { User } from '../../types/user';
+import { SOCIAL_CATEGORIES } from '../../constants/social';
+import type { User } from '../../types';
 
 interface SocialSharingModalProps {
   isOpen: boolean;

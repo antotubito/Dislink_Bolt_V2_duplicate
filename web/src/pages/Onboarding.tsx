@@ -5,15 +5,15 @@ import {
   User, Mail, Building2, Briefcase, Calendar, Heart,
   Globe, Camera, Sparkles, LinkIcon, LogOut, Check, ArrowLeft, X
 } from 'lucide-react';
-import { OnboardingStep } from "@dislink/shared/components/onboarding/OnboardingStep"';
-import { AnimatedInput } from "@dislink/shared/components/ui/AnimatedInput"';
-import { AnimatedButton } from "@dislink/shared/components/ui/AnimatedButton"';
-import { EnhancedSocialLinksInput } from '../components/common/EnhancedSocialLinksInput';
-import { updateProfile } from '../lib/profile';
+import { OnboardingStep } from "@dislink/shared/components/onboarding/OnboardingStep";
+import { AnimatedInput } from "@dislink/shared/components/ui/AnimatedInput";
+import { AnimatedButton } from "@dislink/shared/components/ui/AnimatedButton";
+import { EnhancedSocialLinksInput } from '@dislink/shared/components/EnhancedSocialLinksInput';
+import { updateProfile } from '@dislink/shared/lib/profile';
 import { useAuth } from '../components/auth/AuthProvider';
-import { supabase } from '../lib/supabase';
-import { Industry } from '../types/industry';
-import { completeOnboarding } from '../lib/authFlow';
+import { supabase } from '@dislink/shared/lib/supabase';
+import { Industry } from '@dislink/shared/types';
+import { completeOnboarding } from '@dislink/shared/lib/authFlow';
 import { 
   LazyEnhancedSocialPlatforms, 
   LazyLocationStep, 

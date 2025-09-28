@@ -6,11 +6,11 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import type { Contact } from '../../types/contact';
+import type { Contact } from '@dislink/shared/types';
 import { ContactNotes } from './ContactNotes';
 import { ContactFollowUps } from './ContactFollowUps';
-import { SOCIAL_CATEGORIES } from '../../config/social';
-import { SharingSettingsModal } from './SharingSettingsModal';
+import { SOCIAL_CATEGORIES } from '@dislink/shared/constants/social';
+import { SharingSettingsModal } from '@dislink/shared/components/modals/SharingSettingsModal';
 
 interface ContactProfileProps {
   contact: Contact;

@@ -3,8 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircle, XCircle, Clock, Mail, ArrowRight, RefreshCw } from 'lucide-react';
-import { handleEmailConfirmation, getPostAuthRedirectPath } from '../lib/authFlow';
-import { logger } from '../lib/logger';
+import { handleEmailConfirmation, getPostAuthRedirectPath } from '@dislink/shared/lib/authFlow';
+import { logger } from '@dislink/shared/lib/logger';
 
 type VerificationStatus = 'loading' | 'success' | 'error' | 'already-verified';
 

@@ -4,8 +4,8 @@ import {
     Plus, X, ExternalLink, AlertCircle, CheckCircle,
     Globe, Link as LinkIcon, Eye, Trash2, Edit3
 } from 'lucide-react';
-import { SOCIAL_CATEGORIES } from '../../config/social';
-import type { Location } from '../../types/location';
+import { SOCIAL_CATEGORIES } from '../constants/social';
+import type { Location } from '../types';
 
 // Platform icons stored locally to avoid CSP issues
 const PLATFORM_ICONS = {

@@ -5,11 +5,11 @@ import {
   Camera, Heart, Link as LinkIcon, Eye, EyeOff,
   Save, X, ChevronDown, ChevronUp, Bell
 } from 'lucide-react';
-import type { User as UserType } from '../../types/user';
-import type { Industry } from '../../types/industry';
-import { SocialLinksInput } from './SocialLinksInput';
-import { EnhancedSocialLinksInput } from '../common/EnhancedSocialLinksInput';
-import { InterestsInput } from './InterestsInput';
+import type { User as UserType } from '@dislink/shared/types';
+import type { Industry } from '@dislink/shared/types';
+import { SocialLinksInput } from '@dislink/shared/components/forms/SocialLinksInput';
+import { EnhancedSocialLinksInput } from '@dislink/shared/components/EnhancedSocialLinksInput';
+import { InterestsInput } from '@dislink/shared/components/forms/InterestsInput';
 import { 
   LazyIndustrySelect, 
   LazyJobTitleInput, 
@@ -18,9 +18,9 @@ import {
   LazyLoadingFallback 
 } from '../lazy';
 import { Suspense } from 'react';
-import { TierNotificationToggle } from './TierNotificationToggle';
+import { TierNotificationToggle } from '@dislink/shared/components/profile/TierNotificationToggle';
 import { NotificationPreview } from './NotificationPreview';
-import type { Location } from '../../types/location';
+import type { Location } from '@dislink/shared/types';
 
 interface ProfileEditProps {
   user: UserType;

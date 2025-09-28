@@ -3,18 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../components/auth/AuthProvider';
 import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { signUp } from '../lib/auth';
-import { registerWithPKCE } from '../lib/authUtils';
-import type { RegistrationData } from '../types/user';
-import { sessionManager } from "@dislink/shared/lib/sessionManager"';
-import { logger } from '../lib/logger';
-import { supabase } from '../lib/supabase';
-import { getEmailRedirectUrl } from '../lib/authUtils';
+import { signUp } from '@dislink/shared/lib/auth';
+import { registerWithPKCE } from '@dislink/shared/lib/authUtils';
+import type { RegistrationData } from '@dislink/shared/types';
+import { sessionManager } from "@dislink/shared/lib/sessionManager";
+import { logger } from '@dislink/shared/lib/logger';
+import { supabase } from '@dislink/shared/lib/supabase';
+import { getEmailRedirectUrl } from '@dislink/shared/lib/authUtils';
 import {
   updateConnectionMemoryOnRegistration,
   createUserConnection,
   validateInvitationCode
-} from "@dislink/shared/lib/qr"Enhanced';
+} from "@dislink/shared/lib/qrEnhanced";
 
 export function Register() {
   const navigate = useNavigate();

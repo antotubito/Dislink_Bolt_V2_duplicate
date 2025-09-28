@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { User, Mail, Phone, Building2, Briefcase, Calendar, Tag, X, MapPin, MessageCircle } from 'lucide-react';
 import type { Contact } from '../../types/contact';
-import { CityAutocomplete } from '../common/CityAutocomplete';
+import { CityAutocomplete } from '../CityAutocomplete';
 
 interface ContactFormProps {
   contact?: Partial<Contact>;

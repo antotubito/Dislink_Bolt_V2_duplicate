@@ -3,14 +3,14 @@ import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, Users, Settings, Home, UserCircle2, Bell, QrCode, Menu, X, Globe } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from './auth/AuthProvider';
-import { logout } from '../lib/auth';
-import { NotificationDropdown } from './notifications/NotificationDropdown';
+import { logout } from '@dislink/shared/lib/auth';
+import { NotificationDropdown } from '@dislink/shared/components/notifications/NotificationDropdown';
 import { Footer } from './Footer';
-import { supabase } from '../lib/supabase';
+import { supabase } from '@dislink/shared/lib/supabase';
 import { Logo } from './Logo';
 import { LazyQRModal, LazyLoadingFallback } from './lazy';
 import { useCosmicTheme } from '../lib/cosmicThemes';
-import { captureError, captureMessage } from "@dislink/shared/lib/sentry"';
+  import { captureError, captureMessage } from "@dislink/shared/lib/sentry";
 import { prefetchForRoute, prefetchOnHover, prefetchOnFocus } from '../lib/prefetch';
 
 export function Layout() {

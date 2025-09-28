@@ -3,16 +3,16 @@ import { Plus, Search, Filter, ChevronRight, MoreVertical, Clock, Building2, Mai
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../auth/AuthProvider';
 import { useNavigate } from 'react-router-dom';
-import type { Contact } from '../../types/contact';
-import { LocationSelectionModal } from './LocationSelectionModal';
-import { TagSelectionModal } from './TagSelectionModal';
-import { SocialSharingModal } from './SocialSharingModal';
-import { MutualConnectionsModal } from './MutualConnectionsModal';
-import { MeetingNoteModal } from './MeetingNoteModal';
-import { CelebrationConfetti } from './CelebrationConfetti';
-import { BadgeSelectionModal } from './BadgeSelectionModal';
-import { TierModal } from './TierModal';
-import { logger } from '../../lib/logger';
+import type { Contact } from '@dislink/shared/types';
+import { LocationSelectionModal } from '@dislink/shared/components/modals/LocationSelectionModal';
+import { TagSelectionModal } from '@dislink/shared/components/modals/TagSelectionModal';
+import { SocialSharingModal } from '@dislink/shared/components/modals/SocialSharingModal';
+import { MutualConnectionsModal } from '@dislink/shared/components/modals/MutualConnectionsModal';
+import { MeetingNoteModal } from '@dislink/shared/components/modals/MeetingNoteModal';
+import { CelebrationConfetti } from '@dislink/shared/components/contacts/CelebrationConfetti';
+import { BadgeSelectionModal } from '@dislink/shared/components/modals/BadgeSelectionModal';
+import { TierModal } from '@dislink/shared/components/modals/TierModal';
+import { logger } from '@dislink/shared/lib/logger';
 
 interface ContactCardProps {
   contact: Contact;

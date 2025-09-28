@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { User } from '../../types/user';
-import { SOCIAL_CATEGORIES } from '../../config/social';
-import { logger } from '../../lib/logger';
+import { SOCIAL_CATEGORIES } from '@dislink/shared/constants/social';
+import { logger } from '@dislink/shared/lib/logger';
 
 interface ProfileViewProps {
   user: User;

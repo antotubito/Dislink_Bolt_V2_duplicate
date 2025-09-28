@@ -8,8 +8,8 @@
  * - Network connectivity
  */
 
-import { supabase } from '../lib/supabase';
-import { logger } from '../lib/logger';
+import { supabase } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
 
 export interface RegistrationDiagnosticResult {
     success: boolean;

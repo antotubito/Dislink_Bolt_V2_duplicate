@@ -1,9 +1,9 @@
 import React from 'react';
 import { ContactList } from '../components/contacts/ContactList';
 import { ConnectionCircles } from '../components/home/ConnectionCircles';
-import { listContacts } from '../lib/contacts';
+import { listContacts } from '@dislink/shared/lib/contacts';
 import { useState, useEffect } from 'react';
-import type { Contact } from '../types/contact';
+import type { Contact } from '@dislink/shared/types';
 
 export function Contacts() {
   const [contacts, setContacts] = useState<Contact[]>([]);

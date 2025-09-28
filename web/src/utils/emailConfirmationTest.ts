@@ -4,8 +4,8 @@
  * This utility helps debug email confirmation issues
  */
 
-import { supabase } from '../lib/supabase';
-import { logger } from '../lib/logger';
+import { supabase } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
 
 export interface EmailConfirmationTestResult {
     success: boolean;

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Check, X, AlertCircle, PlusCircle, Link as LinkIcon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SOCIAL_CATEGORIES } from '../../config/social';
+import { SOCIAL_CATEGORIES } from '../../constants/social';
 
 interface SocialLinksInputProps {
   links: Record<string, string>;

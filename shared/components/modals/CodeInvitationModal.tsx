@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { validateInvitationCode } from '../../lib/qrEnhanced';
 import { completeQRConnection } from '../../lib/qrConnectionHandler';
-import { useAuth } from '../auth/AuthProvider';
+// Note: useAuth should be passed as prop from parent component
 import { logger } from '../../lib/logger';
 
 interface CodeInvitationModalProps {
@@ -28,7 +28,7 @@ export function CodeInvitationModal({
   onSuccess,
   onSkip
 }: CodeInvitationModalProps) {
-  const { user } = useAuth();
+  // user is now passed as a prop
   const [invitationCode, setInvitationCode] = useState('');
   const [connectionCode, setConnectionCode] = useState('');
   const [loading, setLoading] = useState(false);

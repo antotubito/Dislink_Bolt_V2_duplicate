@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { supabase } from '../lib/supabase';
+import { supabase } from '@dislink/shared/lib/supabase';
 import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Story() {

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
-import { supabase, waitForSupabaseReady } from '../../lib/supabase';
-import { logger } from '../../lib/logger';
-import { shouldRedirectToOnboarding, getPostAuthRedirectPath } from '../../lib/authFlow';
+import { supabase, waitForSupabaseReady } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
+import { shouldRedirectToOnboarding, getPostAuthRedirectPath } from '@dislink/shared/lib/authFlow';
 
 interface SessionGuardProps {
   children: React.ReactNode;

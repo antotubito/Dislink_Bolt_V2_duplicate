@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, ArrowRight, Check } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { validatePassword } from '../lib/auth';
+import { supabase } from '@dislink/shared/lib/supabase';
+import { validatePassword } from '@dislink/shared/lib/auth';
 
 export function ResetPassword() {
   const navigate = useNavigate();

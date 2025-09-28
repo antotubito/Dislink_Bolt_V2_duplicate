@@ -9,10 +9,10 @@ import {
 } from 'lucide-react';
 import { NeedStory } from './NeedStory';
 import { NeedStoryModal } from './NeedStoryModal';
-import { listNeeds, createNeed } from '../../lib/needs';
+import { listNeeds, createNeed } from '@dislink/shared/lib/needs';
 import { useAuth } from '../auth/AuthProvider';
-import { logger } from '../../lib/logger';
-import type { Need } from '../../types/need';
+import { logger } from '@dislink/shared/lib/logger';
+import type { Need } from '@dislink/shared/types';
 
 interface CreateNeedModalProps {
   onClose: () => void;

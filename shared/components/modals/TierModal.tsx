@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Users, ArrowLeft } from 'lucide-react';
-import { TierSelector } from './TierSelector';
+import { TierSelector } from '../contacts/TierSelector';
 
 interface TierModalProps {
   isOpen: boolean;

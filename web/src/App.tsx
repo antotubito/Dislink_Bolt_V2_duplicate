@@ -176,7 +176,7 @@ const initializeServices = () => {
   if (import.meta.env.PROD) {
     try {
       console.log('🔍 Initializing Sentry for production...');
-      import('./lib/sentry').then(({ initSentry }) => {
+      import('@dislink/shared/lib/sentry').then(({ initSentry }) => {
         initSentry();
         console.log('✅ Sentry initialization completed');
       }).catch(error => {
@@ -192,7 +192,7 @@ const initializeServices = () => {
   // Initialize Supabase
   try {
     console.log('🔗 Initializing Supabase...');
-    import('./lib/supabase').then(({ initializeConnection }) => {
+    import('@dislink/shared/lib/supabase').then(({ initializeConnection }) => {
       initializeConnection().catch(error => {
         console.error('❌ Supabase initialization failed:', error);
       });

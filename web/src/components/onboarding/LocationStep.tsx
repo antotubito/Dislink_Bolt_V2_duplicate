@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Globe, ArrowLeft, AlertCircle } from 'lucide-react';
-import { CityAutocomplete } from '../common/CityAutocomplete';
-import { AnimatedButton } from './AnimatedButton';
-import type { Location } from '../../types/location';
-import { getCurrentLocationWithFallback } from "@dislink/shared/lib/geolocation"';
-import { logger } from '../../lib/logger';
+import { CityAutocomplete } from '@dislink/shared/components/CityAutocomplete';
+import { AnimatedButton } from '@dislink/shared/components/ui/AnimatedButton';
+import type { Location } from '@dislink/shared/types';
+import { getCurrentLocationWithFallback } from "@dislink/shared/lib/geolocation";
+import { logger } from '@dislink/shared/lib/logger';
 
 interface LocationStepProps {
   location: string;

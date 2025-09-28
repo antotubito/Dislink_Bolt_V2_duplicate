@@ -1,7 +1,7 @@
 import { debounce } from './utils';
 import { logger } from './logger';
 import type { Location } from '../types/location';
-import { searchCities as searchLocalCities, getPopularCities as getLocalPopularCities } from './citiesService';
+import { searchCities as searchLocalCities, getPopularCities as getLocalPopularCities } from '../../web/src/lib/citiesService';
 
 // Cache for search results
 const searchCache = new Map<string, Location[]>();
@@ -310,7 +310,7 @@ const POPULAR_CITIES: Location[] = [
 let citiesData: { cities: any[] } = { cities: [] };
 try {
   // Try to import the cities data
-  import('../data/cities.json').then(module => {
+  import('../constants/cities.json').then(module => {
     citiesData = module.default;
   }).catch(err => {
     logger.error('Error loading cities data:', err);

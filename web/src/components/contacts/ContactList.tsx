@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plus, Search, Filter, ChevronRight, MoreVertical, Clock, Tag, Calendar, MapPin, Building2, Briefcase, Users, X, Circle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Contact, ContactFilters } from '../../types/contact';
+import type { Contact, ContactFilters } from '@dislink/shared/types';
 import ContactCard from './ContactCard';
-import { ContactForm } from './ContactForm';
-import { ContactFilters as ContactFiltersComponent } from './ContactFilters';
-import { listContacts, createContact, updateContact, deleteContact, listRecentContacts, updateContactTier } from '../../lib/contacts';
-import { TierSelector } from './TierSelector';
+import { ContactForm } from '@dislink/shared/components/forms/ContactForm';
+import { ContactFilters as ContactFiltersComponent } from '@dislink/shared/components/contacts/ContactFilters';
+import { listContacts, createContact, updateContact, deleteContact, listRecentContacts, updateContactTier } from '@dislink/shared/lib/contacts';
+import { TierSelector } from '@dislink/shared/components/contacts/TierSelector';
 
 export function ContactList() {
   const [contacts, setContacts] = useState<Contact[]>([]);

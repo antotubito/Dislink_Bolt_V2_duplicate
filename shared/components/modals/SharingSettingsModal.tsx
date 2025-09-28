@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Eye, EyeOff, Link as LinkIcon, Save, Check } from 'lucide-react';
-import { SOCIAL_CATEGORIES } from '../../config/social';
+import { SOCIAL_CATEGORIES } from '../../constants/social';
 import type { Contact } from '../../types/contact';
-import { useAuth } from '../auth/AuthProvider';
+import type { User } from '../../types';
 
 interface SharingSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (sharedLinks: Record<string, boolean>) => Promise<void>;
   contact: Contact;
+  user: User;
 }
 
 export function SharingSettingsModal({
   isOpen,
   onClose,
   onSave,
-  contact
+  contact,
+  user
 }: SharingSettingsModalProps) {
-  const { user } = useAuth();
   const [sharedLinks, setSharedLinks] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);

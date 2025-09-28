@@ -1,4 +1,4 @@
-import { env, isTestingEnvironment, isProductionEnvironment } from '../config/environment';
+import { env, isTestingEnvironment, isProductionEnvironment } from '../constants/environment';
 import { logger } from './logger';
 
 // Channel types

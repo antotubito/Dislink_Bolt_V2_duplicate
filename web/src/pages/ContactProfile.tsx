@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getContact, addNote, addFollowUp, toggleFollowUp, updateContactSharing } from '../lib/contacts';
-import type { Contact } from '../types/contact';
+import { getContact, addNote, addFollowUp, toggleFollowUp, updateContactSharing } from '@dislink/shared/lib/contacts';
+import type { Contact } from '@dislink/shared/types';
 import { ContactProfile as ContactProfileComponent } from '../components/contacts/ContactProfile';
 
 function ContactProfilePage() {

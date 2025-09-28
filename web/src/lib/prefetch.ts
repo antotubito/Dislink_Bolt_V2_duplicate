@@ -1,5 +1,5 @@
 // Prefetching utilities for better performance
-import { logger } from './logger';
+import { logger } from '@dislink/shared/lib/logger';
 
 interface PrefetchOptions {
   priority?: 'high' | 'low';

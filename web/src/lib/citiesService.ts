@@ -1,7 +1,7 @@
 import Fuse from 'fuse.js';
-import { debounce } from './utils';
-import { logger } from './logger';
-import type { Location } from '../types/location';
+import { debounce } from '@dislink/shared/lib/utils';
+import { logger } from '@dislink/shared/lib/logger';
+import type { Location } from '@dislink/shared/types';
 
 // Type for city data with alternate names
 interface CityData extends Location {
@@ -20,7 +20,7 @@ let citiesData: { cities: CityData[] } = { cities: [] };
 const initCitiesData = async () => {
   try {
     // Try to import the cities data
-    const module = await import('../data/cities.json');
+    const module = await import('@dislink/shared/constants/cities.json');
     citiesData = module.default;
     return citiesData.cities;
   } catch (error) {

@@ -15,10 +15,10 @@ import {
   listRecentContacts,
   listContacts,
   updateContactTier
-} from '../lib/contacts';
-import type { Contact, FollowUp } from '../types/contact';
-import { supabase } from '../lib/supabase';
-import { logger } from '../lib/logger';
+} from '@dislink/shared/lib/contacts';
+import type { Contact, FollowUp } from '@dislink/shared/types';
+import { supabase } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
 import { useCosmicTheme } from '../lib/cosmicThemes';
 import { 
   LazyContactCard,

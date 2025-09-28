@@ -28,8 +28,8 @@ import {
   Settings as SettingsIcon,
   ToggleLeft as Toggle
 } from 'lucide-react';
-import { getAccessRequests, approveAccessRequest, declineAccessRequest } from '../lib/auth';
-import type { TestUser } from '../types/user';
+import { getAccessRequests, approveAccessRequest, declineAccessRequest } from '@dislink/shared/lib/auth';
+import type { TestUser } from '@dislink/shared/types';
 
 type SettingsSection = 'account' | 'email' | 'privacy';
 

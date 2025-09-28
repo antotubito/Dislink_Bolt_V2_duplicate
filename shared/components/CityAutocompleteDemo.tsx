@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CityAutocomplete } from './CityAutocomplete';
-import type { Location } from '../../types/location';
-import { getPopularCities } from '../../lib/nominatimService';
+import type { Location } from '../types';
+import { getPopularCities } from '../lib/nominatimService';
 
 interface CityAutocompleteDemoProps {
   initialValue?: string;

@@ -4,7 +4,7 @@ import React from 'react';
 
 // Heavy components that should be lazy-loaded
 export const LazyCityAutocomplete = lazy(() => 
-  import('../common/CityAutocomplete').then(module => ({ 
+  import('@dislink/shared/components/CityAutocomplete').then(module => ({ 
     default: module.CityAutocomplete 
   }))
 );
@@ -22,7 +22,7 @@ export const LazyQRModal = lazy(() =>
 );
 
 export const LazyConnectionConfirmation = lazy(() => 
-  import('../qr/ConnectionConfirmation').then(module => ({ 
+  import('@dislink/shared/components/qr/ConnectionConfirmation').then(module => ({ 
     default: module.ConnectionConfirmation 
   }))
 );
@@ -46,43 +46,43 @@ export const LazyProfileImageUpload = lazy(() =>
 );
 
 export const LazyJobTitleInput = lazy(() => 
-  import('../profile/JobTitleInput').then(module => ({ 
+  import('@dislink/shared/components/forms/JobTitleInput').then(module => ({ 
     default: module.JobTitleInput 
   }))
 );
 
 export const LazyIndustrySelect = lazy(() => 
-  import('../profile/IndustrySelect').then(module => ({ 
+  import('@dislink/shared/components/forms/IndustrySelect').then(module => ({ 
     default: module.IndustrySelect 
   }))
 );
 
 export const LazyCodeInvitationModal = lazy(() => 
-  import('../onboarding/CodeInvitationModal').then(module => ({ 
+  import('@dislink/shared/components/modals/CodeInvitationModal').then(module => ({ 
     default: module.CodeInvitationModal 
   }))
 );
 
 export const LazyWaitlistForm = lazy(() => 
-  import('../waitlist/WaitlistForm').then(module => ({ 
+  import('@dislink/shared/components/waitlist/WaitlistForm').then(module => ({ 
     default: module.WaitlistForm 
   }))
 );
 
 export const LazyGoogleSheetsTest = lazy(() => 
-  import('../waitlist/GoogleSheetsTest').then(module => ({ 
+  import('@dislink/shared/components/waitlist/GoogleSheetsTest').then(module => ({ 
     default: module.GoogleSheetsTest 
   }))
 );
 
 export const LazyNotificationDropdown = lazy(() => 
-  import('../notifications/NotificationDropdown').then(module => ({ 
+  import('@dislink/shared/components/notifications/NotificationDropdown').then(module => ({ 
     default: module.NotificationDropdown 
   }))
 );
 
 export const LazyFaceVerification = lazy(() => 
-  import('../verification/FaceVerification').then(module => ({ 
+  import('@dislink/shared/components/verification/FaceVerification').then(module => ({ 
     default: module.FaceVerification 
   }))
 );
@@ -120,49 +120,49 @@ export const LazyDailyNeedSection = lazy(() =>
 
 // Modal components that can be lazy-loaded
 export const LazyLocationSelectionModal = lazy(() => 
-  import('../contacts/LocationSelectionModal').then(module => ({ 
+  import('@dislink/shared/components/modals/LocationSelectionModal').then(module => ({ 
     default: module.LocationSelectionModal 
   }))
 );
 
 export const LazyTagSelectionModal = lazy(() => 
-  import('../contacts/TagSelectionModal').then(module => ({ 
+  import('@dislink/shared/components/modals/TagSelectionModal').then(module => ({ 
     default: module.TagSelectionModal 
   }))
 );
 
 export const LazySocialSharingModal = lazy(() => 
-  import('../contacts/SocialSharingModal').then(module => ({ 
+  import('@dislink/shared/components/modals/SocialSharingModal').then(module => ({ 
     default: module.SocialSharingModal 
   }))
 );
 
 export const LazyMutualConnectionsModal = lazy(() => 
-  import('../contacts/MutualConnectionsModal').then(module => ({ 
+  import('@dislink/shared/components/modals/MutualConnectionsModal').then(module => ({ 
     default: module.MutualConnectionsModal 
   }))
 );
 
 export const LazyMeetingNoteModal = lazy(() => 
-  import('../contacts/MeetingNoteModal').then(module => ({ 
+  import('@dislink/shared/components/modals/MeetingNoteModal').then(module => ({ 
     default: module.MeetingNoteModal 
   }))
 );
 
 export const LazyCelebrationConfetti = lazy(() => 
-  import('../contacts/CelebrationConfetti').then(module => ({ 
+  import('@dislink/shared/components/contacts/CelebrationConfetti').then(module => ({ 
     default: module.CelebrationConfetti 
   }))
 );
 
 export const LazyBadgeSelectionModal = lazy(() => 
-  import('../contacts/BadgeSelectionModal').then(module => ({ 
+  import('@dislink/shared/components/modals/BadgeSelectionModal').then(module => ({ 
     default: module.BadgeSelectionModal 
   }))
 );
 
 export const LazyTierModal = lazy(() => 
-  import('../contacts/TierModal').then(module => ({ 
+  import('@dislink/shared/components/modals/TierModal').then(module => ({ 
     default: module.TierModal 
   }))
 );

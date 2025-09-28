@@ -2,12 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AsyncSelect from 'react-select/async';
 import { MapPin, X, Loader2, AlertCircle, Globe, ChevronDown, Clock, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Location } from '../../types/location';
-import { logger } from '../../lib/logger';
-import { useAuth } from '../auth/AuthProvider';
-import { supabase } from '../../lib/supabase';
-import { searchCities, debouncedSearchCities, getPopularCities, getLocalizedCityName, getEnglishCityName } from '../../lib/nominatimService';
-import { geolocationService, getCurrentLocationWithFallback } from '../../lib/geolocation';
+import type { Location } from '../types';
+import { logger } from '../lib/logger';
+import { supabase } from '../lib/supabase';
+import { searchCities, debouncedSearchCities, getPopularCities, getLocalizedCityName, getEnglishCityName } from '../lib/nominatimService';
+import { geolocationService, getCurrentLocationWithFallback } from '../lib/geolocation';
 
 interface CityAutocompleteProps {
   value: string;
@@ -55,7 +54,8 @@ export function CityAutocomplete({
   showRecentSearches = true,
   maxRecentSearches = 10
 }: CityAutocompleteProps) {
-  const { user } = useAuth();
+  // Note: user prop would need to be passed from parent component
+  const user = null; // Temporary fix - this should be passed as prop
   const [inputValue, setInputValue] = useState('');
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [error, setError] = useState<string | null>(null);

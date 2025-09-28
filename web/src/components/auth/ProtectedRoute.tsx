@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
-import { supabase, getSafeSession, waitForSupabaseReady } from '../../lib/supabase';
-import { logger } from '../../lib/logger';
-import { shouldRedirectToOnboarding } from '../../lib/authFlow';
+import { supabase, getSafeSession, waitForSupabaseReady } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
+import { shouldRedirectToOnboarding } from '@dislink/shared/lib/authFlow';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();

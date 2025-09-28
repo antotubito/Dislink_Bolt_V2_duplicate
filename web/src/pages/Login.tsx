@@ -3,9 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../components/auth/AuthProvider';
 import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { login } from '../lib/auth';
-import { supabase, getSafeSession } from '../lib/supabase';
-import { logger } from '../lib/logger';
+import { login } from '@dislink/shared/lib/auth';
+import { supabase, getSafeSession } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
 import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Login() {
