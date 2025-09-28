@@ -13,6 +13,7 @@ import { updateProfile } from '../lib/profile';
 import { useAuth } from '../components/auth/AuthProvider';
 import { supabase } from '../lib/supabase';
 import { Industry } from '../types/industry';
+import { completeOnboarding } from '../lib/authFlow';
 import { 
   LazyEnhancedSocialPlatforms, 
   LazyLocationStep, 
@@ -129,11 +130,11 @@ export function Onboarding() {
         throw new Error('No active session');
       }
 
-      console.log('🎯 Updating profile with onboarding completion...');
-      await updateProfile({
+      console.log('🎯 Completing onboarding with enhanced flow...');
+      await completeOnboarding(session.user.id, {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        birthday: formData.birthday, // Added birthday field
+        birthday: formData.birthday,
         jobTitle: formData.jobTitle,
         company: formData.company,
         industry: formData.industry,
@@ -143,12 +144,10 @@ export function Onboarding() {
           location: formData.location,
           from: formData.from,
           about: ''
-        },
-        onboardingComplete: true,
-        onboardingCompletedAt: new Date()
+        }
       });
 
-      console.log('🎯 Profile updated successfully, clearing progress...');
+      console.log('🎯 Onboarding completed successfully, clearing progress...');
       localStorage.removeItem('onboarding_progress');
 
       console.log('🎯 Moving to complete step...');

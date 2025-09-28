@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase, getSafeSession, waitForSupabaseReady } from '../../lib/supabase';
 import { logger } from '../../lib/logger';
+import { shouldRedirectToOnboarding } from '../../lib/authFlow';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -104,7 +105,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   // If user is logged in but onboarding not complete, redirect to onboarding
-  if (user && hasValidSession && !user.onboardingComplete && location.pathname !== '/app/onboarding') {
+  if (user && hasValidSession && shouldRedirectToOnboarding(user, location.pathname)) {
     logger.info('🔐 ProtectedRoute: User needs onboarding, redirecting');
     return <Navigate to="/app/onboarding" replace />;
   }

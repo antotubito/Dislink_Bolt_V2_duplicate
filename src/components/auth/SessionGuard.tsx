@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { supabase, waitForSupabaseReady } from '../../lib/supabase';
 import { logger } from '../../lib/logger';
+import { shouldRedirectToOnboarding, getPostAuthRedirectPath } from '../../lib/authFlow';
 
 interface SessionGuardProps {
   children: React.ReactNode;
@@ -94,9 +95,8 @@ export function SessionGuard({ children }: SessionGuardProps) {
           logger.info('🔐 SessionGuard: Session found but no user data, refreshing user');
           // We have a session but no user data, refresh the user
           await refreshUser();
-        } else if (user && !user.onboardingComplete && !location.pathname.startsWith('/app/onboarding')) {
+        } else if (user && shouldRedirectToOnboarding(user, location.pathname)) {
           logger.info('🔐 SessionGuard: User needs onboarding, redirecting');
-          // Only check onboarding if user is authenticated
           navigate('/app/onboarding');
         } else {
           logger.info('🔐 SessionGuard: User authenticated and ready');

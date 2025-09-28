@@ -144,9 +144,7 @@ const LandingPage = createLazyComponent(() => import('./pages/LandingPage').then
 const TermsConditions = createLazyComponent(() => import('./pages/TermsConditions').then(module => ({ default: module.TermsConditions })), 'TermsConditions');
 const PrivacyPolicy = createLazyComponent(() => import('./pages/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })), 'PrivacyPolicy');
 const Story = createLazyComponent(() => import('./pages/Story').then(module => ({ default: module.Story })), 'Story');
-const EmailConfirmation = createLazyComponent(() => import('./pages/EmailConfirmation').then(module => ({ default: module.EmailConfirmation })), 'EmailConfirmation');
-const EmailConfirm = createLazyComponent(() => import('./pages/EmailConfirm').then(module => ({ default: module.EmailConfirm })), 'EmailConfirm');
-const Confirmed = createLazyComponent(() => import('./pages/Confirmed').then(module => ({ default: module.Confirmed })), 'Confirmed');
+    const EmailVerification = createLazyComponent(() => import('./pages/EmailVerification').then(module => ({ default: module.EmailVerification })), 'EmailVerification');
 const ResetPassword = createLazyComponent(() => import('./pages/ResetPassword').then(module => ({ default: module.ResetPassword })), 'ResetPassword');
 const Demo = createLazyComponent(() => import('./pages/Demo').then(module => ({ default: module.Demo })), 'Demo');
 
@@ -248,11 +246,11 @@ function App() {
                 <Route path="/scan/:scanId" element={<PublicProfile />} />
                 <Route path="/terms" element={<TermsConditions />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/story" element={<Story />} />
-                <Route path="/verify" element={<EmailConfirmation />} />
-                <Route path="/confirm" element={<EmailConfirm />} />
-                <Route path="/confirmed" element={<Confirmed />} />
-                <Route path="/demo" element={<Demo />} />
+                    <Route path="/story" element={<Story />} />
+                    <Route path="/verify" element={<EmailVerification />} />
+                    <Route path="/confirm" element={<EmailVerification />} />
+                    <Route path="/confirmed" element={<EmailVerification />} />
+                    <Route path="/demo" element={<Demo />} />
 
                 {/* Auth Routes - Early access password required */}
                 <Route path="/app/login" element={

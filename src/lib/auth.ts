@@ -1,6 +1,6 @@
 import { supabase, handleSupabaseError } from './supabase';
 import { logger } from './logger';
-import { getEmailRedirectUrl } from './authUtils';
+import { getEmailRedirectUrl } from './authFlow';
 
 export interface LoginCredentials {
   email: string;

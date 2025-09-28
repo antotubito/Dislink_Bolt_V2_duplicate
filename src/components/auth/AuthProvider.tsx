@@ -4,6 +4,7 @@ import type { User } from '../../types/user';
 import { supabase, isConnectionHealthy, initializeConnection } from '../../lib/supabase';
 import { logger } from '../../lib/logger';
 import { initUserPreferences } from '../../lib/userPreferences';
+import { setupAuthStateListener } from '../../lib/authFlow';
 
 interface AuthContextType {
   user: User | null;
