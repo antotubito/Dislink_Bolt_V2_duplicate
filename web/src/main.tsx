@@ -7,6 +7,7 @@ import { TestApp } from './TestApp';
 import './index.css';
 import './utils/emailConfirmationTest'; // Load email confirmation test utilities
 import './utils/registrationDiagnostic'; // Load registration diagnostic utilities
+import './utils/confirmationUrlTest'; // Load confirmation URL test utilities
 import './styles/react-select.css';
 
 // Initialize Sentry as early as possible in the application lifecycle
