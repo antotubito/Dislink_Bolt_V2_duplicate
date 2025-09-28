@@ -15,6 +15,7 @@ export function Confirmed() {
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [verificationStatus, setVerificationStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
+  const [buttonLoading, setButtonLoading] = useState(false);
 
   // Enhanced email verification with PKCE support and retry logic
   useEffect(() => {
@@ -138,12 +139,48 @@ export function Confirmed() {
     verifyEmail();
   }, [searchParams, navigate, retryCount]); // retryCount dependency will trigger retry
 
-  const handleContinue = () => {
-    navigate('/app/onboarding');
+  const handleContinue = async () => {
+    setButtonLoading(true);
+    try {
+      // Ensure user has a valid session before navigating
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        logger.error('No valid session found when continuing:', error);
+        setError('Please try logging in again to continue.');
+        return;
+      }
+
+      logger.info('Continuing with valid session for user:', session.user.id);
+      navigate('/app/onboarding');
+    } catch (error) {
+      logger.error('Error continuing:', error);
+      setError('Unable to continue. Please try again.');
+    } finally {
+      setButtonLoading(false);
+    }
   };
 
-  const handleStartJourney = () => {
-    navigate('/app/onboarding');
+  const handleStartJourney = async () => {
+    setButtonLoading(true);
+    try {
+      // Ensure user has a valid session before navigating
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error || !session) {
+        logger.error('No valid session found when starting journey:', error);
+        setError('Please try logging in again to continue.');
+        return;
+      }
+
+      logger.info('Starting journey with valid session for user:', session.user.id);
+      navigate('/app/onboarding');
+    } catch (error) {
+      logger.error('Error starting journey:', error);
+      setError('Unable to start your journey. Please try again.');
+    } finally {
+      setButtonLoading(false);
+    }
   };
 
   const handleGoToHome = () => {
@@ -237,10 +274,20 @@ export function Confirmed() {
           <div className="flex flex-col space-y-3">
             <button
               onClick={handleStartJourney}
-              className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+              disabled={buttonLoading}
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              🚀 Start Journey
-              <ArrowRight className="ml-2 h-5 w-5" />
+              {buttonLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Starting...
+                </>
+              ) : (
+                <>
+                  🚀 Start Journey
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
             </button>
             <button
               onClick={handleGoToHome}
@@ -330,10 +377,20 @@ export function Confirmed() {
         >
           <button
             onClick={handleStartJourney}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600"
+            disabled={buttonLoading}
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            🚀 Start Your Journey
-            <ArrowRight className="ml-2 h-5 w-5" />
+            {buttonLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                Starting...
+              </>
+            ) : (
+              <>
+                🚀 Start Your Journey
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </>
+            )}
           </button>
 
           <button
