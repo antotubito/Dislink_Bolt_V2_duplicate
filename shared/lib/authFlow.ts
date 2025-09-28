@@ -24,36 +24,43 @@ export async function handleEmailConfirmation(url: string): Promise<AuthFlowResu
     const urlObj = new URL(url);
     const tokenHash = urlObj.searchParams.get('token_hash');
     const type = urlObj.searchParams.get('type');
+    const code = urlObj.searchParams.get('code');
     const email = urlObj.searchParams.get('email');
-
-    if (!tokenHash || !type) {
-      throw new Error('Missing required parameters in confirmation URL');
-    }
 
     logger.info('🔐 Confirmation parameters', { 
       hasTokenHash: !!tokenHash, 
+      hasCode: !!code,
       type, 
       hasEmail: !!email 
     });
 
-    // Attempt email confirmation
+    // Attempt email confirmation - handle both PKCE and implicit flows
     let verificationResult;
     
-    if (email) {
-      // Try with email first (more reliable)
-      logger.info('🔐 Attempting verification with email');
-      verificationResult = await supabase.auth.verifyOtp({
-        email,
-        token_hash: tokenHash,
-        type: type as any
-      });
+    if (code) {
+      // Implicit flow - use code parameter
+      logger.info('🔐 Attempting verification with code (implicit flow)');
+      verificationResult = await supabase.auth.exchangeCodeForSession(code);
+    } else if (tokenHash && type) {
+      // PKCE flow - use token_hash and type
+      if (email) {
+        // Try with email first (more reliable)
+        logger.info('🔐 Attempting verification with email and token_hash (PKCE flow)');
+        verificationResult = await supabase.auth.verifyOtp({
+          email,
+          token_hash: tokenHash,
+          type: type as any
+        });
+      } else {
+        // Fallback to token_hash only
+        logger.info('🔐 Attempting verification with token_hash only (PKCE flow)');
+        verificationResult = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: type as any
+        });
+      }
     } else {
-      // Fallback to token_hash only
-      logger.info('🔐 Attempting verification with token_hash only');
-      verificationResult = await supabase.auth.verifyOtp({
-        token_hash: tokenHash,
-        type: type as any
-      });
+      throw new Error('Missing required parameters in confirmation URL. Expected either "code" or "token_hash" and "type"');
     }
 
     const { data, error } = verificationResult;

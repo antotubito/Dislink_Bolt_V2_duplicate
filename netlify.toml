@@ -7,13 +7,13 @@
   NODE_VERSION = "18"
   PNPM_VERSION = "10.16.0"
 
-# Handle email confirmation redirects from Supabase
+# Handle email confirmation redirects from Supabase (implicit flow)
 [[redirects]]
   from = "/?code=*"
   to = "/confirmed?code=:code"
   status = 302
 
-# Handle auth callback redirects
+# Handle auth callback redirects (PKCE flow)
 [[redirects]]
   from = "/?token_hash=*&type=*"
   to = "/confirmed?token_hash=:token_hash&type=:type"
