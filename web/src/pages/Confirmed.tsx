@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Check, ArrowRight, Home, AlertCircle, RefreshCw } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { logger } from '../lib/logger';
-import { completeQRConnection } from "@dislink/shared/lib/qr"ConnectionHandler';
-import { verifyEmailWithPKCE, validateUserProfile } from '../lib/authUtils';
+import { supabase } from '@dislink/shared/lib/supabase';
+import { logger } from '@dislink/shared/lib/logger';
+import { completeQRConnection } from '@dislink/shared/lib/qrConnectionHandler';
+import { handleEmailConfirmation } from '@dislink/shared/lib/authFlow';
 
 export function Confirmed() {
   const navigate = useNavigate();
@@ -57,52 +57,50 @@ export function Confirmed() {
           return;
         }
 
-        // Use enhanced PKCE verification
-        logger.info('🔐 Starting enhanced email verification with PKCE support');
-        console.log('🔍 EMAIL VERIFICATION: Using enhanced verification with URL:', window.location.href);
+        // Use shared email confirmation handler
+        logger.info('🔐 Starting email confirmation with shared handler');
+        console.log('🔍 EMAIL VERIFICATION: Using shared verification with URL:', window.location.href);
 
-        const result = await verifyEmailWithPKCE(window.location.href);
+        const result = await handleEmailConfirmation(window.location.href);
 
-        console.log('🔍 EMAIL VERIFICATION: Enhanced verification result:', {
+        console.log('🔍 EMAIL VERIFICATION: Shared verification result:', {
           success: result.success,
           hasUser: !!result.user,
-          hasSession: !!result.session,
-          error: result.error?.message || 'none'
+          error: result.error || 'none',
+          alreadyVerified: result.alreadyVerified
         });
 
-        if (!result.success || result.error) {
-          logger.error('Enhanced email verification failed:', result.error);
+        if (!result.success) {
+          logger.error('Email verification failed:', result.error);
 
-          if (result.error?.message?.includes('User already confirmed') ||
-            result.error?.message?.includes('already been confirmed') ||
-            result.error?.message?.includes('Email already confirmed')) {
+          if (result.alreadyVerified) {
             logger.info('User already confirmed, redirecting to login');
             navigate('/app/login?message=email-already-confirmed');
             return;
-          } else if (result.error?.message?.includes('Invalid code') ||
-            result.error?.message?.includes('Code has expired') ||
-            result.error?.message?.includes('expired')) {
+          } else if (result.error?.includes('Invalid code') ||
+            result.error?.includes('Code has expired') ||
+            result.error?.includes('expired')) {
             setError('The email confirmation link has expired or is invalid. Please request a new confirmation email.');
             setErrorCode('code_expired');
           } else {
-            setError(`Email confirmation failed: ${result.error?.message || 'Unknown error'}`);
-            setErrorCode(result.error?.message || 'unknown_error');
+            setError(`Email confirmation failed: ${result.error || 'Unknown error'}`);
+            setErrorCode(result.error || 'unknown_error');
           }
           setVerificationStatus('error');
           setLoading(false);
           return;
         }
 
-        if (!result.session || !result.user) {
-          logger.error('No session or user data returned from enhanced verification');
+        if (!result.user) {
+          logger.error('No user data returned from verification');
           setError('Email confirmation failed. Please try again or contact support.');
           setVerificationStatus('error');
           setLoading(false);
           return;
         }
 
-        logger.info('✅ Enhanced email verification successful, user:', result.user.id);
-        console.log('✅ EMAIL VERIFICATION: Enhanced verification successful!');
+        logger.info('✅ Email verification successful, user:', result.user.id);
+        console.log('✅ EMAIL VERIFICATION: Verification successful!');
 
         // Handle QR connection completion if user just registered
         try {
@@ -178,7 +176,7 @@ export function Confirmed() {
         localStorage.removeItem('redirectUrl');
 
         // Check if user needs onboarding or can go directly to app
-        const needsOnboarding = !result.user.user_metadata?.onboardingComplete;
+        const needsOnboarding = result.requiresOnboarding || !result.user.user_metadata?.onboardingComplete;
 
         if (needsOnboarding) {
           navigate('/app/onboarding');
