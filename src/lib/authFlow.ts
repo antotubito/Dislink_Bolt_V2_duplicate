@@ -175,11 +175,11 @@ export async function completeOnboarding(userId: string, userData: Partial<User>
 export function getEmailRedirectUrl(): string {
   // In production, use the production URL
   if (window.location.hostname === 'dislinkboltv2duplicate.netlify.app') {
-    return 'https://dislinkboltv2duplicate.netlify.app/verify';
+    return 'https://dislinkboltv2duplicate.netlify.app/confirmed';
   }
   
   // In development, use localhost
-  return `${window.location.origin}/verify`;
+  return `${window.location.origin}/confirmed`;
 }
 
 /**

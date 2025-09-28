@@ -145,6 +145,7 @@ const TermsConditions = createLazyComponent(() => import('./pages/TermsCondition
 const PrivacyPolicy = createLazyComponent(() => import('./pages/PrivacyPolicy').then(module => ({ default: module.PrivacyPolicy })), 'PrivacyPolicy');
 const Story = createLazyComponent(() => import('./pages/Story').then(module => ({ default: module.Story })), 'Story');
     const EmailVerification = createLazyComponent(() => import('./pages/EmailVerification').then(module => ({ default: module.EmailVerification })), 'EmailVerification');
+    const Confirmed = createLazyComponent(() => import('./pages/EmailVerification').then(module => ({ default: module.EmailVerification })), 'EmailVerification');
 const ResetPassword = createLazyComponent(() => import('./pages/ResetPassword').then(module => ({ default: module.ResetPassword })), 'ResetPassword');
 const Demo = createLazyComponent(() => import('./pages/Demo').then(module => ({ default: module.Demo })), 'Demo');
 
@@ -249,7 +250,7 @@ function App() {
                     <Route path="/story" element={<Story />} />
                     <Route path="/verify" element={<EmailVerification />} />
                     <Route path="/confirm" element={<EmailVerification />} />
-                    <Route path="/confirmed" element={<EmailVerification />} />
+                    <Route path="/confirmed" element={<Confirmed />} />
                     <Route path="/demo" element={<Demo />} />
 
                 {/* Auth Routes - Early access password required */}

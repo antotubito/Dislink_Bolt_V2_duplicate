@@ -23,7 +23,7 @@ class PrefetchManager {
     const prefetchFn = async () => {
       try {
         logger.info(`Prefetching module: ${modulePath}`);
-        await import(modulePath);
+        await import(/* @vite-ignore */ modulePath);
         this.prefetchedModules.add(modulePath);
         logger.info(`Successfully prefetched: ${modulePath}`);
       } catch (error) {
