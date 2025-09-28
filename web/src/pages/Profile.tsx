@@ -4,7 +4,7 @@ import { ProfileView } from '../components/profile/ProfileView';
 import { ProfileEdit } from '../components/profile/ProfileEdit';
 import { ProfileActions } from '../components/profile/ProfileActions';
 import { updateProfile, getCurrentProfile } from '../lib/profile';
-import { sendTierNotifications } from '../lib/notifications';
+import { sendTierNotifications } from "@dislink/shared/lib/notifications"';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
 import { AlertCircle, RefreshCw, X } from 'lucide-react';

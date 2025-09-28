@@ -17,7 +17,7 @@ import {
     Smartphone, Camera, Bell, Gift, Rocket, TrendingUp, Send
 } from 'lucide-react';
 import { Footer } from '../components/Footer';
-import { WaitlistForm } from '../components/waitlist/WaitlistForm';
+import { WaitlistForm } from "@dislink/shared/components/waitlist/WaitlistForm"';
 import { Logo } from '../components/Logo';
 
 export function LandingPage() {

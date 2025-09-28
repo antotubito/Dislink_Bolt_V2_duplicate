@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { signUp } from '../lib/auth';
 import { registerWithPKCE } from '../lib/authUtils';
 import type { RegistrationData } from '../types/user';
-import { sessionManager } from '../lib/sessionManager';
+import { sessionManager } from "@dislink/shared/lib/sessionManager"';
 import { logger } from '../lib/logger';
 import { supabase } from '../lib/supabase';
 import { getEmailRedirectUrl } from '../lib/authUtils';
@@ -14,7 +14,7 @@ import {
   updateConnectionMemoryOnRegistration,
   createUserConnection,
   validateInvitationCode
-} from '../lib/qrEnhanced';
+} from "@dislink/shared/lib/qr"Enhanced';
 
 export function Register() {
   const navigate = useNavigate();

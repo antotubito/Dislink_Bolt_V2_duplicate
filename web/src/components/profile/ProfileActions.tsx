@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { QRModal } from '../qr/QRModal';
 import { QRScanner } from '../qr/QRScanner';
 import { ConnectionConfirmation } from '../qr/ConnectionConfirmation';
-import { validateQRCode } from '../../lib/qr';
+import { validateQRCode } from "@dislink/shared/lib/qr"';
 import { createConnectionRequest } from '../../lib/contacts';
 import type { User } from '../../types/user';
 

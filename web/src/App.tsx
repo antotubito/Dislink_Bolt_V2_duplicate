@@ -7,8 +7,8 @@ import { Layout } from './components/Layout';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import './utils/accessibilityTest'; // Load accessibility testing utilities
 import { ConnectionErrorBanner } from './components/ConnectionErrorBanner';
-import { isMobileApp } from './lib/mobileUtils';
-import { captureError, captureMessage } from './lib/sentry';
+import { isMobileApp } from "@dislink/shared/lib/mobileUtils";
+import { captureError, captureMessage } from "@dislink/shared/lib/sentry";
 
 // Error Boundary Component
 interface ErrorBoundaryState {

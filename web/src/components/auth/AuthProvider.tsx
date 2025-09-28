@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import type { User } from '../../types/user';
 import { supabase, isConnectionHealthy, initializeConnection } from '../../lib/supabase';
 import { logger } from '../../lib/logger';
-import { initUserPreferences } from '../../lib/userPreferences';
+import { initUserPreferences } from "@dislink/shared/lib/userPreferences"';
 import { setupAuthStateListener } from '../../lib/authFlow';
 
 interface AuthContextType {

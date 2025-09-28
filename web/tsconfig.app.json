@@ -14,6 +14,14 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/*"],
+      "@dislink/shared": ["../shared"],
+      "@dislink/shared/*": ["../shared/*"]
+    },
+
     /* Linting */
     "strict": true,
     "noUnusedLocals": true,

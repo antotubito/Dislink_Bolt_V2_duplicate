@@ -5,9 +5,9 @@ import {
   User, Mail, Building2, Briefcase, Calendar, Heart,
   Globe, Camera, Sparkles, LinkIcon, LogOut, Check, ArrowLeft, X
 } from 'lucide-react';
-import { OnboardingStep } from '../components/onboarding/OnboardingStep';
-import { AnimatedInput } from '../components/onboarding/AnimatedInput';
-import { AnimatedButton } from '../components/onboarding/AnimatedButton';
+import { OnboardingStep } from "@dislink/shared/components/onboarding/OnboardingStep"';
+import { AnimatedInput } from "@dislink/shared/components/ui/AnimatedInput"';
+import { AnimatedButton } from "@dislink/shared/components/ui/AnimatedButton"';
 import { EnhancedSocialLinksInput } from '../components/common/EnhancedSocialLinksInput';
 import { updateProfile } from '../lib/profile';
 import { useAuth } from '../components/auth/AuthProvider';

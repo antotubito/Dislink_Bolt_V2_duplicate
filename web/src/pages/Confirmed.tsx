@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Check, ArrowRight, Home, AlertCircle, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { logger } from '../lib/logger';
-import { completeQRConnection } from '../lib/qrConnectionHandler';
+import { completeQRConnection } from "@dislink/shared/lib/qr"ConnectionHandler';
 import { verifyEmailWithPKCE, validateUserProfile } from '../lib/authUtils';
 
 export function Confirmed() {

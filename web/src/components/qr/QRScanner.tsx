@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Camera, X, Scan, Navigation } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QrScanner from 'qr-scanner';
-import { validateQRCode, trackQRCodeScan } from '../../lib/qr';
+import { validateQRCode, trackQRCodeScan } from "@dislink/shared/lib/qr"';
 import { ConnectionConfirmation } from './ConnectionConfirmation';
 
 interface QRScannerProps {

@@ -10,7 +10,7 @@ import './utils/registrationDiagnostic'; // Load registration diagnostic utiliti
 import './styles/react-select.css';
 
 // Initialize Sentry as early as possible in the application lifecycle
-import { initSentry } from './lib/sentry';
+import { initSentry } from "@dislink/shared/lib/sentry";
 initSentry();
 
 // Initialize logging for production debugging
@@ -29,7 +29,7 @@ function handleCriticalError(error: Error, context: string) {
   console.error(`❌ Critical error in ${context}:`, error);
 
   // Send to Sentry
-  import('./lib/sentry').then(({ captureError }) => {
+  import('@dislink/shared/lib/sentry').then(({ captureError }) => {
     captureError(error, {
       type: 'criticalError',
       context: context,
@@ -107,7 +107,7 @@ if (!rootElement) {
 
     // Initialize Supabase connection with better error handling
     // Use static import to avoid the dynamic import warning
-    import('./lib/supabase').then(({ initializeConnection }) => {
+    import('@dislink/shared/lib/supabase').then(({ initializeConnection }) => {
       if (!isProduction) {
         console.log('🔗 Initializing Supabase connection...');
       }
@@ -152,7 +152,7 @@ window.addEventListener('unhandledrejection', (event) => {
   event.preventDefault();
 
   // Send to Sentry
-  import('./lib/sentry').then(({ captureError }) => {
+  import('@dislink/shared/lib/sentry').then(({ captureError }) => {
     captureError(new Error(`Unhandled promise rejection: ${event.reason}`), {
       type: 'unhandledRejection',
       reason: event.reason,
@@ -166,7 +166,7 @@ window.addEventListener('error', (event) => {
   console.error('❌ Uncaught error:', event.error);
 
   // Send to Sentry
-  import('./lib/sentry').then(({ captureError }) => {
+  import('@dislink/shared/lib/sentry').then(({ captureError }) => {
     captureError(event.error || new Error('Unknown error'), {
       type: 'uncaughtError',
       filename: event.filename,

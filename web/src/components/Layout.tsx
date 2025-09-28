@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase';
 import { Logo } from './Logo';
 import { LazyQRModal, LazyLoadingFallback } from './lazy';
 import { useCosmicTheme } from '../lib/cosmicThemes';
-import { captureError, captureMessage } from '../lib/sentry';
+import { captureError, captureMessage } from "@dislink/shared/lib/sentry"';
 import { prefetchForRoute, prefetchOnHover, prefetchOnFocus } from '../lib/prefetch';
 
 export function Layout() {
