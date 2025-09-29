@@ -221,7 +221,7 @@ export function WaitlistNew() {
                                     </h1>
 
                                     <p className="text-xl text-high-contrast leading-relaxed max-w-lg">
-                                        The human connection companion for people who value
+                                        The human connection companion for individuals who value
                                         <span className="text-purple-600 font-semibold"> authentic relationships</span>
                                         and want to remember the stories behind every meaningful interaction.
                                     </p>

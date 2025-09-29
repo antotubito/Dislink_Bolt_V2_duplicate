@@ -184,7 +184,7 @@ export function LandingPage() {
                             </h1>
 
                             <p className="text-xl md:text-2xl text-gray-800 max-w-3xl mx-auto mb-8 leading-relaxed">
-                                Remember the stories behind every connection. Nurture authentic relationships with context-rich memory and thoughtful follow-ups that honor the human side of both personal and professional bonds.
+                                Remember the stories behind every connection. Transform chance encounters into lasting relationships by preserving the context, memories, and meaningful moments that make connections truly valuable.
                             </p>
                         </motion.div>
 
