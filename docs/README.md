@@ -1,18 +1,18 @@
-# Dislink – A Smarter Way to Keep Connections
+# Dislink – Your Human Connection Companion
 
-Dislink is a modern web & mobile app designed to help you manage meaningful professional and personal relationships. Track where, when, and how you meet people, and never forget important context again.
+Dislink is a modern web & mobile app designed to help you nurture meaningful relationships that matter. Whether you're building professional networks or deepening personal connections, Dislink helps you remember the human stories behind every interaction and never lose touch with the people who matter most.
 
 ## 🚀 About
 
-Dislink empowers professionals to build and maintain strong networks by combining intuitive design with context-rich contact management. It's your personal relationship assistant — built for real-world connections.
+Dislink empowers you to build authentic, lasting relationships by combining intuitive design with context-rich connection management. It's your personal relationship companion — built for real-world human connections that transcend the transactional, honoring both personal and professional relationships as part of your holistic life journey.
 
 ## 🧩 Features
 
-- 🔗 QR code sharing for fast, seamless networking  
-- 🧠 Context-aware contact notes and tagging  
-- ⏰ Smart follow-ups and personalized reminders  
-- 📍 Location-based history of where you met people  
-- 🔒 Private and secure – your data stays yours  
+- 🔗 **Human-First Connection**: QR code sharing that preserves the story of how you met  
+- 🧠 **Memory Augmentation**: Context-aware notes that capture the essence of your conversations  
+- ⏰ **Thoughtful Follow-ups**: Smart reminders that help you nurture relationships authentically  
+- 📍 **Connection Stories**: Location-based history that remembers the meaningful moments  
+- 🔒 **Your Private Space**: Secure and private – your relationship data stays yours  
 
 ## 📦 Repository
 

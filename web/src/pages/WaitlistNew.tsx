@@ -221,9 +221,9 @@ export function WaitlistNew() {
                                     </h1>
 
                                     <p className="text-xl text-high-contrast leading-relaxed max-w-lg">
-                                        The networking app for individuals and professionals who want to make
-                                        <span className="text-purple-600 font-semibold"> meaningful connections</span>
-                                        without the awkward small talk.
+                                        The human connection companion for people who value
+                                        <span className="text-purple-600 font-semibold"> authentic relationships</span>
+                                        and want to remember the stories behind every meaningful interaction.
                                     </p>
                                 </div>
 

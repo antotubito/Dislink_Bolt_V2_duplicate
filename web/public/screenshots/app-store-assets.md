@@ -2,37 +2,38 @@
 # 📱 DISLINK - APP STORE ASSETS
 
 ## App Description (Short)
-Build meaningful professional connections with smart contact management and QR networking.
+Nurture meaningful human connections with context-rich relationship management and authentic networking.
 
 ## App Description (Long)
-Transform how you build and maintain professional relationships with Dislink, the intelligent networking app designed for modern professionals.
+Transform how you build and maintain authentic relationships with Dislink, the human-first connection companion designed for people who value meaningful interactions in both personal and professional contexts.
 
 ### Key Features:
-🤝 **Smart Contact Management** - Never forget important details about your connections
-📱 **QR Code Networking** - Instantly connect by scanning unique QR codes  
-📍 **Location Memory** - Remember exactly where and when you met
-📝 **Smart Notes & Follow-ups** - Stay organized with automated reminders
-🎯 **Relationship Tiers** - Organize contacts by relationship strength
-✉️ **Email Integration** - Send connection invites seamlessly
-🌐 **Offline Support** - Works without internet connection
-🔔 **Smart Notifications** - Get reminded about important follow-ups
+🤝 **Human Connection Memory** - Never forget the stories and context behind your relationships
+📱 **Authentic QR Sharing** - Connect meaningfully by preserving how you met  
+📍 **Connection Stories** - Remember the moments, places, and conversations that matter
+📝 **Thoughtful Follow-ups** - Nurture relationships with mindful reminders and genuine care
+🎯 **Relationship Depth** - Organize connections by the depth and meaning of your bond
+✉️ **Personal Touch** - Send heartfelt connection invites that feel human
+🌐 **Always Connected** - Works offline so you never lose touch with important people
+🔔 **Mindful Notifications** - Get gentle reminders to reach out when it matters most
 
 Perfect for:
-• Business professionals and entrepreneurs
-• Conference attendees and networking events
-• Sales teams and relationship managers
-• Anyone who values meaningful connections
+• People who value authentic relationships over transactional networking
+• Anyone building meaningful connections in work and life
+• Community builders and relationship nurturers
+• Those who believe in the power of human connection
+• People who want to remember and honor the stories behind their relationships
 
-Join thousands of professionals who never lose track of valuable relationships with Dislink.
+Join thousands of people who never lose touch with the connections that matter most.
 
 ## Keywords
-networking, contacts, professional, business, QR code, CRM, relationships, follow-up, meetings, connections
+relationships, connections, human connection, authentic networking, meaningful relationships, contact management, QR code, memory, follow-up, community, personal growth, social connection
 
 ## App Category
-Business / Productivity
+Lifestyle / Social Networking
 
 ## Target Age
-17+ (Business use)
+17+ (General use)
 
 ## Privacy Policy URL
 https://dislinkboltv2duplicate.netlify.app/privacy

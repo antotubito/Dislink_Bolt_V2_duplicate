@@ -176,15 +176,15 @@ export function LandingPage() {
                             </div>
 
                             <h1 className="text-5xl md:text-7xl font-bold text-black mb-6 leading-tight">
-                                The Future of
+                                Your Human
                                 <br />
                                 <span className="bg-gradient-to-r from-purple-500 to-indigo-600 bg-clip-text text-transparent">
-                                    Meaningful Connections
+                                    Connection Companion
                                 </span>
                             </h1>
 
                             <p className="text-xl md:text-2xl text-gray-800 max-w-3xl mx-auto mb-8 leading-relaxed">
-                                Connect instantly with QR codes, remember every conversation, and build meaningful relationships that last - for individuals and professionals alike.
+                                Remember the stories behind every connection. Nurture authentic relationships with context-rich memory and thoughtful follow-ups that honor the human side of both personal and professional bonds.
                             </p>
                         </motion.div>
 

@@ -91,10 +91,10 @@ export function Story() {
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
               We believed there had to be a better way to nurture these relationships. That's why
-              we created Dislink - not just as another networking app, but as a platform that
-              understands the human side of connections. We focused on capturing the context of
-              relationships - the where, when, and why of how people meet - because these details
-              matter in building lasting bonds.
+              we created Dislink - not just as another networking app, but as a human connection companion that
+              understands the stories behind every relationship. We focused on capturing the context of
+              connections - the where, when, and why of how people meet - because these human stories
+              are what make relationships meaningful and lasting.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
@@ -120,10 +120,10 @@ export function Story() {
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
-              And so, Dislink was born - a tool designed not just to connect people, but to help them
-              stay meaningfully connected. A platform that values the quality of connections over quantity,
-              and that understands that the most valuable relationships are built on
-              authentic human connections.
+              And so, Dislink was born - a human connection companion designed not just to connect people, but to help them
+              stay meaningfully connected. A platform that values the stories behind relationships over the number of contacts,
+              and that understands that the most valuable connections are built on
+              authentic human stories and genuine care.
             </p>
 
             <p className="text-lg leading-relaxed text-gray-700 mt-6">
