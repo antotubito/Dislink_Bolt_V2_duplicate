@@ -413,6 +413,18 @@ export async function addNote(contactId: string, content: string): Promise<Note>
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    // ✅ Add content validation
+    if (!content || content.trim().length === 0) {
+      throw new Error('Note content cannot be empty');
+    }
+    
+    if (content.length > 5000) {
+      throw new Error('Note content too long (max 5000 characters)');
+    }
+    
+    // ✅ Sanitize rich text content
+    const sanitizedContent = sanitizeRichText(content);
+
     // Verify contact ownership
     const { data: contact } = await supabase
       .from('contacts')
@@ -427,7 +439,7 @@ export async function addNote(contactId: string, content: string): Promise<Note>
       .from('contact_notes')
       .insert({
         contact_id: contactId,
-        content
+        content: sanitizedContent
       })
       .select()
       .single();
@@ -490,6 +502,18 @@ export async function addFollowUp(contactId: string, data: { dueDate: Date; desc
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
+    // ✅ Add content validation
+    if (!data.description || data.description.trim().length === 0) {
+      throw new Error('Follow-up description cannot be empty');
+    }
+    
+    if (data.description.length > 2000) {
+      throw new Error('Follow-up description too long (max 2000 characters)');
+    }
+    
+    // ✅ Sanitize description content
+    const sanitizedDescription = sanitizeRichText(data.description);
+
     // Verify contact ownership
     const { data: contact } = await supabase
       .from('contacts')
@@ -504,7 +528,7 @@ export async function addFollowUp(contactId: string, data: { dueDate: Date; desc
       .from('contact_followups')
       .insert({
         contact_id: contactId,
-        description: data.description,
+        description: sanitizedDescription,
         due_date: data.dueDate.toISOString(),
         completed: false
       })
@@ -573,7 +597,8 @@ export async function approveConnectionRequest(
   sharedLinks: Record<string, boolean>,
   mutualConnections: string[],
   note?: string,
-  badges?: string[]
+  badges?: string[],
+  tier?: 1 | 2 | 3 // ✅ Add tier parameter for user-specific preferences
 ): Promise<Contact> {
   try {
     const { data: { user } } = await supabase.auth.getUser();
@@ -623,7 +648,7 @@ export async function approveConnectionRequest(
         meeting_date: new Date().toISOString(),
         meeting_location: location,
         tags,
-        tier: 3, // Default to outer circle
+        tier: tier || 3, // ✅ Use provided tier or default to outer circle
         first_met_at: new Date().toISOString(),
         first_met_location: location,
         connection_method: 'request'
@@ -960,4 +985,19 @@ export async function createConnectionRequest(user: User | any): Promise<void> {
     logger.error('Error creating connection request:', error);
     throw error;
   }
+}
+
+// ✅ Add content sanitization function
+function sanitizeRichText(content: string): string {
+  // Remove potentially dangerous HTML tags and attributes
+  return content
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '') // Remove event handlers
+    .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+    .replace(/<embed\b[^<]*>/gi, '')
+    .replace(/<link\b[^<]*>/gi, '')
+    .replace(/<meta\b[^<]*>/gi, '')
+    .trim();
 }

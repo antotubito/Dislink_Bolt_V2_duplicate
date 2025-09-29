@@ -211,7 +211,8 @@ export function getPublicProfileUrl(code: string): string {
 // Track QR code scan with location
 export async function trackQRCodeScan(
   code: string,
-  location?: { latitude: number; longitude: number }
+  location?: { latitude: number; longitude: number },
+  userId?: string
 ): Promise<void> {
   try {
     const { error } = await supabase
@@ -249,8 +250,8 @@ export async function createConnectionRequest(
       throw new Error('Invalid QR code');
     }
 
-    // Track the scan with location data
-    await trackQRCodeScan(code, location);
+    // Track the scan with location data and user isolation
+    await trackQRCodeScan(code, location, requesterId);
 
     // Create connection request
     const { data: request, error } = await supabase
@@ -291,7 +292,7 @@ export async function requestConnection(
       throw new Error('Invalid or expired QR code');
     }
 
-    // Track the scan
+    // Track the scan (no userId for anonymous requests)
     await trackQRCodeScan(code, location);
 
     // Generate a unique connection code

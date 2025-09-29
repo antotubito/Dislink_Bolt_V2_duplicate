@@ -63,7 +63,8 @@ export interface EmailInvitationData {
 // Enhanced QR code scanning with comprehensive tracking
 export async function trackEnhancedQRScan(
   code: string,
-  location?: { latitude: number; longitude: number }
+  location?: { latitude: number; longitude: number },
+  userId?: string
 ): Promise<QRScanTracking> {
   try {
     // Generate unique scan ID
@@ -103,7 +104,7 @@ export async function trackEnhancedQRScan(
       sessionId
     };
 
-    // Store scan tracking data in database
+    // Store scan tracking data in database with user isolation
     const { error: trackingError } = await supabase
       .from('qr_scan_tracking')
       .insert({
@@ -113,7 +114,8 @@ export async function trackEnhancedQRScan(
         location: enhancedLocation,
         device_info: deviceInfo,
         referrer: scanData.referrer,
-        session_id: sessionId
+        session_id: sessionId,
+        user_id: userId // ✅ Add user isolation for privacy
       });
 
     if (trackingError) {
@@ -363,16 +365,16 @@ export async function createUserConnection(
   }
 ): Promise<void> {
   try {
-    // Create connection request
+    // Create connection request (always pending - requires manual approval)
     const { error: connectionError } = await supabase
       .from('connection_requests')
       .insert({
         user_id: toUserId,
         requester_id: fromUserId,
-        status: 'accepted',
+        status: 'pending', // ✅ Always require approval
         metadata: {
           ...metadata,
-          autoAccepted: true,
+          autoAccepted: false, // ✅ Remove auto-acceptance
           reason: 'QR code scan connection'
         },
         created_at: new Date().toISOString(),
@@ -381,37 +383,11 @@ export async function createUserConnection(
 
     if (connectionError) throw connectionError;
 
-    // Add to contacts for both users
-    const contactData = [
-      {
-        user_id: fromUserId,
-        contact_user_id: toUserId,
-        tier: 'professional',
-        first_met_at: metadata.firstMeetingData?.scanTimestamp || new Date().toISOString(),
-        first_met_location: metadata.firstMeetingData?.location,
-        connection_method: metadata.connectionMethod || 'qr_scan',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        user_id: toUserId,
-        contact_user_id: fromUserId,
-        tier: 'professional',
-        first_met_at: metadata.firstMeetingData?.scanTimestamp || new Date().toISOString(),
-        first_met_location: metadata.firstMeetingData?.location,
-        connection_method: metadata.connectionMethod || 'qr_scan',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    ];
+    // ✅ Don't create contacts until approved
+    // Contact creation will happen in the approval flow
+    // This ensures all connections require explicit user consent
 
-    const { error: contactsError } = await supabase
-      .from('contacts')
-      .insert(contactData);
-
-    if (contactsError) throw contactsError;
-
-    logger.info('User connection created successfully:', { fromUserId, toUserId, metadata });
+    logger.info('Connection request created successfully (pending approval):', { fromUserId, toUserId, metadata });
 
   } catch (error) {
     logger.error('Error creating user connection:', error);
