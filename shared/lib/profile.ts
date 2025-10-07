@@ -78,6 +78,7 @@ export async function updateProfile(updates: Partial<User>): Promise<User> {
         social_links: updates.socialLinks,
         public_profile: updates.publicProfile,
         onboarding_complete: updates.onboardingComplete,
+        onboarding_completed_at: updates.onboardingCompletedAt?.toISOString(),
         registration_complete: updates.registrationComplete,
         registration_status: updates.registrationStatus,
         registration_completed_at: updates.registrationCompletedAt?.toISOString(),
@@ -108,6 +109,7 @@ export async function updateProfile(updates: Partial<User>): Promise<User> {
       interests: data.interests,
       socialLinks: data.social_links || {},
       onboardingComplete: data.onboarding_complete,
+      onboardingCompletedAt: data.onboarding_completed_at ? new Date(data.onboarding_completed_at) : undefined,
       registrationComplete: data.registration_complete,
       registrationStatus: data.registration_status,
       registrationCompletedAt: data.registration_completed_at ? new Date(data.registration_completed_at) : undefined,
@@ -151,10 +153,34 @@ export async function getCurrentProfile(): Promise<User | null> {
       return null;
     }
 
-    // Get user profile
+    logger.info('🔍 Fetching profile for user:', session.user.id);
+
+    // Get user profile with optimized query
     const { data: profile, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select(`
+        id,
+        email,
+        first_name,
+        last_name,
+        middle_name,
+        birthday,
+        job_title,
+        company,
+        industry,
+        profile_image,
+        cover_image,
+        bio,
+        interests,
+        social_links,
+        onboarding_complete,
+        registration_complete,
+        registration_status,
+        registration_completed_at,
+        public_profile,
+        created_at,
+        updated_at
+      `)
       .eq('id', session.user.id)
       .single();
 

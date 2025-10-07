@@ -1,0 +1,5 @@
+# Cursor ignore file - explicitly allow .env.local for development
+# This file overrides .gitignore for Cursor's file indexing
+!.env.local
+!.env
+!.env.*

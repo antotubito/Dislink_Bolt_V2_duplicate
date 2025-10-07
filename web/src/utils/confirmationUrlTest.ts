@@ -73,7 +73,9 @@ export async function testConfirmationUrl(url: string) {
 
 // Test function to generate a sample confirmation URL
 export function generateTestConfirmationUrl() {
-  const baseUrl = 'https://dislinkboltv2duplicate.netlify.app';
+  const baseUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+    ? 'https://dislinkboltv2duplicate.netlify.app'
+    : 'http://localhost:3001';
   
   // Test implicit flow URL
   const implicitUrl = `${baseUrl}/?code=test_code_123&email=test@example.com`;

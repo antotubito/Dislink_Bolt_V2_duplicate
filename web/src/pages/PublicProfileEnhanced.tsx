@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -7,12 +7,10 @@ import {
   MapPin, 
   Building, 
   Mail, 
-  Globe,
   Linkedin,
   Twitter,
   Github,
   ExternalLink,
-  Loader2,
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
@@ -38,9 +36,15 @@ export function PublicProfileEnhanced() {
   }, [connectionCode]);
 
   const loadProfileData = async () => {
-    if (!connectionCode) return;
+    if (!connectionCode) {
+      console.warn('⚠️ [PublicProfile] No connection code provided');
+      setError('Invalid profile link - no connection code found');
+      setLoading(false);
+      return;
+    }
 
     try {
+      console.debug('🔍 [PublicProfile] Loading profile data for connection code:', connectionCode);
       setLoading(true);
       setError(null);
 
@@ -48,9 +52,16 @@ export function PublicProfileEnhanced() {
       const data = await validateConnectionCode(connectionCode);
       
       if (!data) {
-        setError('Invalid or expired connection code');
+        console.warn('⚠️ [PublicProfile] Connection code validation failed:', connectionCode);
+        setError('QR code not found or expired. This profile may have been removed or is not publicly available.');
         return;
       }
+
+      console.debug('✅ [PublicProfile] Profile data loaded successfully:', {
+        userId: data.userId,
+        name: data.name,
+        publicProfileEnabled: data.publicProfile?.enabled
+      });
 
       setProfileData(data);
 
@@ -63,13 +74,16 @@ export function PublicProfileEnhanced() {
           page_url: window.location.href
         });
         setScanTracked(true);
+        console.debug('✅ [PublicProfile] QR scan tracked successfully');
         logger.info('QR scan tracked successfully for visitor');
       } catch (trackError) {
+        console.warn('⚠️ [PublicProfile] Failed to track QR scan:', trackError);
         logger.warn('Failed to track QR scan:', trackError);
         // Don't fail the page load if tracking fails
       }
 
     } catch (err) {
+      console.error('❌ [PublicProfile] Error loading profile data:', err);
       logger.error('Error loading profile data:', err);
       setError('Failed to load profile. Please try again.');
     } finally {

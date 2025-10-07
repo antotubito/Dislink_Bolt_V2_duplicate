@@ -126,9 +126,11 @@ CREATE POLICY "Allow users to insert their own profile" ON profiles
     WITH CHECK (auth.uid() = id);
 
 -- Allow anonymous users to read public profile data (for QR codes)
+-- Drop existing policy first to avoid conflicts
+DROP POLICY IF EXISTS "Allow anonymous public profile reads" ON profiles;
 CREATE POLICY "Allow anonymous public profile reads" ON profiles
     FOR SELECT TO anon
-    USING (is_public = true);
+    USING (public_profile->>'enabled' = 'true');
 
 -- ================================
 -- USER CONNECTIONS POLICIES

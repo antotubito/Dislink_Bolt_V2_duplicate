@@ -73,18 +73,28 @@ export function captureError(error: Error, context?: Record<string, any>) {
   }
 }
 
-export function captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info') {
-  // Only capture messages in production
-  if (import.meta.env.PROD) {
-    const sentryDsn = import.meta.env.VITE_SENTRY_DSN || 'https://5cf6baeb345997373227ec819ed8cafe@o4510074051756032.ingest.us.sentry.io/4510074063749120'
+export function captureMessage(message: string, level: string = 'info') {
+  try {
+    // Normalize the level to ensure it's a string and valid
+    const normalizedLevel = typeof level === 'string' ? level.toLowerCase() : 'info';
+    const validLevels = ['info', 'warning', 'error', 'debug', 'fatal'];
+    const finalLevel = validLevels.includes(normalizedLevel) ? normalizedLevel : 'info';
+    
+    // Only capture messages in production
+    if (import.meta.env.PROD) {
+      const sentryDsn = import.meta.env.VITE_SENTRY_DSN || 'https://5cf6baeb345997373227ec819ed8cafe@o4510074051756032.ingest.us.sentry.io/4510074063749120'
 
-    if (sentryDsn && sentryDsn !== 'your_sentry_dsn_here') {
-      Sentry.captureMessage(message, level)
+      if (sentryDsn && sentryDsn !== 'your_sentry_dsn_here') {
+        Sentry.captureMessage(message, finalLevel as any)
+      } else {
+        console.log(`[${finalLevel.toUpperCase()}] ${message}`)
+      }
     } else {
-      console.log(`[${level.toUpperCase()}] ${message}`)
+      console.log(`[${finalLevel.toUpperCase()}] ${message} (dev mode)`)
     }
-  } else {
-    console.log(`[${level.toUpperCase()}] ${message} (dev mode)`)
+  } catch (err) {
+    console.error("Failed to capture message:", err);
+    console.log(`[ERROR] ${message} (fallback)`);
   }
 }
 

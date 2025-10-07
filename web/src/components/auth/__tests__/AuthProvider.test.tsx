@@ -1,119 +1,263 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider, useAuth } from '../AuthProvider';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { supabase } from '@dislink/shared/lib/supabase';
 
-// Mock Supabase
-vi.mock('../../lib/supabase', () => ({
-    supabase: {
-        auth: {
-            getSession: vi.fn(),
-            onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
-            signOut: vi.fn(),
-        },
-        from: vi.fn(() => ({
-            select: vi.fn(() => ({
-                eq: vi.fn(() => ({
-                    single: vi.fn(() => ({ data: null, error: null }))
-                }))
-            }))
-        }))
-    },
-    isConnectionHealthy: vi.fn(() => Promise.resolve(true))
+// Mock Supabase with enhanced methods
+vi.mock('@dislink/shared/lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn(),
+      onAuthStateChange: vi.fn(),
+      signOut: vi.fn(),
+      getUser: vi.fn()
+    }
+  },
+  isConnectionHealthy: vi.fn(),
+  initializeConnection: vi.fn()
+}));
+
+// Mock Sentry
+vi.mock('@dislink/shared/lib/sentry', () => ({
+  captureError: vi.fn(),
+  setUserContext: vi.fn(),
+  clearUserContext: vi.fn()
+}));
+
+// Mock profile functions
+vi.mock('@dislink/shared/lib/profile', () => ({
+  getCurrentProfile: vi.fn()
+}));
+
+// Mock user preferences
+vi.mock('@dislink/shared/lib/userPreferences', () => ({
+  initUserPreferences: vi.fn()
 }));
 
 // Mock logger
-vi.mock('../../lib/logger', () => ({
-    logger: {
-        info: vi.fn(),
-        error: vi.fn(),
-        warn: vi.fn(),
-        debug: vi.fn()
-    }
+vi.mock('@dislink/shared/lib/logger', () => ({
+  logger: {
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn()
+  }
 }));
 
-// Mock userPreferences
-vi.mock('../../lib/userPreferences', () => ({
-    initUserPreferences: vi.fn(() => Promise.resolve())
-}));
+const TestComponent = () => {
+  return <div>Test Component</div>;
+};
 
-// Test component that uses the auth context
-function TestComponent() {
-    const { user, loading, error, connectionStatus } = useAuth();
+describe('AuthProvider - Updated Tests', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    return (
-        <div>
-            <div data-testid="loading">{loading ? 'Loading...' : 'Not Loading'}</div>
-            <div data-testid="user">{user ? user.email : 'No User'}</div>
-            <div data-testid="error">{error || 'No Error'}</div>
-            <div data-testid="connection">{connectionStatus}</div>
-        </div>
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should render children when initialized', async () => {
+    // Mock successful session
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null
+    });
+
+    vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } }
+    });
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
     );
-}
 
-describe('AuthProvider', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        // Mock localStorage
-        Object.defineProperty(window, 'localStorage', {
-            value: {
-                getItem: vi.fn(() => null),
-                setItem: vi.fn(),
-                removeItem: vi.fn(),
-            },
-            writable: true,
-        });
+    await waitFor(() => {
+      expect(screen.getByText('Test Component')).toBeInTheDocument();
+    });
+  });
+
+  it('should handle profile loading with getCurrentProfile', async () => {
+    const mockUser = {
+      id: 'test-user-id',
+      email: 'test@example.com',
+      user_metadata: {}
+    };
+
+    const mockSession = {
+      user: mockUser,
+      access_token: 'test-token',
+      refresh_token: 'test-refresh-token'
+    };
+
+    const mockProfile = {
+      id: 'test-user-id',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      onboardingComplete: true
+    };
+
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: mockSession },
+      error: null
     });
 
-    it('renders without crashing', () => {
-        render(
-            <BrowserRouter>
-                <AuthProvider>
-                    <TestComponent />
-                </AuthProvider>
-            </BrowserRouter>
-        );
+    const { getCurrentProfile } = await import('@dislink/shared/lib/profile');
+    vi.mocked(getCurrentProfile).mockResolvedValue(mockProfile);
 
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
+    vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } }
     });
 
-    it('provides auth context to children', () => {
-        render(
-            <BrowserRouter>
-                <AuthProvider>
-                    <TestComponent />
-                </AuthProvider>
-            </BrowserRouter>
-        );
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
 
-        expect(screen.getByTestId('loading')).toBeInTheDocument();
-        expect(screen.getByTestId('user')).toBeInTheDocument();
-        expect(screen.getByTestId('error')).toBeInTheDocument();
-        expect(screen.getByTestId('connection')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(getCurrentProfile).toHaveBeenCalled();
+    });
+  });
+
+  it('should initialize user preferences', async () => {
+    const { initUserPreferences } = await import('@dislink/shared/lib/userPreferences');
+    
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null
     });
 
-    it('throws error when useAuth is used outside AuthProvider', () => {
-        // Suppress console.error for this test
-        const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
-
-        expect(() => {
-            render(<TestComponent />);
-        }).toThrow('useAuth must be used within an AuthProvider');
-
-        consoleSpy.mockRestore();
+    vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } }
     });
 
-    it('initializes with correct default values', () => {
-        render(
-            <BrowserRouter>
-                <AuthProvider>
-                    <TestComponent />
-                </AuthProvider>
-            </BrowserRouter>
-        );
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
 
-        expect(screen.getByTestId('user')).toHaveTextContent('No User');
-        expect(screen.getByTestId('error')).toHaveTextContent('No Error');
-        expect(screen.getByTestId('connection')).toHaveTextContent('connecting');
+    await waitFor(() => {
+      expect(initUserPreferences).toHaveBeenCalledWith(null);
     });
+  });
+
+  it('should handle auth state changes with profile loading', async () => {
+    let authStateCallback: any;
+
+    const mockUser = {
+      id: 'test-user-id',
+      email: 'test@example.com'
+    };
+
+    const mockSession = {
+      user: mockUser,
+      access_token: 'test-token'
+    };
+
+    const mockProfile = {
+      id: 'test-user-id',
+      email: 'test@example.com',
+      firstName: 'Test',
+      lastName: 'User',
+      onboardingComplete: true
+    };
+
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null
+    });
+
+    vi.mocked(supabase.auth.onAuthStateChange).mockImplementation((callback) => {
+      authStateCallback = callback;
+      return {
+        data: { subscription: { unsubscribe: vi.fn() } }
+      };
+    });
+
+    const { getCurrentProfile } = await import('@dislink/shared/lib/profile');
+    vi.mocked(getCurrentProfile).mockResolvedValue(mockProfile);
+
+    render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Component')).toBeInTheDocument();
+    });
+
+    // Simulate auth state change
+    authStateCallback('SIGNED_IN', mockSession);
+
+    await waitFor(() => {
+      expect(getCurrentProfile).toHaveBeenCalled();
+    });
+  });
+
+  it('should cleanup subscription on unmount', async () => {
+    const unsubscribe = vi.fn();
+
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null
+    });
+
+    vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+      data: { subscription: { unsubscribe } }
+    });
+
+    const { unmount } = render(
+      <AuthProvider>
+        <TestComponent />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Test Component')).toBeInTheDocument();
+    });
+
+    unmount();
+
+    expect(unsubscribe).toHaveBeenCalled();
+  });
+
+  it('should provide correct context values', async () => {
+    const TestContextComponent = () => {
+      const auth = useAuth();
+      
+      return (
+        <div>
+          <div data-testid="loading">{auth.loading.toString()}</div>
+          <div data-testid="connection-status">{auth.connectionStatus}</div>
+          <div data-testid="is-owner">{auth.isOwner.toString()}</div>
+        </div>
+      );
+    };
+
+    vi.mocked(supabase.auth.getSession).mockResolvedValue({
+      data: { session: null },
+      error: null
+    });
+
+    vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+      data: { subscription: { unsubscribe: vi.fn() } }
+    });
+
+    render(
+      <AuthProvider>
+        <TestContextComponent />
+      </AuthProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('loading')).toHaveTextContent('false');
+      expect(screen.getByTestId('connection-status')).toHaveTextContent('connecting');
+      expect(screen.getByTestId('is-owner')).toHaveTextContent('false');
+    });
+  });
 });

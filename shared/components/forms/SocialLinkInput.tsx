@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { X, AlertCircle } from 'lucide-react';
-import { SOCIAL_CATEGORIES } from '../../config/social';
+import { SOCIAL_CATEGORIES } from '../../constants/social';
 
 interface SocialLinkInputProps {
   platform: string;

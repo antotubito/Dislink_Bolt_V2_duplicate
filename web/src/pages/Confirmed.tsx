@@ -5,7 +5,7 @@ import { Check, ArrowRight, Home, AlertCircle, RefreshCw } from 'lucide-react';
 import { supabase } from '@dislink/shared/lib/supabase';
 import { logger } from '@dislink/shared/lib/logger';
 import { completeQRConnection } from '@dislink/shared/lib/qrConnectionHandler';
-import { handleEmailConfirmation } from '@dislink/shared/lib/authFlow';
+import { verifyEmail } from '@dislink/shared/lib/authUtils';
 
 export function Confirmed() {
   const navigate = useNavigate();
@@ -61,14 +61,80 @@ export function Confirmed() {
         // Use shared email confirmation handler
         logger.info('🔐 Starting email confirmation with shared handler');
         console.log('🔍 EMAIL VERIFICATION: Using shared verification with URL:', window.location.href);
+        console.log('🔍 EMAIL VERIFICATION: URL parameters:', {
+          code: searchParams.get('code') ? searchParams.get('code')?.substring(0, 10) + '...' : null,
+          token_hash: searchParams.get('token_hash') ? searchParams.get('token_hash')?.substring(0, 10) + '...' : null,
+          type: searchParams.get('type'),
+          email: searchParams.get('email'),
+          error: searchParams.get('error'),
+          error_code: searchParams.get('error_code')
+        });
 
-        const result = await handleEmailConfirmation(window.location.href);
+        // First, check if user is already authenticated (email confirmation might have already succeeded)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          console.log('🔍 EMAIL VERIFICATION: User already authenticated, checking onboarding status');
+          
+          // Check if user needs onboarding
+          try {
+            const { getCurrentProfile } = await import('@dislink/shared/lib/profile');
+            const profile = await getCurrentProfile();
+            
+            if (profile && !profile.onboardingComplete) {
+              console.log('🔍 EMAIL VERIFICATION: User needs onboarding, redirecting to onboarding');
+              setVerificationStatus('success');
+              setLoading(false);
+              // Redirect to onboarding after a short delay
+              setTimeout(() => {
+                navigate('/app/onboarding');
+              }, 2000);
+              return;
+            } else {
+              console.log('🔍 EMAIL VERIFICATION: User onboarding complete, redirecting to app');
+              setVerificationStatus('success');
+              setLoading(false);
+              // Redirect to app after a short delay
+              setTimeout(() => {
+                navigate('/app');
+              }, 2000);
+              return;
+            }
+          } catch (error) {
+            console.error('🔍 EMAIL VERIFICATION: Error checking profile:', error);
+            // Fallback to success state
+            setVerificationStatus('success');
+            setLoading(false);
+            setTimeout(() => {
+              navigate('/app');
+            }, 2000);
+            return;
+          }
+        }
+
+        // If user is not authenticated, proceed with email confirmation
+        // Check if we have parameters in URL, if not try sessionStorage
+        let verificationUrl = window.location.href;
+        if (!searchParams.get('code') && !searchParams.get('token_hash')) {
+          const storedParams = sessionStorage.getItem('emailConfirmationParams');
+          if (storedParams) {
+            verificationUrl = `${window.location.origin}/confirmed?${storedParams}`;
+            console.log('🔍 EMAIL VERIFICATION: Using stored parameters:', storedParams);
+            // Clear the stored parameters after use
+            sessionStorage.removeItem('emailConfirmationParams');
+          }
+        }
+
+        const result = await verifyEmail(verificationUrl);
 
         console.log('🔍 EMAIL VERIFICATION: Shared verification result:', {
           success: result.success,
           hasUser: !!result.user,
+          hasSession: !!result.session,
+          userId: result.user?.id,
+          userEmail: result.user?.email,
           error: result.error || 'none',
-          alreadyVerified: result.alreadyVerified
+          alreadyVerified: result.alreadyVerified,
+          requiresOnboarding: result.requiresOnboarding
         });
 
         if (!result.success) {
@@ -80,7 +146,8 @@ export function Confirmed() {
             return;
           } else if (result.error?.includes('Invalid code') ||
             result.error?.includes('Code has expired') ||
-            result.error?.includes('expired')) {
+            result.error?.includes('expired') ||
+            result.error?.includes('Email link is invalid or has expired')) {
             setError('The email confirmation link has expired or is invalid. Please request a new confirmation email.');
             setErrorCode('code_expired');
           } else {
@@ -103,6 +170,10 @@ export function Confirmed() {
         logger.info('✅ Email verification successful, user:', result.user.id);
         console.log('✅ EMAIL VERIFICATION: Verification successful!');
 
+        // Set email confirmation flag for AccessGuard
+        sessionStorage.setItem('emailConfirmed', 'true');
+        sessionStorage.setItem('emailConfirmedTimestamp', Date.now().toString());
+
         // Handle QR connection completion if user just registered
         try {
           await completeQRConnection(result.user.id);
@@ -118,12 +189,10 @@ export function Confirmed() {
         // Wait a moment for session to be properly established
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Simple redirect - let AuthProvider handle onboarding detection
-        logger.info('Redirecting user after successful verification');
-        localStorage.removeItem('redirectUrl');
-        navigate('/app');
-
+        // Show success state instead of auto-redirecting
+        logger.info('Email verification successful, showing success page');
         setVerificationStatus('success');
+        setLoading(false);
 
       } catch (err: any) {
         logger.error('Critical error during enhanced email verification:', err);
@@ -206,7 +275,9 @@ export function Confirmed() {
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirmed`
+          emailRedirectTo: window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+            ? 'https://dislinkboltv2duplicate.netlify.app/confirmed'
+            : 'http://localhost:3001/confirmed'
         }
       });
 
@@ -330,78 +401,84 @@ export function Confirmed() {
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 30
-        }}
-        className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl text-center"
-      >
+  // Show success state when verification is complete
+  if (verificationStatus === 'success') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <motion.div
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, type: "spring" }}
-          className="mx-auto flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 30
+          }}
+          className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl text-center"
         >
-          <Check className="h-10 w-10 text-green-600" />
-        </motion.div>
-
-        <motion.h2
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          className="text-2xl font-bold text-gray-900 mb-4"
-        >
-          ✅ Your email has been successfully confirmed!
-        </motion.h2>
-
-        <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-gray-600 mb-8"
-        >
-          Thank you for verifying your email address. Your account is now active and ready! Next, we'll help you personalize your Dislink experience with a quick onboarding process.
-        </motion.p>
-
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="flex flex-col space-y-3"
-        >
-          <button
-            onClick={handleStartJourney}
-            disabled={buttonLoading}
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, type: "spring" }}
+            className="mx-auto flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6"
           >
-            {buttonLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                Starting...
-              </>
-            ) : (
-              <>
-                🚀 Start Your Journey
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </>
-            )}
-          </button>
+            <Check className="h-10 w-10 text-green-600" />
+          </motion.div>
 
-          <button
-            onClick={handleGoToHome}
-            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50"
+          <motion.h2
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="text-2xl font-bold text-gray-900 mb-4"
           >
-            <Home className="h-5 w-5 mr-2" />
-            Go to Home Page
-          </button>
+            ✅ Your email has been successfully confirmed!
+          </motion.h2>
+
+          <motion.p
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-gray-600 mb-8"
+          >
+            Thank you for verifying your email address. Your account is now active and ready! Next, we'll help you personalize your Dislink experience with a quick onboarding process.
+          </motion.p>
+
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="flex flex-col space-y-3"
+          >
+            <button
+              onClick={handleStartJourney}
+              disabled={buttonLoading}
+              className="inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-xl shadow-sm text-base font-medium text-white btn-captamundi-primary hover:shadow-lg hover:shadow-purple-500/25 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {buttonLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Starting...
+                </>
+              ) : (
+                <>
+                  🚀 Start Your Journey
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleGoToHome}
+              className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-xl shadow-sm text-base font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              <Home className="h-5 w-5 mr-2" />
+              Go to Home Page
+            </button>
+          </motion.div>
         </motion.div>
-      </motion.div>
-    </div>
-  );
+      </div>
+    );
+  }
+
+  // This should not be reached, but keeping as fallback
+  return null;
 }

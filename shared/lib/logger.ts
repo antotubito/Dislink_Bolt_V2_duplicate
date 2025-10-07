@@ -84,7 +84,7 @@ class Logger {
     }
 
     // In production, you might want to send logs to a service
-    if (process.env.NODE_ENV === 'production') {
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') {
       this.persistLog(entry);
     }
   }

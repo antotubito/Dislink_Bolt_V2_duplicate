@@ -77,6 +77,10 @@ class PrefetchManager {
    * Prefetch based on user navigation patterns
    */
   prefetchForRoute(currentRoute: string): void {
+    // Disable prefetching for now to avoid module loading errors
+    // TODO: Fix module path resolution for dynamic imports
+    return;
+    
     const prefetchMap: Record<string, string[]> = {
       '/app': [
         // Home page - prefetch likely next pages
@@ -127,6 +131,10 @@ class PrefetchManager {
    * Prefetch critical user flows
    */
   prefetchCriticalFlows(): void {
+    // Disable prefetching for now to avoid module loading errors
+    // TODO: Fix module path resolution for dynamic imports
+    return;
+    
     const criticalModules = [
       // Authentication flow
       './pages/Login',

@@ -3,6 +3,24 @@ import { logger } from './logger';
 import type { Need, NeedReply } from '../types/need';
 import { formatDistanceToNow } from 'date-fns';
 
+// Helper function to generate category label from category
+function generateCategoryLabel(category: string): string {
+  const categoryMap: Record<string, string> = {
+    'professional': 'Professional Help',
+    'personal': 'Personal Support',
+    'social': 'Social Connection',
+    'learning': 'Learning & Growth',
+    'health': 'Health & Wellness',
+    'creative': 'Creative Collaboration',
+    'business': 'Business Opportunities',
+    'mentorship': 'Mentorship',
+    'collaboration': 'Collaboration',
+    'advice': 'Advice & Guidance'
+  };
+  
+  return categoryMap[category.toLowerCase()] || category.charAt(0).toUpperCase() + category.slice(1);
+}
+
 // 🚀 PRODUCTION-READY NEEDS SYSTEM
 // Migrated from mock data to Supabase with mobile optimizations
 
@@ -21,7 +39,17 @@ export async function listNeeds(): Promise<Need[]> {
     const { data, error } = await supabase
       .from('needs')
       .select(`
-        *,
+        id,
+        user_id,
+        category,
+        message,
+        tags,
+        visibility,
+        expires_at,
+        is_satisfied,
+        created_at,
+        updated_at,
+        category_label,
         profiles!needs_user_id_fkey(name, profile_image)
       `)
       .eq('is_satisfied', false)
@@ -39,8 +67,8 @@ export async function listNeeds(): Promise<Need[]> {
       userName: need.profiles?.name || 'Unknown User',
       userImage: need.profiles?.profile_image,
       category: need.category,
-      categoryLabel: need.category_label,
-      message: need.message,
+      categoryLabel: need.category_label || generateCategoryLabel(need.category),
+      message: need.message || 'No message provided',
       tags: need.tags || [],
       visibility: need.visibility,
       expiresAt: new Date(need.expires_at),
@@ -76,8 +104,8 @@ export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'created
       .insert({
         user_id: user.id,
         category: needData.category,
-        category_label: needData.categoryLabel,
-        message: needData.message,
+        category_label: needData.categoryLabel || generateCategoryLabel(needData.category),
+        message: needData.message || 'No message provided',
         tags: needData.tags,
         visibility: needData.visibility,
         expires_at: expiresAt.toISOString(),
@@ -116,7 +144,17 @@ export async function getNeed(id: string): Promise<Need | null> {
     const { data, error } = await supabase
       .from('needs')
       .select(`
-        *,
+        id,
+        user_id,
+        category,
+        message,
+        tags,
+        visibility,
+        expires_at,
+        is_satisfied,
+        created_at,
+        updated_at,
+        category_label,
         profiles!needs_user_id_fkey(name, profile_image)
       `)
       .eq('id', id)
@@ -133,7 +171,7 @@ export async function getNeed(id: string): Promise<Need | null> {
       userName: data.profiles?.name || 'Unknown User',
       userImage: data.profiles?.profile_image,
       category: data.category,
-      categoryLabel: data.category_label,
+      categoryLabel: data.category_label || generateCategoryLabel(data.category),
       message: data.message,
       tags: data.tags || [],
       visibility: data.visibility,
@@ -300,7 +338,17 @@ export async function getArchivedNeeds(): Promise<Need[]> {
     const { data, error } = await supabase
       .from('needs')
       .select(`
-        *,
+        id,
+        user_id,
+        category,
+        message,
+        tags,
+        visibility,
+        expires_at,
+        is_satisfied,
+        created_at,
+        updated_at,
+        category_label,
         profiles!needs_user_id_fkey(name, profile_image)
       `)
       .eq('user_id', user.id)
@@ -315,8 +363,8 @@ export async function getArchivedNeeds(): Promise<Need[]> {
       userName: need.profiles?.name || 'Unknown User',
       userImage: need.profiles?.profile_image,
       category: need.category,
-      categoryLabel: need.category_label,
-      message: need.message,
+      categoryLabel: need.category_label || generateCategoryLabel(need.category),
+      message: need.message || 'No message provided',
       tags: need.tags || [],
       visibility: need.visibility,
       expiresAt: new Date(need.expires_at),

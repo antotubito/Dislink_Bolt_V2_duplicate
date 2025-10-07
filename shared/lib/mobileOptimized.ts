@@ -434,18 +434,7 @@ export class MobileOffline {
   }
 }
 
-// Export all mobile utilities
-export {
-  MobileCamera,
-  MobileGeolocation,
-  MobilePushNotifications,
-  MobileDevice,
-  MobileShare,
-  MobileHaptics,
-  MobileStatusBar,
-  MobileToast,
-  MobileOffline
-};
+// Classes are already exported individually above
 
 // Initialize mobile features when imported
 export async function initializeMobileFeatures(): Promise<void> {

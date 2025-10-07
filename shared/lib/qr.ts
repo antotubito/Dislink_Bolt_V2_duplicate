@@ -62,7 +62,9 @@ export async function generateQRCode(userId: string): Promise<string> {
     }
 
     // Return the unique scan URL that includes the scan ID
-    const uniqueScanUrl = `${window.location.origin}/scan/${scanId}?code=${connectionCode}`;
+    const uniqueScanUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+      ? `https://dislinkboltv2duplicate.netlify.app/scan/${scanId}?code=${connectionCode}`
+      : `http://localhost:3001/scan/${scanId}?code=${connectionCode}`;
     logger.info('Generated UNIQUE QR code URL:', {
       url: uniqueScanUrl,
       userId,
@@ -205,7 +207,9 @@ async function validateConnectionCode(code: string): Promise<QRScanResult | null
 
 // Get public profile URL
 export function getPublicProfileUrl(code: string): string {
-  return `${window.location.origin}/share/${code}`;
+  return window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+    ? `https://dislinkboltv2duplicate.netlify.app/share/${code}`
+    : `http://localhost:3001/share/${code}`;
 }
 
 // Track QR code scan with location

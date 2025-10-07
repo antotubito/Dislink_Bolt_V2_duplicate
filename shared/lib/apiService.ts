@@ -59,14 +59,15 @@ function getBackoffDelay(retryCount: number): number {
   return Math.min(1000 * Math.pow(2, retryCount), 30000); // Max 30 seconds
 }
 
-// Validate API keys
-const GEODB_API_KEY = "f4b0b7ef11msh663d761ebea1d2fp15c6eajsnbb69d673cce0";
+// Validate API keys - moved to environment variables for security
+const GEOCODING_API_KEY = import.meta.env.VITE_GEOCODING_API_KEY;
 
-if (!GEODB_API_KEY) {
-  logger.error('Missing GeoDB API key. Please check your environment variables.');
+if (!GEOCODING_API_KEY) {
+  logger.error('Missing Geocoding API key. Please check your environment variables.');
+  logger.error('Set VITE_GEOCODING_API_KEY in your .env.local file');
 }
 
-// GeoDB Cities API credentials
+// GeoDB Cities API credentials - using geocoding API key
 const GEODB_API_HOST = 'wft-geo-db.p.rapidapi.com';
 
 // Generic API service that uses Edge Functions to proxy requests
@@ -96,8 +97,8 @@ export const apiService = {
         
         // Try GeoDB Cities API first (more comprehensive city database)
         try {
-          if (!GEODB_API_KEY) {
-            throw new Error('GeoDB API key not configured');
+          if (!GEOCODING_API_KEY) {
+            throw new Error('Geocoding API key not configured');
           }
           
           // Call GeoDB Cities API with improved parameters
@@ -105,7 +106,7 @@ export const apiService = {
             `https://wft-geo-db.p.rapidapi.com/v1/geo/cities?namePrefix=${encodeURIComponent(query)}&limit=50&sort=-population`,
             {
               headers: {
-                'X-RapidAPI-Key': GEODB_API_KEY,
+                'X-RapidAPI-Key': GEOCODING_API_KEY,
                 'X-RapidAPI-Host': GEODB_API_HOST
               }
             }

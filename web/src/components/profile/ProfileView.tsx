@@ -46,7 +46,9 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
   // Handle copy profile link
   const handleCopyProfileLink = async () => {
     try {
-      const profileUrl = `${window.location.origin}/share/${user.id}`;
+      const profileUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+        ? `https://dislinkboltv2duplicate.netlify.app/share/${user.id}`
+        : `http://localhost:3001/share/${user.id}`;
       await navigator.clipboard.writeText(profileUrl);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);

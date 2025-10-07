@@ -2,6 +2,7 @@
 import { supabase } from './supabase';
 import { logger } from './logger';
 import { updateProfile } from './profile';
+import { getEmailRedirectUrl } from './authUtils';
 import type { User } from '../types/user';
 
 export interface AuthFlowResult {
@@ -31,16 +32,32 @@ export async function handleEmailConfirmation(url: string): Promise<AuthFlowResu
       hasTokenHash: !!tokenHash, 
       hasCode: !!code,
       type, 
-      hasEmail: !!email 
+      hasEmail: !!email,
+      fullUrl: url,
+      codeValue: code ? code.substring(0, 10) + '...' : null,
+      tokenHashValue: tokenHash ? tokenHash.substring(0, 10) + '...' : null
     });
 
     // Attempt email confirmation - handle both PKCE and implicit flows
     let verificationResult;
     
     if (code) {
-      // Implicit flow - use code parameter
-      logger.info('🔐 Attempting verification with code (implicit flow)');
-      verificationResult = await supabase.auth.exchangeCodeForSession(code);
+      // Check if we have a stored code verifier for PKCE flow
+      const storedCodeVerifier = localStorage.getItem('supabase.auth.code_verifier') || 
+                                 localStorage.getItem('supabase_code_verifier');
+      
+      if (storedCodeVerifier) {
+        // PKCE flow with stored verifier
+        logger.info('🔐 Using stored code verifier for PKCE flow');
+        verificationResult = await supabase.auth.exchangeCodeForSession(code);
+      } else {
+        // Fallback to verifyOtp for implicit flow
+        logger.info('🔐 No code verifier found, using verifyOtp for implicit flow');
+        verificationResult = await supabase.auth.verifyOtp({
+          token_hash: code,
+          type: 'email'
+        });
+      }
     } else if (tokenHash && type) {
       // PKCE flow - use token_hash and type
       if (email) {
@@ -113,6 +130,25 @@ export async function handleEmailConfirmation(url: string): Promise<AuthFlowResu
       email: data.user.email 
     });
 
+    // Clean up stored code verifier after successful confirmation
+    localStorage.removeItem('supabase.auth.code_verifier');
+    localStorage.removeItem('supabase_code_verifier');
+    sessionStorage.removeItem('supabase_code_verifier');
+
+    // Ensure profile exists after email confirmation
+    const { createOrUpdateProfile } = await import('./profileCreation');
+    const profileResult = await createOrUpdateProfile({
+      id: data.user.id,
+      email: data.user.email,
+      firstName: data.user.user_metadata?.firstName || data.user.user_metadata?.first_name || '',
+      lastName: data.user.user_metadata?.lastName || data.user.user_metadata?.last_name || ''
+    });
+
+    if (!profileResult.success) {
+      logger.warn('Profile creation/update failed during email confirmation:', profileResult.error);
+      // Don't fail the confirmation, just log the warning
+    }
+
     // Check onboarding status
     const requiresOnboarding = await checkOnboardingStatus(data.user.id);
 
@@ -163,11 +199,27 @@ export async function completeOnboarding(userId: string, userData: Partial<User>
   try {
     logger.info('🎯 Completing onboarding for user:', userId);
 
+    // Update profile with onboarding completion
     await updateProfile({
       ...userData,
       onboardingComplete: true,
       onboardingCompletedAt: new Date()
     });
+
+    // Also update the database directly to ensure consistency
+    const { error: dbError } = await supabase
+      .from('profiles')
+      .update({
+        onboarding_complete: true,
+        onboarding_completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId);
+
+    if (dbError) {
+      logger.error('❌ Failed to update onboarding status in database:', dbError);
+      throw dbError;
+    }
 
     logger.info('✅ Onboarding completed successfully');
   } catch (error) {
@@ -176,18 +228,6 @@ export async function completeOnboarding(userId: string, userData: Partial<User>
   }
 }
 
-/**
- * Get the correct redirect URL for email confirmations
- */
-export function getEmailRedirectUrl(): string {
-  // In production, use the production URL
-  if (window.location.hostname === 'dislinkboltv2duplicate.netlify.app') {
-    return 'https://dislinkboltv2duplicate.netlify.app/confirmed';
-  }
-  
-  // In development, use localhost
-  return `${window.location.origin}/confirmed`;
-}
 
 /**
  * Enhanced auth state change handler
@@ -249,8 +289,27 @@ export function shouldRedirectToOnboarding(
     return false;
   }
 
+  // If no user, don't redirect to onboarding
+  if (!user) {
+    return false;
+  }
+
   // Check if user needs onboarding
-  return user && !user.onboardingComplete;
+  // Handle both camelCase (onboardingComplete) and snake_case (onboarding_complete) field names
+  const onboardingComplete = user.onboardingComplete ?? user.onboarding_complete;
+  const needsOnboarding = onboardingComplete === false || onboardingComplete === undefined || onboardingComplete === null;
+  
+  logger.info('🔐 Onboarding check:', { 
+    userId: user.id, 
+    onboardingComplete: onboardingComplete, 
+    needsOnboarding,
+    currentPath,
+    userKeys: Object.keys(user),
+    userOnboardingComplete: user.onboardingComplete,
+    userOnboarding_complete: user.onboarding_complete
+  });
+  
+  return needsOnboarding;
 }
 
 /**

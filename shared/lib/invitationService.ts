@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { logger } from './logger';
+import { createOrUpdateProfile } from './profileCreation';
 import type { User } from '../types/user';
 
 // =====================================================
@@ -167,24 +168,16 @@ export async function processRegistrationWithInvitation(
 
     const userId = authData.user.id;
 
-    // Create user profile
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: userId,
-        email: registrationData.email,
-        first_name: registrationData.firstName,
-        last_name: registrationData.lastName,
-        onboarding_complete: false,
-        registration_complete: true,
-        registration_status: 'completed',
-        registration_completed_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+    // Create user profile with conflict handling
+    const profileResult = await createOrUpdateProfile({
+      id: userId,
+      email: registrationData.email,
+      firstName: registrationData.firstName,
+      lastName: registrationData.lastName
+    });
 
-    if (profileError) {
-      logger.error('Profile creation error:', profileError);
+    if (!profileResult.success) {
+      logger.error('Profile creation error:', profileResult.error);
       // Note: User is created in auth but profile creation failed
       // This should be handled by the calling code
       return {
@@ -478,7 +471,9 @@ async function sendInvitationEmail(
   // In production, replace this with actual email service integration
   // Example services: SendGrid, Mailgun, AWS SES, etc.
   
-  const registrationUrl = `${window.location.origin}/app/register?invitation=${invitationId}&code=${connectionCode}`;
+  const registrationUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+    ? `https://dislinkboltv2duplicate.netlify.app/app/register?invitation=${invitationId}&code=${connectionCode}`
+    : `http://localhost:3001/app/register?invitation=${invitationId}&code=${connectionCode}`;
   
   const senderName = `${senderProfile.first_name} ${senderProfile.last_name}`.trim();
   const senderTitle = senderProfile.job_title ? ` (${senderProfile.job_title}${senderProfile.company ? ` at ${senderProfile.company}` : ''})` : '';
@@ -504,7 +499,7 @@ This invitation expires in 7 days.
 
 ---
 Dislink - Building Meaningful Connections
-${window.location.origin}
+${window.location.hostname === 'dislinkboltv2duplicate.netlify.app' ? 'https://dislinkboltv2duplicate.netlify.app' : 'http://localhost:3001'}
   `.trim();
 
   console.log('📧 Invitation email would be sent:');

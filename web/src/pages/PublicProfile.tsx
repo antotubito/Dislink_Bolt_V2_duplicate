@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { validateQRCode, requestConnection } from "@dislink/shared/lib/qr";
+import { validateConnectionCode, markQRCodeAsUsed } from "@dislink/shared/lib/qrConnection";
+import { validateConnectionCode as validateConnectionCodeEnhanced } from "@dislink/shared/lib/qrConnectionEnhanced";
 import {
   trackEnhancedQRScan,
   sendEmailInvitation,
@@ -31,6 +33,7 @@ export function PublicProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isExpired, setIsExpired] = useState(false);
+  const [isAlreadyUsed, setIsAlreadyUsed] = useState(false);
   const [email, setEmail] = useState('');
   const [connectionCode, setConnectionCode] = useState<string | null>(null);
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -63,6 +66,46 @@ export function PublicProfile() {
       }
 
       console.log('🔍 PublicProfile: Processing with:', { connectionCode, currentScanId });
+
+      // For scan routes with connection codes, use the one-time use validation
+      if (connectionCode && currentScanId) {
+        console.log('🔍 PublicProfile: Using one-time use validation for scan route');
+        try {
+          // First, validate the connection code
+          const validatedData = await validateConnectionCode(connectionCode);
+          if (validatedData) {
+            console.log('✅ PublicProfile: Connection code validation successful:', validatedData);
+            
+            // Mark the QR code as used (one-time use system)
+            const markResult = await markQRCodeAsUsed(connectionCode, undefined, scanLocation);
+            if (markResult.success) {
+              console.log('✅ PublicProfile: QR code marked as used successfully');
+              setProfile(validatedData);
+              setConnectionCode(connectionCode);
+              setLoading(false);
+              return;
+            } else {
+              console.error('❌ PublicProfile: Failed to mark QR code as used:', markResult.error);
+              if (markResult.error === 'QR code has already been used') {
+                setIsAlreadyUsed(true);
+                setError('This QR code has already been used by someone else');
+                setLoading(false);
+                return;
+              }
+            }
+          } else {
+            console.warn('⚠️ PublicProfile: Connection code validation failed');
+            setError('QR code not found or expired');
+            setLoading(false);
+            return;
+          }
+        } catch (validationError) {
+          console.error('❌ PublicProfile: Validation error:', validationError);
+          setError('Failed to validate QR code');
+          setLoading(false);
+          return;
+        }
+      }
 
       // Handle test profile
       if (code === 'test-profile') {
@@ -146,90 +189,38 @@ export function PublicProfile() {
           }
         }
 
-        // Query the connection_codes table with proper field names
-        const { data: directProfile, error: directError } = await supabase
-          .from('connection_codes')
-          .select(`
-            id,
-            user_id,
-            is_active,
-            expires_at,
-            profiles!connection_codes_user_id_fkey (
-              id,
-              first_name,
-              last_name,
-              job_title,
-              company,
-              profile_image,
-              bio,
-              social_links,
-              interests,
-              public_profile
-            )
-          `)
-          .eq('code', connectionCode)
-          .eq('is_active', true)
-          .maybeSingle();
-
-        console.log('🔍 PublicProfile: Database query result:', { directProfile, directError });
-
-        if (directError) {
-          console.error("❌ PublicProfile: Supabase query error:", directError);
-          throw new Error('Failed to load profile');
-        }
-
-        if (!directProfile) {
-          console.error('❌ PublicProfile: No active connection code found for:', connectionCode);
-          setError('QR code not found or expired');
-          setLoading(false);
-          return;
-        }
-
-        // Check if the code has expired
-        if (directProfile.expires_at) {
-          const expirationDate = new Date(directProfile.expires_at);
-          if (expirationDate < new Date()) {
-            console.error('❌ PublicProfile: QR code expired:', expirationDate);
-            setError('This QR code has expired. Please ask for a new one.');
-            setIsExpired(true);
-            setLoading(false);
-            return;
-          }
-        }
-
-        if (directProfile?.profiles) {
-          // Format profile data
-          const formattedProfile = {
-            userId: directProfile.profiles.id,
-            name: `${directProfile.profiles.first_name} ${directProfile.profiles.last_name}`.trim(),
-            jobTitle: directProfile.profiles.job_title,
-            company: directProfile.profiles.company,
-            profileImage: directProfile.profiles.profile_image,
-            bio: directProfile.profiles.bio,
-            socialLinks: directProfile.profiles.social_links,
-            interests: directProfile.profiles.interests,
-            publicProfile: directProfile.profiles.public_profile,
-            isExpired: !directProfile.is_active,
-            code: connectionCode
-          };
-
-          console.log('✅ PublicProfile: Profile loaded successfully:', formattedProfile);
-
-          if (formattedProfile.isExpired) {
-            setIsExpired(true);
-          } else {
-            setProfile(formattedProfile);
+        // Use the one-time use validation system
+        console.log('🔍 PublicProfile: Using one-time use validation for profile route');
+        
+        // First, validate the connection code
+        const validatedData = await validateConnectionCode(connectionCode);
+        if (validatedData) {
+          console.log('✅ PublicProfile: Connection code validation successful:', validatedData);
+          
+          // Mark the QR code as used (one-time use system)
+          const markResult = await markQRCodeAsUsed(connectionCode, undefined, location);
+          if (markResult.success) {
+            console.log('✅ PublicProfile: QR code marked as used successfully');
+            setProfile(validatedData);
             setShowEmailForm(true);
+          } else {
+            console.error('❌ PublicProfile: Failed to mark QR code as used:', markResult.error);
+            if (markResult.error === 'QR code has already been used') {
+              setIsAlreadyUsed(true);
+              setError('This QR code has already been used by someone else');
+            } else {
+              setError('Failed to process QR code');
+            }
           }
         } else {
-          console.error('❌ PublicProfile: No profile data found for connection code');
-          setError('Profile not found');
+          console.error('❌ PublicProfile: Connection code validation failed');
+          setError('QR code not found or expired');
         }
 
         // Log successful profile load
         console.log('✅ PublicProfile: Profile loaded successfully:', {
           connectionCode,
-          userId: directProfile?.profiles?.id,
+          userId: validatedData?.userId,
           timestamp: new Date().toISOString(),
           scanLocation: location
         });
@@ -339,6 +330,30 @@ export function PublicProfile() {
           <p className="text-gray-600 mb-8">
             This QR code has expired. Please ask {profile.name} to share a new QR code.
           </p>
+          <AppStoreButtons showTitle={true} size="large" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isAlreadyUsed) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center">
+          <div className="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+            <AlertCircle className="h-10 w-10 text-red-600" />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            QR Code Already Used
+          </h1>
+          <p className="text-gray-600 mb-8">
+            This QR code has already been used by someone else. Each QR code can only be used once to ensure privacy and security.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
+            <p className="text-blue-800 text-sm">
+              <strong>Why one-time use?</strong> This prevents QR code sharing and ensures that only the person who scans it can access the connection features.
+            </p>
+          </div>
           <AppStoreButtons showTitle={true} size="large" />
         </div>
       </div>

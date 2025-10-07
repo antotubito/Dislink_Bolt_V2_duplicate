@@ -1,160 +1,159 @@
-import { vi } from 'vitest';
 import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
-// Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation(query => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: vi.fn(), // deprecated
-        removeListener: vi.fn(), // deprecated
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-        dispatchEvent: vi.fn(),
-    })),
+// Mock environment variables
+Object.defineProperty(import.meta, 'env', {
+  value: {
+    VITE_SUPABASE_URL: 'https://test.supabase.co',
+    VITE_SUPABASE_ANON_KEY: 'test-anon-key',
+    VITE_GEOCODING_API_KEY: 'test-geocoding-key',
+    VITE_SENTRY_DSN: 'test-sentry-dsn',
+    MODE: 'test',
+    PROD: false,
+    DEV: true
+  },
+  writable: true
 });
-
-// Mock IntersectionObserver
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-}));
-
-// Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-    observe: vi.fn(),
-    unobserve: vi.fn(),
-    disconnect: vi.fn(),
-}));
-
-// Mock localStorage
-const localStorageMock = {
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-};
-Object.defineProperty(window, 'localStorage', {
-    value: localStorageMock,
-});
-
-// Mock sessionStorage
-const sessionStorageMock = {
-    getItem: vi.fn(),
-    setItem: vi.fn(),
-    removeItem: vi.fn(),
-    clear: vi.fn(),
-};
-Object.defineProperty(window, 'sessionStorage', {
-    value: sessionStorageMock,
-});
-
-// Mock fetch
-global.fetch = vi.fn();
-
-// Mock console methods to reduce noise in tests
-global.console = {
-    ...console,
-    // Uncomment to ignore a specific log level
-    // log: vi.fn(),
-    // debug: vi.fn(),
-    // info: vi.fn(),
-    // warn: vi.fn(),
-    // error: vi.fn(),
-};
-
-// Mock URL.createObjectURL
-global.URL.createObjectURL = vi.fn(() => 'mocked-url');
-global.URL.revokeObjectURL = vi.fn();
-
-// Mock crypto for random values
-Object.defineProperty(global, 'crypto', {
-    value: {
-        randomUUID: vi.fn(() => 'mocked-uuid'),
-        getRandomValues: vi.fn((arr) => arr.map(() => Math.floor(Math.random() * 256))),
-    },
-});
-
-// Mock performance.now
-global.performance = {
-    ...global.performance,
-    now: vi.fn(() => Date.now()),
-};
-
-// Mock requestAnimationFrame
-global.requestAnimationFrame = vi.fn((cb) => setTimeout(cb, 16));
-global.cancelAnimationFrame = vi.fn((id) => clearTimeout(id));
-
-// Mock scrollTo
-global.scrollTo = vi.fn();
-
-// Mock getComputedStyle
-global.getComputedStyle = vi.fn(() => ({
-    getPropertyValue: vi.fn(() => ''),
-}));
-
-// Mock HTMLElement methods
-HTMLElement.prototype.scrollIntoView = vi.fn();
-HTMLElement.prototype.getBoundingClientRect = vi.fn(() => ({
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    width: 0,
-    height: 0,
-    x: 0,
-    y: 0,
-    toJSON: vi.fn(),
-}));
 
 // Mock window.location
-delete (window as any).location;
-window.location = {
-    ...window.location,
+Object.defineProperty(window, 'location', {
+  value: {
     href: 'http://localhost:3001',
-    origin: 'http://localhost:3001',
-    protocol: 'http:',
-    host: 'localhost:3001',
     hostname: 'localhost',
-    port: '3001',
+    protocol: 'http:',
+    origin: 'http://localhost:3001',
     pathname: '/',
     search: '',
     hash: '',
     assign: vi.fn(),
     replace: vi.fn(),
-    reload: vi.fn(),
-};
-
-// Mock window.history
-Object.defineProperty(window, 'history', {
-    value: {
-        ...window.history,
-        pushState: vi.fn(),
-        replaceState: vi.fn(),
-        go: vi.fn(),
-        back: vi.fn(),
-        forward: vi.fn(),
-    },
+    reload: vi.fn()
+  },
+  writable: true
 });
 
-// Mock document.referrer
-Object.defineProperty(document, 'referrer', {
-    value: '',
-    writable: true,
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+// Mock IntersectionObserver
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Mock ResizeObserver
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// Mock fetch
+global.fetch = vi.fn();
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock
+});
+
+// Mock sessionStorage
+const sessionStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, 'sessionStorage', {
+  value: sessionStorageMock
+});
+
+// Mock crypto.getRandomValues
+Object.defineProperty(window, 'crypto', {
+  value: {
+    getRandomValues: vi.fn((arr) => {
+      for (let i = 0; i < arr.length; i++) {
+        arr[i] = Math.floor(Math.random() * 256);
+      }
+      return arr;
+    })
+  }
+});
+
+// Mock navigator
+Object.defineProperty(navigator, 'userAgent', {
+  value: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+  writable: true
+});
+
+// Mock clipboard API
+Object.defineProperty(navigator, 'clipboard', {
+  value: {
+    writeText: vi.fn(),
+    readText: vi.fn()
+  },
+  writable: true
+});
+
+// Mock geolocation
+Object.defineProperty(navigator, 'geolocation', {
+  value: {
+    getCurrentPosition: vi.fn(),
+    watchPosition: vi.fn(),
+    clearWatch: vi.fn()
+  },
+  writable: true
+});
+
+// Mock URL.createObjectURL
+Object.defineProperty(URL, 'createObjectURL', {
+  value: vi.fn(() => 'mock-object-url')
+});
+
+// Mock URL.revokeObjectURL
+Object.defineProperty(URL, 'revokeObjectURL', {
+  value: vi.fn()
+});
+
+// Suppress console errors in tests unless explicitly testing them
+const originalError = console.error;
+beforeAll(() => {
+  console.error = (...args) => {
+    if (
+      typeof args[0] === 'string' &&
+      args[0].includes('Warning: ReactDOM.render is no longer supported')
+    ) {
+      return;
+    }
+    originalError.call(console, ...args);
+  };
+});
+
+afterAll(() => {
+  console.error = originalError;
 });
 
 // Clean up after each test
 afterEach(() => {
-    vi.clearAllMocks();
-    localStorageMock.getItem.mockClear();
-    localStorageMock.setItem.mockClear();
-    localStorageMock.removeItem.mockClear();
-    localStorageMock.clear.mockClear();
-    sessionStorageMock.getItem.mockClear();
-    sessionStorageMock.setItem.mockClear();
-    sessionStorageMock.removeItem.mockClear();
-    sessionStorageMock.clear.mockClear();
+  vi.clearAllMocks();
+  localStorageMock.clear();
+  sessionStorageMock.clear();
 });

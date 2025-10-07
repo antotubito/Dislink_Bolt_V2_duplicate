@@ -1,5 +1,7 @@
 import { supabase } from './supabase';
 import { logger } from './logger';
+import { createOrUpdateProfile } from './profileCreation';
+import { getEmailRedirectUrl } from './authUtils';
 import type { User } from '../types/user';
 
 // =====================================================
@@ -92,8 +94,7 @@ export async function generateUserQRCode(): Promise<QRConnectionData> {
         code: connectionCode,
         is_active: true,
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        created_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -101,7 +102,9 @@ export async function generateUserQRCode(): Promise<QRConnectionData> {
     if (codeError) throw codeError;
 
     // Generate public profile URL
-    const publicProfileUrl = `${window.location.origin}/profile/${connectionCode}`;
+    const publicProfileUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+      ? `https://dislinkboltv2duplicate.netlify.app/profile/${connectionCode}`
+      : `http://localhost:3001/profile/${connectionCode}`;
 
     const qrData: QRConnectionData = {
       userId: profile.id,
@@ -137,44 +140,101 @@ export async function generateUserQRCode(): Promise<QRConnectionData> {
  */
 export async function validateConnectionCode(code: string): Promise<QRConnectionData | null> {
   try {
+    console.debug('🔍 [QR] Starting connection code validation:', { code });
     logger.info('Validating connection code:', { code });
 
-    // Get connection code and associated profile
+    // First, check if the connection code exists and is active
+    console.debug('🔍 [QR] Querying connection_codes table...');
     const { data: connectionData, error } = await supabase
       .from('connection_codes')
       .select(`
-        *,
-        profiles!connection_codes_user_id_fkey (
-          id,
-          first_name,
-          last_name,
-          job_title,
-          company,
-          profile_image,
-          bio,
-          interests,
-          social_links,
-          public_profile
-        )
+        id,
+        user_id,
+        code,
+        is_active,
+        expires_at,
+        created_at
       `)
       .eq('code', code)
       .eq('is_active', true)
       .single();
 
-    if (error || !connectionData) {
+    console.debug('🔍 [QR] Connection code query result:', { 
+      connectionData, 
+      error,
+      hasData: !!connectionData,
+      isActive: connectionData?.is_active,
+      expiresAt: connectionData?.expires_at
+    });
+
+    if (error) {
+      console.error('❌ [QR] Database error querying connection_codes:', error);
+      logger.error('Database error querying connection_codes:', error);
+      return null;
+    }
+
+    if (!connectionData) {
+      console.warn('⚠️ [QR] No active connection code found:', { code });
       logger.info('Invalid or expired connection code:', { code });
       return null;
     }
 
     // Check if code is expired
-    if (new Date() > new Date(connectionData.expires_at)) {
+    if (connectionData.expires_at && new Date() > new Date(connectionData.expires_at)) {
+      console.warn('⚠️ [QR] Connection code expired:', { 
+        code, 
+        expiresAt: connectionData.expires_at,
+        currentTime: new Date().toISOString()
+      });
       logger.info('Connection code expired:', { code, expiresAt: connectionData.expires_at });
       return null;
     }
 
-    const profile = connectionData.profiles;
+    // Now get the associated profile with public profile check
+    console.debug('🔍 [QR] Querying profiles table for user:', connectionData.user_id);
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select(`
+        id,
+        first_name,
+        last_name,
+        job_title,
+        company,
+        profile_image,
+        bio,
+        interests,
+        social_links,
+        public_profile
+      `)
+      .eq('id', connectionData.user_id)
+      .single();
+
+    console.debug('🔍 [QR] Profile query result:', { 
+      profile, 
+      profileError,
+      hasProfile: !!profile,
+      publicProfileEnabled: profile?.public_profile?.enabled
+    });
+
+    if (profileError) {
+      console.error('❌ [QR] Database error querying profiles:', profileError);
+      logger.error('Database error querying profiles:', profileError);
+      return null;
+    }
+
     if (!profile) {
-      logger.error('Profile not found for connection code:', { code });
+      console.error('❌ [QR] Profile not found for user:', connectionData.user_id);
+      logger.error('Profile not found for connection code:', { code, userId: connectionData.user_id });
+      return null;
+    }
+
+    // Check if public profile is enabled
+    if (!profile.public_profile?.enabled) {
+      console.warn('⚠️ [QR] Public profile not enabled for user:', {
+        userId: profile.id,
+        publicProfile: profile.public_profile
+      });
+      logger.info('Public profile not enabled for user:', { userId: profile.id });
       return null;
     }
 
@@ -189,13 +249,22 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
       socialLinks: profile.social_links || {},
       publicProfile: profile.public_profile,
       connectionCode: code,
-      publicProfileUrl: `${window.location.origin}/profile/${code}`
+      publicProfileUrl: window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+        ? `https://dislinkboltv2duplicate.netlify.app/profile/${code}`
+        : `http://localhost:3001/profile/${code}`
     };
 
+    console.debug('✅ [QR] Connection code validated successfully:', { 
+      code, 
+      userId: profile.id,
+      name: qrData.name,
+      publicProfileUrl: qrData.publicProfileUrl
+    });
     logger.info('Connection code validated successfully:', { code, userId: profile.id });
     return qrData;
 
   } catch (error) {
+    console.error('❌ [QR] Unexpected error validating connection code:', error);
     logger.error('Error validating connection code:', error);
     return null;
   }
@@ -406,17 +475,12 @@ export async function processRegistrationWithInvitation(
       if (invitationError || !invitation) {
         return {
           success: false,
-          message: 'Invalid or expired invitation code'
+          message: 'Invalid invitation code'
         };
       }
 
-      // Check if invitation is expired
-      if (new Date() > new Date(invitation.expires_at)) {
-        return {
-          success: false,
-          message: 'Invitation has expired'
-        };
-      }
+      // Note: Expiration check removed to allow users to register anytime
+      // Invitations no longer expire for registration purposes
 
       // Verify email matches invitation
       if (invitation.recipient_email.toLowerCase() !== email.toLowerCase()) {
@@ -438,12 +502,25 @@ export async function processRegistrationWithInvitation(
           first_name: firstName,
           last_name: lastName,
           invitation_id: invitationId
-        }
+        },
+        emailRedirectTo: getEmailRedirectUrl()
       }
     });
 
     if (authError) {
       logger.error('Auth signup error:', authError);
+      
+      // Enhanced error handling for existing users
+      if (authError.message?.includes('already registered') || 
+          authError.message?.includes('already exists') ||
+          authError.message?.includes('User already registered')) {
+        console.log("❌ Registration blocked: existing user detected");
+        return {
+          success: false,
+          message: 'This email is already registered. Please log in instead.'
+        };
+      }
+      
       return {
         success: false,
         message: authError.message || 'Failed to create account'
@@ -459,24 +536,16 @@ export async function processRegistrationWithInvitation(
 
     const userId = authData.user.id;
 
-    // Create user profile
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .insert({
-        id: userId, // ✅ Use auth.uid() for RLS compliance
-        email,
-        first_name: firstName,
-        last_name: lastName,
-        onboarding_complete: false,
-        registration_complete: true,
-        registration_status: 'completed',
-        registration_completed_at: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      });
+    // Create user profile with conflict handling
+    const profileResult = await createOrUpdateProfile({
+      id: userId,
+      email,
+      firstName,
+      lastName
+    });
 
-    if (profileError) {
-      logger.error('Profile creation error:', profileError);
+    if (!profileResult.success) {
+      logger.error('Profile creation error:', profileResult.error);
       return {
         success: false,
         message: 'Account created but profile setup failed. Please try logging in.'
@@ -714,7 +783,9 @@ async function sendInvitationEmail(
   // In production, replace this with actual email service integration
   // Example services: SendGrid, Mailgun, AWS SES, etc.
   
-  const registrationUrl = `${window.location.origin}/app/register?invitation=${invitationId}`;
+  const registrationUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+    ? `https://dislinkboltv2duplicate.netlify.app/app/register?invitation=${invitationId}`
+    : `http://localhost:3001/app/register?invitation=${invitationId}`;
   
   const emailSubject = `🤝 ${qrData.name} wants to connect with you on Dislink`;
   
@@ -737,7 +808,7 @@ This invitation expires in 7 days.
 
 ---
 Dislink - Building Meaningful Connections
-${window.location.origin}
+${window.location.hostname === 'dislinkboltv2duplicate.netlify.app' ? 'https://dislinkboltv2duplicate.netlify.app' : 'http://localhost:3001'}
   `.trim();
 
   console.log('📧 Invitation email would be sent:');

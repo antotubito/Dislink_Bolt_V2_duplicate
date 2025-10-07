@@ -1,12 +1,16 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { LandingPageSimple } from './pages/LandingPageSimple';
+import { LandingPage } from './pages/LandingPage';
 
 export function AppSimple() {
-    return (
-        <Routes>
-            <Route path="/" element={<LandingPageSimple />} />
-            <Route path="*" element={<LandingPageSimple />} />
-        </Routes>
-    );
+  console.log('🎯 AppSimple component rendering...');
+  
+  return (
+    <div className="app-container">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="*" element={<LandingPage />} />
+      </Routes>
+    </div>
+  );
 }

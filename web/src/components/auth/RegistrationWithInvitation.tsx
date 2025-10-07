@@ -11,6 +11,7 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { processRegistrationWithInvitation } from '@dislink/shared/lib/qrConnectionEnhanced';
+import { supabase } from '@dislink/shared/lib/supabase';
 import { logger } from '@dislink/shared/lib/logger';
 
 interface RegistrationFormData {
@@ -37,19 +38,69 @@ export function RegistrationWithInvitation() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [invitationData, setInvitationData] = useState<any>(null);
+  const [inviterInfo, setInviterInfo] = useState<{name: string, email: string} | null>(null);
 
   // Get invitation parameters from URL
   const invitationId = searchParams.get('invitation');
   const connectionCode = searchParams.get('code');
 
   useEffect(() => {
-    // Pre-fill email if available from invitation
+    // Fetch invitation data and inviter information
     if (invitationId && connectionCode) {
-      // In a real implementation, you might want to validate the invitation
-      // and pre-fill the email address
-      logger.info('Registration with invitation:', { invitationId, connectionCode });
+      fetchInvitationData();
     }
   }, [invitationId, connectionCode]);
+
+  const fetchInvitationData = async () => {
+    if (!invitationId) return;
+
+    try {
+      // Fetch invitation data
+      const { data: invitation, error: invitationError } = await supabase
+        .from('email_invitations')
+        .select(`
+          *,
+          inviter:profiles!email_invitations_inviter_id_fkey(
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('invitation_id', invitationId)
+        .single();
+
+      if (invitationError || !invitation) {
+        logger.warn('Could not fetch invitation data:', invitationError);
+        return;
+      }
+
+      setInvitationData(invitation);
+      
+      // Set inviter info
+      if (invitation.inviter) {
+        setInviterInfo({
+          name: `${invitation.inviter.first_name || ''} ${invitation.inviter.last_name || ''}`.trim() || 'Someone',
+          email: invitation.inviter.email || ''
+        });
+      }
+
+      // Pre-fill email if available from invitation
+      if (invitation.recipient_email) {
+        setFormData(prev => ({
+          ...prev,
+          email: invitation.recipient_email
+        }));
+      }
+
+      logger.info('Invitation data loaded:', { 
+        invitationId, 
+        connectionCode,
+        inviterName: invitation.inviter ? `${invitation.inviter.first_name} ${invitation.inviter.last_name}` : 'Unknown'
+      });
+    } catch (error) {
+      logger.error('Error fetching invitation data:', error);
+    }
+  };
 
   const handleInputChange = (field: keyof RegistrationFormData, value: string) => {
     setFormData(prev => ({
@@ -119,12 +170,20 @@ export function RegistrationWithInvitation() {
         setSuccess(true);
         logger.info('Registration with invitation completed:', result);
         
-        // Redirect to login after successful registration
+        // Redirect to login after successful registration with email parameter
         setTimeout(() => {
-          navigate('/app/login?message=registration-success');
+          navigate(`/app/login?message=registration-success&email=${encodeURIComponent(formData.email)}`);
         }, 3000);
       } else {
-        setError(result.message);
+        // Enhanced error handling for existing users
+        if (result.message?.includes('already registered') || 
+            result.message?.includes('already exists') ||
+            result.message?.includes('User already registered')) {
+          console.log("❌ Registration blocked: existing user detected");
+          setError('This email is already registered. Please log in instead.');
+        } else {
+          setError(result.message);
+        }
       }
     } catch (err) {
       logger.error('Registration error:', err);
@@ -147,10 +206,15 @@ export function RegistrationWithInvitation() {
           <p className="text-gray-600 mb-4">
             Your account has been created successfully. Please check your email to verify your account.
           </p>
-          {invitationId && (
-            <p className="text-sm text-purple-600 mb-4">
-              Your connection request has been automatically sent!
-            </p>
+          {invitationId && inviterInfo && (
+            <div className="text-sm text-purple-600 mb-4 p-3 bg-purple-50 border border-purple-200 rounded-lg">
+              <p className="font-medium">
+                🎉 Your connection with <span className="font-semibold">{inviterInfo.name}</span> has been automatically created!
+              </p>
+              <p className="text-xs text-purple-700 mt-1">
+                Once you verify your email, you'll be able to see your first connection in the app.
+              </p>
+            </div>
           )}
           <p className="text-sm text-gray-500">
             Redirecting to login page...
@@ -182,6 +246,27 @@ export function RegistrationWithInvitation() {
               : 'Join Dislink to start building meaningful connections'
             }
           </p>
+          
+          {/* Invitation Message */}
+          {invitationId && inviterInfo && (
+            <div className="mt-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-purple-600" />
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-purple-900">
+                    You've been invited by <span className="font-semibold">{inviterInfo.name}</span>
+                  </p>
+                  <p className="text-xs text-purple-700 mt-1">
+                    Once you complete registration, your first connection will be automatically created!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Registration Form */}

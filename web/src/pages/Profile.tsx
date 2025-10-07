@@ -144,8 +144,43 @@ export function Profile() {
   // Show loading state
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white shadow rounded-lg">
+            <div className="px-6 py-8">
+              <div className="flex items-center space-x-4 mb-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+                <div>
+                  <div className="h-6 bg-gray-200 rounded w-48 animate-pulse mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                  <div className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                
+                <div className="flex justify-end space-x-4">
+                  <div className="h-10 bg-gray-200 rounded w-20 animate-pulse"></div>
+                  <div className="h-10 bg-gray-200 rounded w-24 animate-pulse"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

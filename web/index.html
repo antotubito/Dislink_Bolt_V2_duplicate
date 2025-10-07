@@ -44,13 +44,20 @@
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
 
-  <!-- Ensure proper camera and geolocation permissions for QR scanning -->
+  <!-- Development-specific service worker registration -->
   <script>
     // Pre-warm service worker for better performance
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(() => {
-          // Service worker registration failed, continue without it
+        // Use development service worker in development mode
+        const isDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const swPath = isDev ? '/sw-dev.js' : '/sw.js';
+        
+        navigator.serviceWorker.register(swPath).then((registration) => {
+          console.log('✅ Service Worker registered:', swPath);
+        }).catch((error) => {
+          console.warn('⚠️ Service Worker registration failed:', error);
+          // Continue without service worker in development
         });
       });
     }

@@ -68,16 +68,17 @@ export async function generateUserQRCode(userId: string): Promise<QRConnectionDa
     // Generate unique connection code
     const connectionCode = `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    // Create or update connection code in database
+    // Create or update connection code in database with one-time use tracking
     const { data: codeData, error: codeError } = await supabase
       .from('connection_codes')
       .upsert({
         user_id: userId,
         code: connectionCode,
         is_active: true,
+        status: 'active', // active, used, expired
+        scan_count: 0,
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        created_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -85,7 +86,9 @@ export async function generateUserQRCode(userId: string): Promise<QRConnectionDa
     if (codeError) throw codeError;
 
     // Generate public profile URL
-    const publicProfileUrl = `${window.location.origin}/profile/${connectionCode}`;
+    const publicProfileUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+      ? `https://dislinkboltv2duplicate.netlify.app/profile/${connectionCode}`
+      : `http://localhost:3001/profile/${connectionCode}`;
 
     const qrData: QRConnectionData = {
       userId: profile.id,
@@ -112,6 +115,95 @@ export async function generateUserQRCode(userId: string): Promise<QRConnectionDa
   } catch (error) {
     logger.error('Error generating QR code:', error);
     throw error;
+  }
+}
+
+/**
+ * Mark QR code as used (one-time use system)
+ * This prevents the same QR code from being used by multiple people
+ */
+export async function markQRCodeAsUsed(
+  connectionCode: string,
+  scannerUserId?: string,
+  location?: { latitude: number; longitude: number },
+  deviceInfo?: any
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    logger.info('Marking QR code as used:', { connectionCode, scannerUserId });
+
+    // First, check if the code is still available
+    const { data: existingCode, error: checkError } = await supabase
+      .from('connection_codes')
+      .select('id, status, scan_count, scanned_by')
+      .eq('code', connectionCode)
+      .eq('is_active', true)
+      .single();
+
+    if (checkError) {
+      logger.error('Error checking QR code status:', checkError);
+      return { success: false, error: 'Failed to check QR code status' };
+    }
+
+    if (!existingCode) {
+      return { success: false, error: 'QR code not found or expired' };
+    }
+
+    // Check if already used
+    if (existingCode.status === 'used') {
+      return { success: false, error: 'QR code has already been used' };
+    }
+
+    // Mark as used and update scan tracking
+    const { error: updateError } = await supabase
+      .from('connection_codes')
+      .update({
+        status: 'used',
+        scanned_by: scannerUserId || null,
+        scanned_at: new Date().toISOString(),
+        scan_count: (existingCode.scan_count || 0) + 1,
+        last_scanned_at: new Date().toISOString(),
+        last_scan_location: location ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          timestamp: new Date().toISOString()
+        } : null
+      })
+      .eq('code', connectionCode);
+
+    if (updateError) {
+      logger.error('Error marking QR code as used:', updateError);
+      return { success: false, error: 'Failed to mark QR code as used' };
+    }
+
+    // Create detailed scan tracking entry
+    if (scannerUserId) {
+      const { error: trackingError } = await supabase
+        .from('qr_scan_tracking')
+        .insert({
+          code: connectionCode,
+          user_id: existingCode.id,
+          scanner_user_id: scannerUserId,
+          scanned_at: new Date().toISOString(),
+          location: location ? {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            timestamp: new Date().toISOString()
+          } : null,
+          device_info: deviceInfo || {},
+          session_id: `scan_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        });
+
+      if (trackingError) {
+        logger.warn('Failed to create detailed scan tracking:', trackingError);
+      }
+    }
+
+    logger.info('QR code marked as used successfully:', { connectionCode });
+    return { success: true };
+
+  } catch (error) {
+    logger.error('Error marking QR code as used:', error);
+    return { success: false, error: 'Internal error' };
   }
 }
 
@@ -230,6 +322,9 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
       return null;
     }
 
+    // Note: We don't check for 'used' status here because we want to allow
+    // the markQRCodeAsUsed function to handle the one-time use logic
+
     const profile = connectionData.profiles;
     if (!profile) {
       logger.error('Profile not found for connection code:', { code });
@@ -247,7 +342,9 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
       socialLinks: profile.social_links || {},
       publicProfile: profile.public_profile,
       connectionCode: code,
-      publicProfileUrl: `${window.location.origin}/profile/${code}`
+      publicProfileUrl: window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+        ? `https://dislinkboltv2duplicate.netlify.app/profile/${code}`
+        : `http://localhost:3001/profile/${code}`
     };
 
     logger.info('Connection code validated successfully:', { code, userId: profile.id });
@@ -569,7 +666,9 @@ async function sendInvitationEmail(
   // In production, replace this with actual email service integration
   // Example services: SendGrid, Mailgun, AWS SES, etc.
   
-  const registrationUrl = `${window.location.origin}/app/register?invitation=${invitationId}`;
+  const registrationUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+    ? `https://dislinkboltv2duplicate.netlify.app/app/register?invitation=${invitationId}`
+    : `http://localhost:3001/app/register?invitation=${invitationId}`;
   
   const emailSubject = `🤝 ${qrData.name} wants to connect with you on Dislink`;
   
@@ -592,7 +691,7 @@ This invitation expires in 7 days.
 
 ---
 Dislink - Building Meaningful Connections
-${window.location.origin}
+${window.location.hostname === 'dislinkboltv2duplicate.netlify.app' ? 'https://dislinkboltv2duplicate.netlify.app' : 'http://localhost:3001'}
   `.trim();
 
   console.log('📧 Email would be sent:');

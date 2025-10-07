@@ -16,12 +16,15 @@ export interface MobileContact extends Contact {
 // Contact management functions with mobile support
 export async function listContacts(): Promise<Contact[]> {
   try {
+    console.log('👥 listContacts: Starting...');
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
+      console.log('👥 listContacts: No authenticated user, returning empty array');
       logger.warn('No authenticated user for listing contacts');
       return [];
     }
 
+    console.log('👥 listContacts: Fetching contacts for user:', user.id);
     const { data, error } = await supabase
       .from('contacts')
       .select(`
@@ -33,9 +36,12 @@ export async function listContacts(): Promise<Contact[]> {
       .order('created_at', { ascending: false });
     
     if (error) {
+      console.error('👥 listContacts: Database error:', error);
       logger.error('Error fetching contacts:', error);
       throw error;
     }
+    
+    console.log('👥 listContacts: Successfully fetched', data?.length || 0, 'contacts');
     
     return data?.map(contact => ({
       id: contact.id,
@@ -127,9 +133,14 @@ export async function listRecentContacts(limit: number = 3): Promise<Contact[]> 
 // Connection request management
 export async function listConnectionRequests(): Promise<Contact[]> {
   try {
+    console.log('📞 listConnectionRequests: Starting...');
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return [];
+    if (!user) {
+      console.log('📞 listConnectionRequests: No user, returning empty array');
+      return [];
+    }
 
+    console.log('📞 listConnectionRequests: Fetching requests for user:', user.id);
     const { data, error } = await supabase
       .from('connection_requests')
       .select('*')
@@ -137,7 +148,12 @@ export async function listConnectionRequests(): Promise<Contact[]> {
       .eq('status', 'pending')
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
+    if (error) {
+      console.error('📞 listConnectionRequests: Database error:', error);
+      throw error;
+    }
+    
+    console.log('📞 listConnectionRequests: Successfully fetched', data?.length || 0, 'requests');
     
     return data?.map(request => ({
       id: request.id,

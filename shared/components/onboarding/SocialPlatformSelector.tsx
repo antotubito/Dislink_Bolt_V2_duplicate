@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Check, ChevronRight, X } from 'lucide-react';
-import { SOCIAL_CATEGORIES } from '../../config/social';
+import { SOCIAL_CATEGORIES } from '../../constants/social';
 
 interface SocialPlatformSelectorProps {
   onSelect: (platform: string) => void;

@@ -3,7 +3,7 @@ import { X, QrCode, Copy, Download, Share2 } from 'lucide-react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { QRCode } from '@dislink/shared/components/qr/QRCode';
 import type { User } from '@dislink/shared/types';
-import { generateQRCode, getPublicProfileUrl } from "@dislink/shared/lib/qr";
+import { generateUserQRCode } from "@dislink/shared/lib/qrConnection";
 
 interface QRModalProps {
   isOpen: boolean;
@@ -21,21 +21,10 @@ export function QRModal({ isOpen, onClose, user }: QRModalProps) {
 
   useEffect(() => {
     if (isOpen && user?.id) { 
-      generateQRCode(user.id)
+      generateUserQRCode(user.id)
         .then(data => {
-          setQrData(data);
-          
-          // Extract the connection code from the QR data
-          try {
-            const parsedData = JSON.parse(data);
-            if (parsedData && parsedData.c) {
-              const publicProfileUrl = getPublicProfileUrl(parsedData.c);
-              setPublicUrl(publicProfileUrl);
-            }
-          } catch (err) {
-            console.error('Error parsing QR data:', err);
-          }
-          
+          setQrData(data.publicProfileUrl);
+          setPublicUrl(data.publicProfileUrl);
           setLoading(false);
         })
         .catch(err => {

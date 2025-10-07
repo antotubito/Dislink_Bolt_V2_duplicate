@@ -19,7 +19,7 @@ import {
   createConnectionMemory,
   validateInvitationCode 
 } from "@dislink/shared/lib/qrEnhanced";
-import { generateQRCode } from "@dislink/shared/lib/qr";
+import { generateUserQRCode } from "@dislink/shared/lib/qrConnection";
 import { useAuth } from '../auth/AuthProvider';
 
 interface TestResult {
@@ -58,9 +58,11 @@ export function QRFlowTester() {
     try {
       // Step 1: Generate QR Code
       addTestResult('QR Generation', 'pending', 'Generating QR code...');
-      const qrData = await generateQRCode(user.id);
-      const parsedQRData = JSON.parse(qrData);
-      addTestResult('QR Generation', 'success', 'QR code generated successfully', { code: parsedQRData.c });
+      const qrData = await generateUserQRCode(user.id);
+      addTestResult('QR Generation', 'success', 'QR code generated successfully', { 
+        connectionCode: qrData.connectionCode,
+        publicProfileUrl: qrData.publicProfileUrl 
+      });
 
       // Step 2: Test Enhanced Scan Tracking
       addTestResult('Scan Tracking', 'pending', 'Testing enhanced scan tracking...');
@@ -69,7 +71,7 @@ export function QRFlowTester() {
         longitude: -9.1393
       };
       
-      const scanData = await trackEnhancedQRScan(parsedQRData.c, mockLocation);
+      const scanData = await trackEnhancedQRScan(qrData.connectionCode, mockLocation);
       addTestResult('Scan Tracking', 'success', 'Enhanced scan tracking completed', {
         scanId: scanData.scanId,
         location: scanData.location,

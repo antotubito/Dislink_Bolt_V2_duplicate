@@ -170,7 +170,7 @@ export function SocialLinksStepExample({
             </div>
 
             {/* Debug Info (remove in production) */}
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.DEV && (
                 <div className="mt-8 p-4 bg-gray-100 rounded-lg">
                     <h4 className="font-medium text-gray-900 mb-2">Debug Info:</h4>
                     <pre className="text-xs text-gray-600 overflow-auto">

@@ -24,6 +24,7 @@ import {
   LazyLoadingFallback 
 } from '../components/lazy';
 import { Suspense } from 'react';
+import { OnboardingProgress } from '../components/ui/ProgressIndicator';
 
 type OnboardingStep = 'welcome' | 'basics' | 'work' | 'location' | 'photo' | 'social' | 'complete';
 
@@ -44,12 +45,14 @@ function calculateAge(birthday: string): number {
 
 export function Onboarding() {
   const navigate = useNavigate();
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, invalidateProfileCache } = useAuth();
   const [step, setStep] = useState<OnboardingStep>('welcome');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
   const [showCodeInvitation, setShowCodeInvitation] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+  const [isSkipping, setIsSkipping] = useState(false);
   const [formData, setFormData] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
@@ -162,6 +165,11 @@ export function Onboarding() {
 
   const handleFinish = async () => {
     try {
+      console.log('🎯 Starting onboarding completion...');
+      
+      // Invalidate profile cache to ensure fresh data is loaded
+      invalidateProfileCache();
+
       // Wait for user refresh to complete and ensure profile is updated
       await refreshUser();
 
@@ -178,39 +186,107 @@ export function Onboarding() {
 
   const handleCodeInvitationSuccess = async (connectionDetails: any) => {
     try {
-      // Connection was successful, refresh user data and navigate to app
+      console.log('🎯 Starting success navigation process...');
       console.log('Code invitation successful:', connectionDetails);
 
+      // Invalidate profile cache to ensure fresh data is loaded
+      console.log('🎯 Invalidating profile cache...');
+      invalidateProfileCache();
+
+      // Force a database refresh by directly querying the updated profile
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        console.log('🎯 Refreshing profile from database...');
+        const { data: updatedProfile } = await supabase
+          .from('profiles')
+          .select('onboarding_complete, onboarding_completed_at')
+          .eq('id', session.user.id)
+          .single();
+        
+        console.log('🎯 Updated profile data:', updatedProfile);
+      }
+
       // Ensure user data is fully refreshed before navigation
+      console.log('🎯 Refreshing user data...');
       await refreshUser();
 
       // Add a small delay to ensure all state is synchronized
-      await new Promise(resolve => setTimeout(resolve, 300));
+      console.log('🎯 Waiting for state synchronization...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
+      // Use React Router navigation instead of window.location.href
+      // This ensures proper state management and prevents the onboarding loop
       console.log('🎯 Navigating to app after successful code invitation');
-      navigate('/app');
+      console.log('✅ Onboarding completed successfully, redirecting to: /app');
+      navigate('/app', { replace: true });
     } catch (error) {
-      console.error('Error during success navigation:', error);
+      console.error('❌ Error during success navigation:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        error: error
+      });
       // Fallback navigation even if refresh fails
-      navigate('/app');
+      console.log('🎯 Attempting fallback navigation to /app');
+      navigate('/app', { replace: true });
     }
   };
 
   const handleCodeInvitationSkip = async () => {
+    if (isSkipping) {
+      console.log('🎯 Skip already in progress, ignoring duplicate click');
+      return;
+    }
+
     try {
+      setIsSkipping(true);
+      console.log('🎯 Starting skip navigation process...');
+      
+      // Get current session
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        console.error('No session found during skip');
+        navigate('/app/login');
+        return;
+      }
+
+      // CRITICAL: Mark onboarding as complete in the database first
+      console.log('🎯 Marking onboarding as complete...');
+      await completeOnboarding(session.user.id, {
+        ...formData,
+        onboardingComplete: true,
+        onboardingCompletedAt: new Date()
+      });
+
+      // Invalidate profile cache to ensure fresh data is loaded
+      invalidateProfileCache();
+
+      // Force a database refresh by directly querying the updated profile
+      console.log('🎯 Verifying onboarding completion in database...');
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .select('onboarding_complete, onboarding_completed_at')
+        .eq('id', session.user.id)
+        .single();
+      
+      console.log('🎯 Updated profile data:', updatedProfile);
+
       // Ensure user data is fully refreshed before navigation
       await refreshUser();
 
       // Add a small delay to ensure all state is synchronized
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-      // User skipped or doesn't have invitation, navigate to app normally
+      // Use React Router navigation instead of window.location.href
+      // This ensures proper state management and prevents the onboarding loop
       console.log('🎯 Navigating to app after skipping code invitation');
-      navigate('/app');
+      navigate('/app', { replace: true });
     } catch (error) {
       console.error('Error during skip navigation:', error);
       // Fallback navigation even if refresh fails
-      navigate('/app');
+      navigate('/app', { replace: true });
+    } finally {
+      setIsSkipping(false);
     }
   };
 
@@ -219,19 +295,47 @@ export function Onboarding() {
   };
 
   const confirmExit = async () => {
+    if (isExiting) return; // Prevent multiple clicks
+    
     try {
-      // Sign out the user for security
-      await supabase.auth.signOut();
-
-      // Clear any stored progress
+      setIsExiting(true);
+      console.log('🔍 Starting exit process...');
+      
+      // Clear any stored progress first
       localStorage.removeItem('onboarding_progress');
+      sessionStorage.removeItem('accessVerified');
+      sessionStorage.removeItem('authAccessVerified');
+      
+      console.log('🔍 Clearing local storage and session storage...');
+      
+      // Sign out the user for security
+      console.log('🔍 Signing out user...');
+      const { error: signOutError } = await supabase.auth.signOut();
+      
+      if (signOutError) {
+        console.error('Sign out error:', signOutError);
+        // Continue with navigation even if sign out fails
+      } else {
+        console.log('🔍 User signed out successfully');
+      }
 
+      // Close the confirmation modal
+      setShowExitConfirm(false);
+      
+      // Add a small delay to ensure sign out is processed
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log('🔍 Redirecting to login page...');
       // Redirect to login page
-      navigate('/app/login');
+      navigate('/app/login', { replace: true });
     } catch (error) {
       console.error('Error during exit:', error);
+      // Close the confirmation modal
+      setShowExitConfirm(false);
       // Fallback to home page if sign out fails
-      navigate('/');
+      navigate('/', { replace: true });
+    } finally {
+      setIsExiting(false);
     }
   };
 
@@ -644,17 +748,35 @@ export function Onboarding() {
     </motion.div>
   );
 
+  const getCurrentStepIndex = () => {
+    return STEPS.indexOf(step);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-7xl mx-auto relative">
+        {/* Progress Indicator */}
+        {step !== 'welcome' && step !== 'complete' && (
+          <div className="mb-8">
+            <OnboardingProgress currentStep={getCurrentStepIndex()} />
+          </div>
+        )}
+
         {step !== 'complete' && (
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={handleExit}
-            className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('🔍 Exit button clicked');
+              handleExit();
+            }}
+            className="absolute top-4 right-4 p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors z-10"
+            title="Exit & Sign Out"
+            aria-label="Exit onboarding and sign out"
           >
-            <X className="h-5 w-5" />
+            <LogOut className="h-5 w-5" />
           </motion.button>
         )}
 
@@ -665,6 +787,12 @@ export function Onboarding() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                  console.log('🔍 Exit modal closed by clicking outside');
+                  setShowExitConfirm(false);
+                }
+              }}
             >
               <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
@@ -675,21 +803,56 @@ export function Onboarding() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Exit Onboarding?
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  For security reasons, you'll be signed out and will need to sign in again to continue. Your progress will be saved.
-                </p>
+                <div className="text-gray-600 mb-6 space-y-3">
+                  <p>
+                    <strong>⚠️ Important:</strong> If you exit now, you will lose all your progress and will need to start over.
+                  </p>
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-800 text-sm">
+                      <strong>What you'll lose:</strong>
+                    </p>
+                    <ul className="text-red-700 text-sm mt-1 list-disc list-inside space-y-1">
+                      <li>All profile information entered</li>
+                      <li>Profile photo and social links</li>
+                      <li>Work and location details</li>
+                      <li>Any QR code connections</li>
+                    </ul>
+                  </div>
+                  <p className="text-sm">
+                    For security reasons, you'll be signed out and will need to sign in again to continue.
+                  </p>
+                </div>
                 <div className="flex space-x-3">
                   <button
-                    onClick={() => setShowExitConfirm(false)}
-                    className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
+                    onClick={() => {
+                      console.log('🔍 Exit cancelled');
+                      setShowExitConfirm(false);
+                    }}
+                    className="flex-1 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                   >
                     Cancel
                   </button>
                   <button
-                    onClick={confirmExit}
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('🔍 Confirming exit...');
+                      confirmExit();
+                    }}
+                    disabled={isExiting}
+                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Exit & Sign Out
+                    {isExiting ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Exiting...
+                      </>
+                    ) : (
+                      <>
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Exit & Sign Out
+                      </>
+                    )}
                   </button>
                 </div>
               </motion.div>

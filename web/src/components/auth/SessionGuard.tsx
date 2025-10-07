@@ -1,20 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
-import { supabase, waitForSupabaseReady } from '@dislink/shared/lib/supabase';
 import { logger } from '@dislink/shared/lib/logger';
-import { shouldRedirectToOnboarding, getPostAuthRedirectPath } from '@dislink/shared/lib/authFlow';
 
 interface SessionGuardProps {
   children: React.ReactNode;
 }
 
 export function SessionGuard({ children }: SessionGuardProps) {
-  const { user, loading, refreshUser } = useAuth();
+  const { loading } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
-  const [isInitializing, setIsInitializing] = useState(true);
-  const [supabaseReady, setSupabaseReady] = useState(false);
 
   // Public paths that don't require authentication
   const publicPaths = [
@@ -37,93 +32,20 @@ export function SessionGuard({ children }: SessionGuardProps) {
     '/demo'
   ];
 
-  // Initialize Supabase and check session
-  useEffect(() => {
-    const initializeAndCheckSession = async () => {
-      try {
-        const isPublicPath = publicPaths.some(path =>
-          location.pathname === path || location.pathname.startsWith(`${path}/`)
-        );
-
-        // For public paths, skip Supabase initialization entirely
-        if (isPublicPath) {
-          logger.info('🔐 SessionGuard: Public path detected, skipping Supabase initialization');
-          setIsInitializing(false);
-          setSupabaseReady(true);
-          return;
-        }
-
-        logger.info('🔐 SessionGuard: Initializing Supabase...');
-
-        // Wait for Supabase to be fully ready
-        await waitForSupabaseReady();
-        setSupabaseReady(true);
-
-        logger.info('🔐 SessionGuard: Supabase ready, checking session...');
-
-        // Check if we have a valid session
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-          logger.error('🔐 SessionGuard: Session error:', error);
-          if (error.message?.includes('Invalid Refresh Token') ||
-            error.message?.includes('refresh_token_not_found')) {
-            await supabase.auth.signOut();
-            // Store the attempted URL for redirect after login
-            if (location.pathname.startsWith('/app')) {
-              localStorage.setItem('redirectUrl', location.pathname);
-            }
-            navigate('/app/login');
-            return;
-          }
-          throw error;
-        }
-
-        if (!session) {
-          logger.info('🔐 SessionGuard: No session found, checking if redirect needed');
-          // Store the attempted URL for redirect after login
-          if (location.pathname.startsWith('/app') &&
-            !location.pathname.startsWith('/app/login') &&
-            !location.pathname.startsWith('/app/register') &&
-            !location.pathname.startsWith('/app/reset-password')) {
-            localStorage.setItem('redirectUrl', location.pathname);
-            navigate('/app/login');
-          }
-          // Don't redirect to home for public paths - this was causing the infinite loop
-          // If on login/register/reset-password, don't redirect - let them stay
-        } else if (!user) {
-          logger.info('🔐 SessionGuard: Session found but no user data, refreshing user');
-          // We have a session but no user data, refresh the user
-          await refreshUser();
-        } else if (user && shouldRedirectToOnboarding(user, location.pathname)) {
-          logger.info('🔐 SessionGuard: User needs onboarding, redirecting');
-          navigate('/app/onboarding');
-        } else {
-          logger.info('🔐 SessionGuard: User authenticated and ready');
-        }
-      } catch (error) {
-        logger.error('🔐 SessionGuard: Error during initialization:', error);
-        // Only redirect to login if not already on auth pages
-        if (!location.pathname.startsWith('/app/login') &&
-          !location.pathname.startsWith('/app/register') &&
-          !location.pathname.startsWith('/app/reset-password')) {
-          navigate('/app/login');
-        }
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-
-    initializeAndCheckSession();
-  }, [location.pathname]); // Only depend on location.pathname to prevent infinite loops
-
   // Check if current path is public
   const isPublicPath = publicPaths.some(path =>
     location.pathname === path || location.pathname.startsWith(`${path}/`)
   );
 
-  // Show loading state only for protected paths while initializing
-  if (!isPublicPath && (isInitializing || !supabaseReady)) {
+  // For public paths, render immediately
+  if (isPublicPath) {
+    logger.info('🔐 SessionGuard: Public path detected, rendering immediately');
+    return <>{children}</>;
+  }
+
+  // For protected paths, show loading while AuthProvider initializes
+  if (loading) {
+    logger.info('🔐 SessionGuard: Protected path detected, waiting for AuthProvider');
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <div className="text-center">
@@ -134,5 +56,6 @@ export function SessionGuard({ children }: SessionGuardProps) {
     );
   }
 
+  // AuthProvider has finished loading, render children
   return <>{children}</>;
 }

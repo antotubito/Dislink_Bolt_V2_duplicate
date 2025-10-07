@@ -172,7 +172,9 @@ export async function testEmailSending(email: string): Promise<{
             type: 'signup',
             email: email,
             options: {
-                emailRedirectTo: `${window.location.origin}/confirmed`
+                emailRedirectTo: window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+                  ? 'https://dislinkboltv2duplicate.netlify.app/confirmed'
+                  : 'http://localhost:3001/confirmed'
             }
         });
 

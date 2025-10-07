@@ -26,16 +26,21 @@ import {
   MessageCircle,
   Info,
   Settings as SettingsIcon,
-  ToggleLeft as Toggle
+  ToggleLeft as Toggle,
+  Eye,
+  QrCode,
+  LogOut
 } from 'lucide-react';
-import { getAccessRequests, approveAccessRequest, declineAccessRequest } from '@dislink/shared/lib/auth';
+import { getAccessRequests, approveAccessRequest, declineAccessRequest, logout } from '@dislink/shared/lib/auth';
 import type { TestUser } from '@dislink/shared/types';
 import { DatabaseSetup } from '../components/admin/DatabaseSetup';
+import { useNavigate } from 'react-router-dom';
 
 type SettingsSection = 'account' | 'email' | 'privacy' | 'admin';
 
 export function Settings() {
   const { user, isOwner, refreshUser } = useAuth();
+  const navigate = useNavigate();
   const [pendingRequests, setPendingRequests] = useState<TestUser[]>(
     isOwner ? getAccessRequests().filter(request => !request.approved) : []
   );
@@ -83,6 +88,15 @@ export function Settings() {
 
     if (declineAccessRequest(id)) {
       setPendingRequests(prev => prev.filter(request => request.id !== id));
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
     }
   };
 
@@ -288,6 +302,28 @@ export function Settings() {
             </div>
           </div>
         )}
+      </div>
+
+      {/* Logout Section */}
+      <div className="bg-white rounded-lg shadow-sm">
+        <div className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <LogOut className="h-5 w-5 text-red-600 mr-3" />
+              <div>
+                <h3 className="text-sm font-medium text-gray-900">Sign Out</h3>
+                <p className="text-sm text-gray-500">Sign out of your account</p>
+              </div>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -832,6 +868,146 @@ export function Settings() {
                 >
                   Delete account
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Public Profile Settings */}
+      <div className="bg-white rounded-lg shadow-sm">
+        <button
+          onClick={() => toggleSetting('public-profile')}
+          className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
+        >
+          <div className="flex items-center">
+            <QrCode className="h-5 w-5 text-gray-600 mr-3" />
+            <div className="text-left">
+              <h3 className="text-sm font-medium text-gray-900">Public Profile & QR Code</h3>
+              <p className="text-sm text-gray-500">Manage what others see when they scan your QR code</p>
+            </div>
+          </div>
+          {expandedSettings.includes('public-profile') ? (
+            <ChevronUp className="h-5 w-5 text-gray-600" />
+          ) : (
+            <ChevronDown className="h-5 w-5 text-gray-600" />
+          )}
+        </button>
+        {expandedSettings.includes('public-profile') && (
+          <div className="p-4 border-t border-gray-200">
+            <div className="space-y-6">
+              {/* Preview Button */}
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900 flex items-center">
+                      <Eye className="h-4 w-4 mr-2 text-purple-600" />
+                      Preview Your Public Profile
+                    </h4>
+                    <p className="text-sm text-gray-600 mt-1">
+                      See exactly how your profile appears to visitors who scan your QR code
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (user?.id) {
+                        // Generate the public profile URL and open in new tab
+                        const publicProfileUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+                          ? `https://dislinkboltv2duplicate.netlify.app/profile/${user.id}`
+                          : `http://localhost:3001/profile/${user.id}`;
+                        window.open(publicProfileUrl, '_blank', 'noopener,noreferrer');
+                      }
+                    }}
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Preview Profile
+                  </button>
+                </div>
+              </div>
+
+              {/* Public Profile Settings */}
+              <div className="space-y-4">
+                <h4 className="text-sm font-medium text-gray-900">What's Visible on Your Public Profile</h4>
+                
+                <div className="space-y-3">
+                  {[
+                    {
+                      title: 'Name & Photo',
+                      description: 'Your display name and profile picture',
+                      enabled: true,
+                      required: true
+                    },
+                    {
+                      title: 'Job Title & Company',
+                      description: 'Your professional information',
+                      enabled: true,
+                      required: false
+                    },
+                    {
+                      title: 'Bio & About',
+                      description: 'Your personal description and interests',
+                      enabled: true,
+                      required: false
+                    },
+                    {
+                      title: 'Social Links',
+                      description: 'LinkedIn, Twitter, and other social profiles',
+                      enabled: false,
+                      required: false
+                    },
+                    {
+                      title: 'Contact Information',
+                      description: 'Email and phone number',
+                      enabled: false,
+                      required: false
+                    }
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div className="flex-1">
+                        <div className="flex items-center">
+                          <h5 className="text-sm font-medium text-gray-900">{item.title}</h5>
+                          {item.required && (
+                            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                              Required
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">{item.description}</p>
+                      </div>
+                      <div className="ml-4">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="checkbox"
+                            className="form-checkbox h-4 w-4 text-purple-600 transition duration-150 ease-in-out"
+                            defaultChecked={item.enabled}
+                            disabled={item.required}
+                          />
+                          <span className="ml-2 text-sm text-gray-600">
+                            {item.enabled ? 'Visible' : 'Hidden'}
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* QR Code Information */}
+              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                <div className="flex items-start">
+                  <QrCode className="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-900">QR Code Sharing</h4>
+                    <p className="text-sm text-blue-700 mt-1">
+                      Your QR code contains a unique link to your public profile. Anyone who scans it will see the information you've made visible above.
+                    </p>
+                    <div className="mt-3 flex items-center text-sm text-blue-600">
+                      <Info className="h-4 w-4 mr-1" />
+                      <span>Your QR code never expires and works offline</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -202,7 +202,9 @@ export async function sendEmailInvitation(
     
     const emailSubject = `🤝 ${senderName} wants to connect with you on Dislink`;
     
-    const registrationUrl = `${window.location.origin}/app/register?invitation=${invitationId}&code=${connectionCode}`;
+    const registrationUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+      ? `https://dislinkboltv2duplicate.netlify.app/app/register?invitation=${invitationId}&code=${connectionCode}`
+      : `http://localhost:3001/app/register?invitation=${invitationId}&code=${connectionCode}`;
     
     const emailBody = `
 Hi there! 👋
@@ -228,7 +230,7 @@ This invitation expires on ${expiresAt.toLocaleDateString()}.
 
 ---
 Dislink - Building Meaningful Connections
-${window.location.origin}
+${window.location.hostname === 'dislinkboltv2duplicate.netlify.app' ? 'https://dislinkboltv2duplicate.netlify.app' : 'http://localhost:3001'}
     `.trim();
 
     // Send email (in production, use a real email service like SendGrid, Mailgun, etc.)

@@ -225,7 +225,7 @@ export function Layout() {
 
                 <button
                   onClick={handleLogout}
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white from-purple-500 to-indigo-600 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-200"
                 >
                   <LogOut className="h-5 w-5 mr-2" />
                   Logout

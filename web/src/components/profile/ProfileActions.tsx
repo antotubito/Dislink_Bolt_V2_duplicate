@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { QrCode, Copy, Edit2, Scan } from 'lucide-react';
+import { QrCode, Copy, Edit2, Scan, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { QRModal } from '../qr/QRModal';
@@ -24,8 +24,10 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
 
   const handleCopyLink = async () => {
     try {
-      const profileUrl = `${window.location.origin}/share/${user.id}`;
-      await navigator.clipboard.writeText(profileUrl);
+      // Generate a proper connection code URL that matches QR codes
+      const { generateUserQRCode } = await import('@dislink/shared/lib/qrConnection');
+      const qrData = await generateUserQRCode(user.id);
+      await navigator.clipboard.writeText(qrData.publicProfileUrl);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (err) {
@@ -60,6 +62,21 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
     } finally {
       setShowConfirmation(false);
       setScannedUser(null);
+    }
+  };
+
+  const handlePreviewPublicProfile = async () => {
+    try {
+      // Generate a proper connection code URL that matches QR codes
+      const { generateUserQRCode } = await import('@dislink/shared/lib/qrConnection');
+      const qrData = await generateUserQRCode(user.id);
+      
+      // Open the public profile in a new tab
+      window.open(qrData.publicProfileUrl, '_blank');
+      
+      console.log('🔍 Preview Public Profile URL:', qrData.publicProfileUrl);
+    } catch (err) {
+      console.error('Error generating preview URL:', err);
     }
   };
 
@@ -98,6 +115,16 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
           {copySuccess && (
             <span className="ml-2 text-green-600">(Copied!)</span>
           )}
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handlePreviewPublicProfile}
+          className="w-full inline-flex items-center justify-center px-4 py-2.5 border border-purple-300 rounded-xl shadow-sm text-base font-medium text-purple-700 bg-purple-50 hover:bg-purple-100"
+        >
+          <Eye className="h-5 w-5 mr-2" />
+          👁️ Preview Public Profile
         </motion.button>
 
         <motion.button
@@ -144,6 +171,16 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
           {copySuccess && (
             <span className="ml-2 text-green-600">(Copied!)</span>
           )}
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handlePreviewPublicProfile}
+          className="inline-flex items-center px-4 py-2 border border-purple-300 rounded-lg shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100"
+        >
+          <Eye className="h-5 w-5 mr-2" />
+          👁️ Preview Public Profile
         </motion.button>
 
         <motion.button

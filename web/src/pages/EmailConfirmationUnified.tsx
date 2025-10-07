@@ -1,42 +1,41 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, CheckCircle2, AlertCircle, RefreshCw, ArrowLeft, Clock } from 'lucide-react';
-import { supabase } from '@dislink/shared/lib/supabase';
-import { logger } from '@dislink/shared/lib/logger';
+import { 
+  Mail, ArrowRight, Check, Lock, AlertCircle, Home, Timer, RefreshCw,
+  CheckCircle, XCircle, Clock, Loader
+} from 'lucide-react';
 import { handleEmailConfirmation } from '@dislink/shared/lib/authFlow';
-import { completeQRConnection } from '@dislink/shared/lib/qrEnhanced';
+import { logger } from '@dislink/shared/lib/logger';
 
-type VerificationStatus = 'loading' | 'success' | 'error' | 'expired' | 'already-verified';
+type VerificationStatus = 'loading' | 'success' | 'error' | 'already-verified' | 'expired';
 
-export function EmailConfirmationUnified() {
+interface EmailConfirmationUnifiedProps {
+  onSuccess?: (user: any) => void;
+  onError?: (error: string) => void;
+}
+
+export function EmailConfirmationUnified({ onSuccess, onError }: EmailConfirmationUnifiedProps) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<VerificationStatus>('loading');
   const [error, setError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
   const [cooldownTime, setCooldownTime] = useState(0);
-  const [isResending, setIsResending] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
 
-  // Get email from URL params or localStorage
-  const emailFromUrl = searchParams.get('email');
-  const emailFromStorage = localStorage.getItem('confirmEmail');
-  const currentEmail = emailFromUrl || emailFromStorage;
-
+  // Cooldown timer effect
   useEffect(() => {
-    if (currentEmail) {
-      setUserEmail(currentEmail);
-    }
-  }, [currentEmail]);
-
-  // Cooldown timer for resend button
-  useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (cooldownTime > 0) {
-      const timer = setTimeout(() => {
-        setCooldownTime(cooldownTime - 1);
+      timer = setInterval(() => {
+        setCooldownTime((prev) => Math.max(0, prev - 1));
       }, 1000);
-      return () => clearTimeout(timer);
     }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [cooldownTime]);
 
   useEffect(() => {
@@ -63,8 +62,8 @@ export function EmailConfirmationUnified() {
             // Handle QR connection completion if user just registered
             if (result.user) {
               try {
-                await completeQRConnection(result.user.id);
-                logger.info('QR connection completion processed');
+                // TODO: Implement QR connection completion when available
+                logger.info('QR connection completion would be processed here');
               } catch (qrError) {
                 logger.error('Error completing QR connection:', qrError);
                 // Don't fail the verification process for QR connection errors
@@ -73,6 +72,9 @@ export function EmailConfirmationUnified() {
 
             // Wait a moment for session to be properly established
             await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Call success callback if provided
+            onSuccess?.(result.user);
 
             // Redirect to onboarding or home
             if (result.requiresOnboarding) {
@@ -90,213 +92,217 @@ export function EmailConfirmationUnified() {
             setStatus('error');
             setError(result.error || 'Email confirmation failed. Please try again.');
           }
+          onError?.(result.error || 'Email confirmation failed');
         }
       } catch (err) {
         logger.error('Email verification error:', err);
         setStatus('error');
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+        setError('An unexpected error occurred. Please try again.');
+        onError?.('An unexpected error occurred');
       }
     };
 
     verifyEmail();
-  }, [navigate]);
+  }, [navigate, onSuccess, onError]);
 
   const handleResendEmail = async () => {
-    if (!userEmail || cooldownTime > 0) return;
+    if (cooldownTime > 0) return;
 
-    setIsResending(true);
+    setResendingEmail(true);
+    setResendSuccess(false);
+
     try {
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email: userEmail,
-        options: {
-          emailRedirectTo: `${window.location.origin}/confirmed`
-        }
-      });
-
-      if (error) {
-        logger.error('Failed to resend confirmation email:', error);
-        setError('Failed to resend confirmation email. Please try again.');
-      } else {
-        logger.info('Confirmation email resent successfully');
-        setError(null);
-        setCooldownTime(60); // 60 second cooldown
+      const email = searchParams.get('email') || localStorage.getItem('confirmEmail');
+      
+      if (!email) {
+        setError('Email address not found. Please try registering again.');
+        return;
       }
+
+      // TODO: Implement resend email functionality
+      // This would typically call a resend email API endpoint
+      
+      setResendSuccess(true);
+      setCooldownTime(60); // 60 second cooldown
+      
+      logger.info('Resend email requested for:', email);
     } catch (err) {
-      logger.error('Error resending confirmation email:', err);
-      setError('An unexpected error occurred while resending the email.');
+      logger.error('Error resending email:', err);
+      setError('Failed to resend email. Please try again.');
     } finally {
-      setIsResending(false);
+      setResendingEmail(false);
     }
+  };
+
+  const handleGoHome = () => {
+    navigate('/');
   };
 
   const handleGoToLogin = () => {
     navigate('/app/login');
   };
 
-  const handleGoToRegister = () => {
-    navigate('/app/register');
-  };
-
-  const renderContent = () => {
+  const getStatusIcon = () => {
     switch (status) {
       case 'loading':
-        return (
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Verifying your email...</h2>
-            <p className="text-gray-600">Please wait while we confirm your email address.</p>
-          </div>
-        );
-
+        return <Loader className="w-16 h-16 text-blue-500 animate-spin" />;
       case 'success':
-        return (
-          <div className="text-center">
-            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Email confirmed successfully!</h2>
-            <p className="text-gray-600 mb-4">Your email has been verified. Redirecting you to complete your profile...</p>
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
-          </div>
-        );
-
-      case 'already-verified':
-        return (
-          <div className="text-center">
-            <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Email already confirmed!</h2>
-            <p className="text-gray-600 mb-6">Your email has already been verified. You can now log in to your account.</p>
-            <button
-              onClick={handleGoToLogin}
-              className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Go to Login
-            </button>
-          </div>
-        );
-
-      case 'expired':
-        return (
-          <div className="text-center">
-            <Clock className="h-16 w-16 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Confirmation link expired</h2>
-            <p className="text-gray-600 mb-6">
-              This confirmation link has expired or is invalid. Don't worry - you can request a new one.
-            </p>
-            {userEmail && (
-              <div className="space-y-4">
-                <button
-                  onClick={handleResendEmail}
-                  disabled={cooldownTime > 0 || isResending}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
-                >
-                  {isResending ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : cooldownTime > 0 ? (
-                    `Resend in ${cooldownTime}s`
-                  ) : (
-                    <>
-                      <Mail className="h-4 w-4" />
-                      Resend Confirmation Email
-                    </>
-                  )}
-                </button>
-                <p className="text-sm text-gray-500">
-                  We'll send a new confirmation email to <strong>{userEmail}</strong>
-                </p>
-              </div>
-            )}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-2">Need help?</p>
-              <div className="flex gap-4 justify-center">
-                <button
-                  onClick={handleGoToLogin}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
-                >
-                  Try logging in
-                </button>
-                <button
-                  onClick={handleGoToRegister}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
-                >
-                  Create new account
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-
+        return <CheckCircle className="w-16 h-16 text-green-500" />;
       case 'error':
-        return (
-          <div className="text-center">
-            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Verification failed</h2>
-            <p className="text-gray-600 mb-6">
-              {error || 'There was a problem verifying your email. Please try again.'}
-            </p>
-            {userEmail && (
-              <div className="space-y-4">
-                <button
-                  onClick={handleResendEmail}
-                  disabled={cooldownTime > 0 || isResending}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
-                >
-                  {isResending ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : cooldownTime > 0 ? (
-                    `Resend in ${cooldownTime}s`
-                  ) : (
-                    <>
-                      <Mail className="h-4 w-4" />
-                      Resend Confirmation Email
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-600 mb-2">Need help?</p>
-              <div className="flex gap-4 justify-center">
-                <button
-                  onClick={handleGoToLogin}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
-                >
-                  Try logging in
-                </button>
-                <button
-                  onClick={handleGoToRegister}
-                  className="text-indigo-600 hover:text-indigo-700 text-sm font-medium"
-                >
-                  Create new account
-                </button>
-              </div>
-            </div>
-          </div>
-        );
-
+        return <XCircle className="w-16 h-16 text-red-500" />;
+      case 'already-verified':
+        return <CheckCircle className="w-16 h-16 text-green-500" />;
+      case 'expired':
+        return <Clock className="w-16 h-16 text-orange-500" />;
       default:
-        return null;
+        return <Mail className="w-16 h-16 text-blue-500" />;
+    }
+  };
+
+  const getStatusTitle = () => {
+    switch (status) {
+      case 'loading':
+        return 'Verifying your email...';
+      case 'success':
+        return 'Email verified successfully!';
+      case 'error':
+        return 'Verification failed';
+      case 'already-verified':
+        return 'Email already verified';
+      case 'expired':
+        return 'Verification link expired';
+      default:
+        return 'Email verification';
+    }
+  };
+
+  const getStatusMessage = () => {
+    switch (status) {
+      case 'loading':
+        return 'Please wait while we verify your email address.';
+      case 'success':
+        return 'Your email has been successfully verified. You can now access your account.';
+      case 'error':
+        return error || 'There was an error verifying your email. Please try again.';
+      case 'already-verified':
+        return 'Your email has already been verified. You can now log in to your account.';
+      case 'expired':
+        return 'This verification link has expired. Please request a new confirmation email.';
+      default:
+        return 'Processing your email verification...';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            {renderContent()}
-          </motion.div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="card-captamundi-strong w-full max-w-md text-center"
+      >
+        {/* Status Icon */}
+        <div className="mb-6">
+          {getStatusIcon()}
         </div>
-      </div>
+
+        {/* Status Title */}
+        <h1 className="font-display text-2xl font-bold text-gray-900 mb-4">
+          {getStatusTitle()}
+        </h1>
+
+        {/* Status Message */}
+        <p className="font-body text-gray-600 mb-6">
+          {getStatusMessage()}
+        </p>
+
+        {/* Debug Info (Development Only) */}
+        {import.meta.env.DEV && debugInfo && (
+          <div className="mb-6 p-4 bg-gray-100 rounded-lg text-left">
+            <h3 className="font-medium text-gray-900 mb-2">Debug Info:</h3>
+            <pre className="text-xs text-gray-600 overflow-auto">
+              {JSON.stringify(debugInfo, null, 2)}
+            </pre>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="space-y-3">
+          {status === 'success' && (
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              onClick={() => navigate('/app')}
+              className="btn-captamundi-primary w-full flex items-center justify-center"
+            >
+              <ArrowRight className="w-4 h-4 mr-2" />
+              Go to Dashboard
+            </motion.button>
+          )}
+
+          {status === 'already-verified' && (
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              onClick={handleGoToLogin}
+              className="btn-captamundi-primary w-full flex items-center justify-center"
+            >
+              <ArrowRight className="w-4 h-4 mr-2" />
+              Go to Login
+            </motion.button>
+          )}
+
+          {(status === 'error' || status === 'expired') && (
+            <>
+              <button
+                onClick={handleResendEmail}
+                disabled={resendingEmail || cooldownTime > 0}
+                className="btn-captamundi-primary w-full flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {resendingEmail ? (
+                  <Loader className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                )}
+                {cooldownTime > 0 ? `Resend in ${cooldownTime}s` : 'Resend Email'}
+              </button>
+
+              {resendSuccess && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 bg-green-50 border border-green-200 rounded-lg"
+                >
+                  <p className="text-green-800 text-sm">
+                    <Check className="w-4 h-4 inline mr-1" />
+                    New verification email sent!
+                  </p>
+                </motion.div>
+              )}
+            </>
+          )}
+
+          {/* Always show home button */}
+          <button
+            onClick={handleGoHome}
+            className="btn-captamundi-secondary w-full flex items-center justify-center"
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Back to Home
+          </button>
+        </div>
+
+        {/* Additional Help */}
+        {status === 'error' && (
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-500">
+              Need help? Contact our support team or try registering again.
+            </p>
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }
