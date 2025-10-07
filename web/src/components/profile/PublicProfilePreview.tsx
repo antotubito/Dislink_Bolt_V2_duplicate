@@ -45,19 +45,56 @@ export function PublicProfilePreview({ connectionCode, onClose }: PublicProfileP
       setLoading(true);
       setError(null);
 
-      // Validate connection code and get profile data (NO TRACKING)
-      const data = await validateConnectionCode(connectionCode);
+      // For preview, we'll get the current user's profile data directly
+      // This avoids the need to validate connection codes and prevents 406 errors
+      const { supabase } = await import('@dislink/shared/lib/supabase');
+      const { data: { session } } = await supabase.auth.getSession();
       
-      if (!data) {
-        setError('Profile not found or not publicly available');
+      if (!session?.user) {
+        setError('No active session found');
         return;
       }
 
-      setProfileData(data);
-      console.log('🔍 [Preview] Profile data loaded (NO TRACKING):', {
-        userId: data.userId,
-        name: data.name,
-        publicProfileEnabled: data.publicProfile?.enabled
+      // Get current user's profile data
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profileError || !profile) {
+        setError('Profile not found');
+        return;
+      }
+
+      // Check if public profile is enabled
+      if (!profile.public_profile?.enabled) {
+        setError('Public profile is not enabled. Enable it in your profile settings to see the preview.');
+        return;
+      }
+
+      // Create mock QR data for preview
+      const mockQRData: QRConnectionData = {
+        userId: profile.id,
+        name: `${profile.first_name} ${profile.last_name}`.trim(),
+        jobTitle: profile.job_title,
+        company: profile.company,
+        profileImage: profile.profile_image,
+        bio: profile.bio,
+        interests: profile.interests || [],
+        socialLinks: profile.social_links || {},
+        publicProfile: profile.public_profile,
+        connectionCode: connectionCode,
+        publicProfileUrl: window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+          ? `https://dislinkboltv2duplicate.netlify.app/profile/${connectionCode}`
+          : `http://localhost:3001/profile/${connectionCode}`
+      };
+
+      setProfileData(mockQRData);
+      console.log('🔍 [Preview] Profile data loaded (NO TRACKING, MOCK):', {
+        userId: mockQRData.userId,
+        name: mockQRData.name,
+        publicProfileEnabled: mockQRData.publicProfile?.enabled
       });
 
     } catch (err) {

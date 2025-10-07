@@ -70,15 +70,15 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
 
   const handlePreviewPublicProfile = async () => {
     try {
-      // Generate a proper connection code URL that matches QR codes
-      const { generateUserQRCode } = await import('@dislink/shared/lib/qrConnection');
-      const qrData = await generateUserQRCode(user.id);
+      // For preview, we'll use a mock connection code to avoid database issues
+      // This prevents 406 errors and connection code validation problems
+      const mockConnectionCode = `preview_${user.id}_${Date.now()}`;
       
       // Show static preview modal (NO TRACKING)
-      setPreviewConnectionCode(qrData.connectionCode);
+      setPreviewConnectionCode(mockConnectionCode);
       setShowPreview(true);
       
-      console.log('🔍 Preview Public Profile (Static, No Tracking):', qrData.publicProfileUrl);
+      console.log('🔍 Preview Public Profile (Static, No Tracking, Mock Code):', mockConnectionCode);
     } catch (err) {
       console.error('Error generating preview:', err);
     }
