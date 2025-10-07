@@ -220,10 +220,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               logger.info('User profile loaded:', { userId: profile.id, onboardingComplete: profile.onboardingComplete });
             } else {
               console.warn('🔐 AuthProvider: Profile not found, using auth user data');
-              // Fallback to auth user if profile not found
-              setUser(session.user as unknown as User);
+              // Fallback to auth user if profile not found, but mark onboarding as incomplete
+              const fallbackUser = {
+                ...session.user,
+                onboardingComplete: false // Explicitly mark as incomplete for new users
+              } as unknown as User;
+              setUser(fallbackUser);
               setIsOwner(true);
-              logger.warn('Profile not found, using auth user data');
+              logger.warn('Profile not found, using auth user data with onboarding incomplete');
             }
           } catch (profileError) {
             console.error('🔐 AuthProvider: Failed to load user profile:', profileError);
@@ -297,11 +301,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setError(null);
               logger.info('User profile updated from auth state change:', { userId: profile.id, onboardingComplete: profile.onboardingComplete });
             } else {
-              // Fallback to auth user if profile not found
-              setUser(session.user as unknown as User);
+              // Fallback to auth user if profile not found, but mark onboarding as incomplete
+              const fallbackUser = {
+                ...session.user,
+                onboardingComplete: false // Explicitly mark as incomplete for new users
+              } as unknown as User;
+              setUser(fallbackUser);
               setIsOwner(true);
               setError(null);
-              logger.warn('Profile not found during auth state change, using auth user data');
+              logger.warn('Profile not found during auth state change, using auth user data with onboarding incomplete');
             }
             
             // Initialize user preferences for new session (don't block on this)

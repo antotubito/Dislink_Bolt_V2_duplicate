@@ -297,6 +297,9 @@ export function shouldRedirectToOnboarding(
   // Check if user needs onboarding
   // Handle both camelCase (onboardingComplete) and snake_case (onboarding_complete) field names
   const onboardingComplete = user.onboardingComplete ?? user.onboarding_complete;
+  
+  // Only redirect to onboarding if onboarding is explicitly false or undefined
+  // If onboardingComplete is true, user has completed onboarding
   const needsOnboarding = onboardingComplete === false || onboardingComplete === undefined || onboardingComplete === null;
   
   logger.info('🔐 Onboarding check:', { 
@@ -306,8 +309,23 @@ export function shouldRedirectToOnboarding(
     currentPath,
     userKeys: Object.keys(user),
     userOnboardingComplete: user.onboardingComplete,
-    userOnboarding_complete: user.onboarding_complete
+    userOnboarding_complete: user.onboarding_complete,
+    type: typeof onboardingComplete
   });
+  
+  // Additional safety check: if user has been using the app for a while, 
+  // don't redirect to onboarding unless explicitly needed
+  if (user.createdAt && typeof user.createdAt === 'string') {
+    const createdAt = new Date(user.createdAt);
+    const daysSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+    
+    // If user was created more than 1 day ago and onboarding status is unclear,
+    // assume they've completed onboarding to prevent redirect loops
+    if (daysSinceCreation > 1 && onboardingComplete === null) {
+      logger.info('🔐 User created more than 1 day ago with unclear onboarding status, assuming completed');
+      return false;
+    }
+  }
   
   return needsOnboarding;
 }
