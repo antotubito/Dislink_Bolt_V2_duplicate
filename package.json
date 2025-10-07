@@ -10,6 +10,8 @@
   ],
   "scripts": {
     "dev": "pnpm --filter web dev",
+    "dev:clean": "pnpm dev:reset && pnpm dev",
+    "dev:reset": "./dev-reset.sh",
     "build": "pnpm --filter web build",
     "build:web": "pnpm --filter web build",
     "build:mobile": "pnpm --filter mobile build",

@@ -30,8 +30,9 @@ import {
 } from 'lucide-react';
 import { getAccessRequests, approveAccessRequest, declineAccessRequest } from '@dislink/shared/lib/auth';
 import type { TestUser } from '@dislink/shared/types';
+import { DatabaseSetup } from '../components/admin/DatabaseSetup';
 
-type SettingsSection = 'account' | 'email' | 'privacy';
+type SettingsSection = 'account' | 'email' | 'privacy' | 'admin';
 
 export function Settings() {
   const { user, isOwner, refreshUser } = useAuth();
@@ -839,6 +840,13 @@ export function Settings() {
     </div>
   );
 
+  const renderAdminSettings = () => (
+    <div className="space-y-6">
+      {/* Database Setup */}
+      <DatabaseSetup />
+    </div>
+  );
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-8">Settings</h1>
@@ -951,6 +959,19 @@ export function Settings() {
               <Lock className="h-4 w-4 inline-block mr-2" />
               Privacy
             </motion.button>
+            {isOwner && (
+              <motion.button
+                whileHover={{ backgroundColor: activeSection !== 'admin' ? '#F3F4F6' : undefined }}
+                onClick={() => setActiveSection('admin')}
+                className={`flex-1 whitespace-nowrap py-4 px-1 border-b-2 text-sm font-medium ${activeSection === 'admin'
+                    ? 'border-purple-600 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+              >
+                <SettingsIcon className="h-4 w-4 inline-block mr-2" />
+                Admin
+              </motion.button>
+            )}
           </nav>
         </div>
 
@@ -959,6 +980,7 @@ export function Settings() {
           {activeSection === 'account' && renderAccountSettings()}
           {activeSection === 'email' && renderEmailSettings()}
           {activeSection === 'privacy' && renderPrivacySettings()}
+          {activeSection === 'admin' && isOwner && renderAdminSettings()}
         </div>
       </div>
 

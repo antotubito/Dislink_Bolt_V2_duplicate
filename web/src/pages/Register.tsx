@@ -15,6 +15,11 @@ import {
   createUserConnection,
   validateInvitationCode
 } from "@dislink/shared/lib/qrEnhanced";
+import { 
+  validateInvitationCode as validateNewInvitationCode,
+  processRegistrationWithInvitation,
+  type RegistrationWithInvitation
+} from '@dislink/shared/lib/invitationService';
 
 export function Register() {
   const navigate = useNavigate();

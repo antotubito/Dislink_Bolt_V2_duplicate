@@ -1,29 +1,50 @@
 import { createClient } from '@supabase/supabase-js';
 import { logger } from './logger';
 
-// Get environment variables with explicit fallback check
+// Environment variables with proper fallbacks
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://bbonxxvifycwpoeaxsor.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJib254eHZpZnljd3BvZWF4c29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Mjg5NDUsImV4cCI6MjA3MDAwNDk0NX0.rUuAcPIHVCfpAMEU2ADyb0F4Q3_eL0mkEyhBcbu0O70';
 
-// Debug environment loading
-console.log('🔍 Supabase Environment Check:');
-console.log('- Environment variables loaded:', !!import.meta.env.VITE_SUPABASE_URL);
-console.log('- Using real Supabase:', !supabaseUrl.includes('placeholder'));
-console.log('- Supabase URL:', supabaseUrl?.substring(0, 30) + '...');
-console.log('- Anon Key available:', !!supabaseAnonKey);
-console.log('- Environment mode:', import.meta.env.MODE);
-console.log('✅ Supabase connection ready');
+// Auto-detect environment and base URL
+const isProduction = import.meta.env.PROD || (typeof window !== 'undefined' && window.location.hostname === 'dislinkboltv2duplicate.netlify.app');
+const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
-// Enhanced environment validation - now using fallback values
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn('⚠️ ENVIRONMENT WARNING: Environment variables not found in import.meta.env');
-  console.warn('Using hardcoded fallback values to ensure Supabase works');
-  console.warn('Available env vars:', {
-    VITE_SUPABASE_URL: !!import.meta.env.VITE_SUPABASE_URL,
-    VITE_SUPABASE_ANON_KEY: !!import.meta.env.VITE_SUPABASE_ANON_KEY
-  });
-} else {
-  console.log('✅ Environment variables loaded successfully from .env.local');
+// Get base URL with proper fallbacks
+const getBaseUrl = () => {
+  if (typeof window === 'undefined') return 'http://localhost:3001'; // SSR fallback
+  
+  // Use environment variables first, then auto-detect
+  const envUrl = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL;
+  if (envUrl) return envUrl.replace(/\/$/, ''); // Remove trailing slash
+  
+  // Auto-detect based on current location
+  return isProduction ? 'https://dislinkboltv2duplicate.netlify.app' : 'http://localhost:3001';
+};
+
+const currentBaseUrl = getBaseUrl();
+
+// Debug environment loading (only in development)
+if (import.meta.env.DEV) {
+  console.log('🔍 Supabase Environment Check:');
+  console.log('- Environment variables loaded:', !!import.meta.env.VITE_SUPABASE_URL);
+  console.log('- Using real Supabase:', supabaseUrl && !supabaseUrl.includes('placeholder'));
+  console.log('- Supabase URL:', supabaseUrl?.substring(0, 30) + '...');
+  console.log('- Anon Key available:', !!supabaseAnonKey);
+  console.log('- Environment mode:', import.meta.env.MODE);
+  console.log('- Is production:', isProduction);
+  console.log('- Is localhost:', isLocalhost);
+  console.log('- Current base URL:', currentBaseUrl);
+  console.log('✅ Supabase connection ready');
+}
+
+// Validate required credentials
+if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('placeholder')) {
+  const errorMsg = 'Missing or invalid Supabase environment variables';
+  console.error('❌ CRITICAL ERROR:', errorMsg);
+  console.error('Please set the following in your .env.local file:');
+  console.error('- VITE_SUPABASE_URL');
+  console.error('- VITE_SUPABASE_ANON_KEY');
+  throw new Error(errorMsg);
 }
 
 // Log environment variables for debugging (safe for production)
@@ -34,18 +55,20 @@ logger.info('Supabase configuration:', {
   production: import.meta.env.PROD
 });
 
-// Create Supabase client with enhanced production configuration
+// Create Supabase client with optimized configuration
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key',
+  supabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: true,
       storage: typeof window !== 'undefined' ? localStorage : undefined,
-      flowType: 'pkce',
-      debug: import.meta.env.DEV
+      flowType: 'implicit', // Use implicit flow for better compatibility
+      debug: import.meta.env.DEV,
+      // Add redirect URLs for better auth flow handling
+      redirectTo: `${currentBaseUrl}/confirmed`
     },
     global: {
       headers: {
@@ -65,25 +88,14 @@ export const supabase = createClient(
   }
 );
 
-// Session ready state management
+// Simplified session management
 let isSupabaseReady = false;
-let sessionReadyPromise: Promise<void> | null = null;
-const sessionReadyCallbacks: (() => void)[] = [];
-
-// Connection health check
 let connectionHealthy = false;
-let lastConnectionCheck = 0;
-const CONNECTION_CHECK_INTERVAL = 30000; // 30 seconds
 
+// Simple connection health check
 const checkConnection = async (): Promise<boolean> => {
   try {
-    const now = Date.now();
-    if (connectionHealthy && (now - lastConnectionCheck) < CONNECTION_CHECK_INTERVAL) {
-      return true;
-    }
-
-    // Simple health check
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .select('id')
       .limit(1);
@@ -95,8 +107,6 @@ const checkConnection = async (): Promise<boolean> => {
     }
 
     connectionHealthy = true;
-    lastConnectionCheck = now;
-    logger.info('✅ Supabase connection healthy');
     return true;
   } catch (error) {
     logger.error('Supabase connection error:', error);
@@ -105,189 +115,73 @@ const checkConnection = async (): Promise<boolean> => {
   }
 };
 
-const retryConnection = async (maxRetries = 3, delay = 1000): Promise<boolean> => {
-  for (let i = 0; i < maxRetries; i++) {
-    const isHealthy = await checkConnection();
-    if (isHealthy) return true;
-
-    if (i < maxRetries - 1) {
-      logger.info(`🔄 Retrying connection in ${delay}ms... (${i + 1}/${maxRetries})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      delay *= 2; // Exponential backoff
-    }
-  }
-  return false;
-};
-
-// Safe session getter that waits for Supabase to be ready
-export const getSafeSession = async (): Promise<{ data: { session: any }, error: any }> => {
-  // Wait for Supabase to be ready before checking session
-  await waitForSupabaseReady();
-
+// Simplified session getter
+export const getSafeSession = async () => {
   try {
-    logger.info('🔐 Getting session (safe)...');
     const result = await supabase.auth.getSession();
-    logger.info('🔐 Session result:', { hasSession: !!result.data.session, error: !!result.error });
     return result;
   } catch (error) {
-    logger.error('🔐 Error getting safe session:', error);
+    logger.error('Error getting session:', error);
     return { data: { session: null }, error };
   }
 };
 
-// Function to wait for Supabase to be ready
-export const waitForSupabaseReady = (): Promise<void> => {
-  if (isSupabaseReady) {
-    return Promise.resolve();
-  }
-
-  if (sessionReadyPromise) {
-    return sessionReadyPromise;
-  }
-
-  sessionReadyPromise = new Promise((resolve) => {
-    if (isSupabaseReady) {
-      resolve();
-      return;
-    }
-
-    sessionReadyCallbacks.push(resolve);
-  });
-
-  return sessionReadyPromise;
-};
-
-// Initialize connection in background (non-blocking)
+// Initialize connection
 export const initializeConnection = async (): Promise<void> => {
-  // Use setTimeout to ensure this runs after the initial render
-  setTimeout(async () => {
-    try {
-      // Check if credentials are available
-      if (!supabaseUrl || !supabaseAnonKey) {
-        logger.error('Missing Supabase credentials. Skipping connection initialization.');
-        return;
-      }
+  try {
+    logger.info('🔗 Initializing Supabase connection...');
 
-      logger.info('🔗 Initializing Supabase connection...');
+    // Try to recover any existing session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      // Try to recover any existing session first
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-      if (sessionError) {
-        logger.warn('Session recovery error (non-critical):', sessionError);
-      } else if (session) {
-        logger.info('✅ Existing session recovered');
-      }
-
-      // Check connection health
-      const isHealthy = await retryConnection();
-
-      if (!isHealthy) {
-        logger.error('❌ Failed to establish healthy Supabase connection after retries');
-        // Still mark as ready even if connection failed - allow app to function
-      }
-
-      // Mark Supabase as ready
-      isSupabaseReady = true;
-      logger.info('✅ Supabase connection initialized successfully - ready for session checks');
-
-      // Notify all waiting callbacks
-      sessionReadyCallbacks.forEach(callback => callback());
-      sessionReadyCallbacks.length = 0; // Clear the array
-
-    } catch (error) {
-      logger.error('❌ Critical error during Supabase initialization:', error);
-      // Still mark as ready to prevent indefinite waiting
-      isSupabaseReady = true;
-      sessionReadyCallbacks.forEach(callback => callback());
-      sessionReadyCallbacks.length = 0;
+    if (sessionError) {
+      logger.warn('Session recovery error (non-critical):', sessionError);
+    } else if (session) {
+      logger.info('✅ Existing session recovered');
     }
-  }, 100); // Small delay to ensure React has rendered first
+
+    // Check connection health
+    await checkConnection();
+
+    // Mark Supabase as ready
+    isSupabaseReady = true;
+    logger.info('✅ Supabase connection initialized successfully');
+
+  } catch (error) {
+    logger.error('❌ Error during Supabase initialization:', error);
+    // Still mark as ready to prevent indefinite waiting
+    isSupabaseReady = true;
+  }
 };
 
 // Export connection health checker
 export const isConnectionHealthy = (): boolean => connectionHealthy;
 
-// Production connection test (exposed globally for debugging)
-export const testProductionConnection = async (): Promise<{
-  status: 'success' | 'error';
-  message: string;
-  details: any;
-}> => {
+// Export ready state checker
+export const isSupabaseSessionReady = (): boolean => isSupabaseReady;
+
+// Simple connection test
+export const testConnection = async () => {
   try {
-    console.log('🧪 Testing Supabase production connection...');
-
-    // Check environment variables
-    if (!supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('placeholder')) {
-      return {
-        status: 'error',
-        message: 'Missing or invalid Supabase environment variables',
-        details: {
-          url: supabaseUrl ? 'Present' : 'Missing',
-          key: supabaseAnonKey ? 'Present' : 'Missing',
-          isPlaceholder: supabaseUrl?.includes('placeholder') || false
-        }
-      };
-    }
-
-    // Test basic connection
-    const { data: connectionTest, error: connectionError } = await supabase
+    const { data, error } = await supabase
       .from('profiles')
       .select('count', { count: 'exact' })
       .limit(0);
 
-    if (connectionError) {
-      return {
-        status: 'error',
-        message: 'Database connection failed',
-        details: connectionError
-      };
+    if (error) {
+      return { success: false, error };
     }
 
-    // Test authentication state
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-    return {
-      status: 'success',
-      message: 'Supabase connection successful',
-      details: {
-        database: 'Connected',
-        profilesCount: connectionTest?.length ?? 'Unknown',
-        hasSession: !!session,
-        sessionUser: session?.user?.email || 'No user',
-        environment: import.meta.env.MODE,
-        url: supabaseUrl?.substring(0, 30) + '...',
-        timestamp: new Date().toISOString()
-      }
+    const { data: { session } } = await supabase.auth.getSession();
+    return { 
+      success: true, 
+      hasSession: !!session,
+      user: session?.user?.email || null
     };
   } catch (error) {
-    return {
-      status: 'error',
-      message: 'Connection test failed',
-      details: error
-    };
+    return { success: false, error };
   }
 };
-
-// Live production test function
-export const runLiveProductionTest = async (): Promise<void> => {
-  console.log('🚀 Starting LIVE Supabase Production Test...');
-
-  const result = await testProductionConnection();
-
-  if (result.status === 'success') {
-    console.log('✅ SUPABASE CONNECTION SUCCESSFUL!');
-    console.log('📊 Connection Details:', result.details);
-  } else {
-    console.error('❌ SUPABASE CONNECTION FAILED!');
-    console.error('💥 Error Details:', result.details);
-  }
-
-  return result;
-};
-
-// Export ready state checker
-export const isSupabaseSessionReady = (): boolean => isSupabaseReady;
 
 // Graceful error handling for auth operations
 export const handleSupabaseError = (error: any, operation: string) => {
@@ -310,68 +204,145 @@ export const handleSupabaseError = (error: any, operation: string) => {
     return 'Network error. Please check your internet connection and try again.';
   }
 
+  // Handle user already exists errors
+  if (error?.message?.includes('User already registered') || 
+      error?.message?.includes('already been registered') ||
+      error?.message?.includes('already exists') ||
+      error?.code === 'user_already_exists') {
+    return 'This email is already registered. Please log in instead.';
+  }
+
+  // Handle email rate limiting
+  if (error?.message?.includes('email rate limit exceeded') || 
+      error?.code === 'over_email_send_rate_limit') {
+    return 'Too many registration attempts. Please wait a few minutes before trying again.';
+  }
+
+  // Handle weak password
+  if (error?.message?.includes('Password should be at least')) {
+    return 'Password must be at least 6 characters long.';
+  }
+
+  // Handle invalid email format
+  if (error?.message?.includes('Invalid email')) {
+    return 'Please enter a valid email address.';
+  }
+
   return error?.message || `An error occurred during ${operation}. Please try again.`;
 };
 
-// Test email registration function
-export const testEmailRegistration = async (testEmail?: string): Promise<void> => {
-  const email = testEmail || `test.${Date.now()}@example.com`;
+// Export base URL for use in other modules (already declared above)
+export { getBaseUrl };
 
-  console.log('🧪 Testing email registration...');
-  console.log(`📧 Test email: ${email}`);
-  console.log(`🔗 Redirect URL: ${window.location.origin}/confirmed`);
-
-  try {
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: 'testpassword123',
-      options: {
-        data: {
-          firstName: 'Test',
-          lastName: 'User',
-          full_name: 'Test User'
-        },
-        emailRedirectTo: `${window.location.origin}/confirmed`
-      }
-    });
-
-    console.log('\n📊 Registration Result:');
-    console.log('Data:', data);
-
-    if (error) {
-      console.log('❌ Registration Error:', error.message);
-
-      if (error.message.includes('Email not confirmed')) {
-        console.log('\n💡 ISSUE: Email confirmation required but not being sent');
-        console.log('🔧 SOLUTION: Check Supabase Dashboard → Authentication → Settings');
-        console.log('   ✅ Enable "Confirm email"');
-        console.log('   ✅ Check URL Configuration');
-      } else if (error.message.includes('already registered')) {
-        console.log('\n💡 User already exists (this is normal for test emails)');
-      } else {
-        console.log('\n🚨 Unexpected error - check SUPABASE_EMAIL_DIAGNOSIS.md');
-      }
-    } else {
-      console.log('✅ Registration submitted successfully!');
-      console.log(`User ID: ${data.user?.id}`);
-      console.log(`Email Confirmed: ${data.user?.email_confirmed_at ? 'Yes' : 'No'}`);
-      console.log(`Session: ${data.session ? 'Active' : 'None (email confirmation required)'}`);
-
-      if (!data.session && !data.user?.email_confirmed_at) {
-        console.log('\n📧 ✅ EMAIL CONFIRMATION REQUIRED');
-        console.log('   User should receive confirmation email');
-        console.log('   Check your email (including spam folder)');
-      } else if (data.session) {
-        console.log('\n⚠️ User logged in immediately - email confirmation might be disabled');
-      }
+// Define debug functions first
+const debugFunctions = {
+  testConnection: testConnection,
+  supabase: supabase,
+  getSession: async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      return {
+        success: !error,
+        session: session,
+        hasSession: !!session,
+        userId: session?.user?.id,
+        email: session?.user?.email,
+        error: error
+      };
+    } catch (err) {
+      return {
+        success: false,
+        session: null,
+        hasSession: false,
+        userId: null,
+        email: null,
+        error: err
+      };
     }
-
-  } catch (err) {
-    console.log('\n🚨 Network/Connection Error:', err.message);
-    console.log('Check your internet connection and Supabase configuration');
-  }
+  },
+  login: async (email, password) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+      return {
+        success: !error,
+        session: data.session,
+        user: data.user,
+        error: error
+      };
+    } catch (err) {
+      return {
+        success: false,
+        session: null,
+        user: null,
+        error: err
+      };
+    }
+  },
+  logout: async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      return {
+        success: !error,
+        error: error
+      };
+    } catch (err) {
+      return {
+        success: false,
+        error: err
+      };
+    }
+  },
+  register: async (email, password, firstName, lastName) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: {
+            firstName: firstName,
+            lastName: lastName,
+            full_name: `${firstName} ${lastName}`
+          },
+          emailRedirectTo: `${getBaseUrl()}/confirmed`
+        }
+      });
+      return {
+        success: !error,
+        user: data.user,
+        session: data.session,
+        error: error
+      };
+    } catch (err) {
+      return {
+        success: false,
+        user: null,
+        session: null,
+        error: err
+      };
+    }
+  },
+  getBaseUrl: getBaseUrl,
+  isConnectionHealthy: isConnectionHealthy,
+  isSupabaseSessionReady: isSupabaseSessionReady
 };
 
-// Make test functions available globally for console access
+// Make Supabase client and debug functions available globally for console access
 if (typeof window !== 'undefined') {
+  // @ts-ignore - Global debugging functions
+  window.supabaseDebug = debugFunctions;
+
+  // Also make supabase directly available for convenience
+  // @ts-ignore
+  window.supabase = supabase;
+  
+  // Ensure functions are properly bound
+  Object.keys(debugFunctions).forEach(key => {
+    if (typeof debugFunctions[key] === 'function') {
+      // @ts-ignore
+      window.supabaseDebug[key] = debugFunctions[key].bind(debugFunctions);
+    }
+  });
 }

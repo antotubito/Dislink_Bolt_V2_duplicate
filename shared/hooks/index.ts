@@ -1,2 +1,2 @@
 // Export all shared hooks
-export * from './useSocialLinks';
+export * from './useAdminOperations';

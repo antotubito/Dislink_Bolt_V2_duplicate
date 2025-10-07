@@ -4,7 +4,8 @@ import type { User } from '@dislink/shared/types';
 import { supabase, isConnectionHealthy, initializeConnection } from '@dislink/shared/lib/supabase';
 import { logger } from '@dislink/shared/lib/logger';
 import { initUserPreferences } from "@dislink/shared/lib/userPreferences";
-import { setupAuthStateListener } from '@dislink/shared/lib/authFlow';
+import { useNavigationThrottle } from '../../hooks/useNavigationThrottle';
+// import { setupAuthStateListener } from '@dislink/shared/lib/authFlow'; // Removed unused import
 
 interface AuthContextType {
   user: User | null;
@@ -32,10 +33,15 @@ export function useAuth() {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const throttledNavigate = useNavigationThrottle({
+    throttleMs: 2000, // 2 seconds between navigations
+    maxCallsPerWindow: 3, // Max 3 navigations per 10 seconds
+    windowMs: 10000 // 10 second window
+  });
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isOwner] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [isTestingChannel] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connecting');
@@ -62,6 +68,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     '/demo'
   ];
 
+  // Admin email detection function
+  const checkOwnerStatus = (userEmail: string): boolean => {
+    const adminEmails = [
+      'antonio@dislink.com',        // Your primary admin email
+      'admin@dislink.com',          // General admin email
+      'owner@dislink.com',          // Owner email
+      'dislinkcommunity@gmail.com', // Gmail admin account
+      'anto.tubito@gmail.com',    // Your personal Gmail (if you use it)
+    ];
+    
+    const isAdmin = adminEmails.includes(userEmail.toLowerCase().trim());
+    
+    if (isAdmin) {
+      logger.info('🔐 Admin user detected:', userEmail);
+    }
+    
+    return isAdmin;
+  };
+
   const handleAuthError = async (error: any) => {
     logger.error('Auth error:', error);
 
@@ -71,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logger.info('Invalid refresh token detected, signing out user');
       await supabase.auth.signOut();
       setUser(null);
+      setIsOwner(false);
       setError('Session expired. Please sign in again.');
 
       // Store current path for redirect after login if it's not a public path
@@ -145,6 +171,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!session) {
         logger.debug('No active session');
         setUser(null);
+        setIsOwner(false);
         setLoading(false);
         // Initialize user preferences with null user ID
         await initUserPreferences(null);
@@ -173,6 +200,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!profile) {
         setUser(null);
+        setIsOwner(false);
         setLoading(false);
         // Initialize user preferences with null user ID
         await initUserPreferences(null);
@@ -217,6 +245,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       };
 
+      // Check and set owner status based on email
+      const ownerStatus = checkOwnerStatus(profile.email);
+      setIsOwner(ownerStatus);
+
       setUser(userData);
       setError(null);
       setConnectionStatus('connected');
@@ -250,6 +282,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!handled) {
         logger.error('Error getting current user:', error);
         setUser(null);
+        setIsOwner(false);
         setError('Failed to load user data');
       }
     } finally {
@@ -299,6 +332,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await supabase.auth.signOut();
           if (isMounted) {
             setUser(null);
+            setIsOwner(false);
             setLoading(false);
             setSessionChecked(true);
           }
@@ -312,6 +346,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           logger.error('Session initialization error:', error);
           if (isMounted) {
             setUser(null);
+            setIsOwner(false);
             setLoading(false);
             setSessionChecked(true);
           }
@@ -366,6 +401,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               }
             };
 
+            // Check and set owner status based on email
+            const ownerStatus = checkOwnerStatus(profile.email);
+            setIsOwner(ownerStatus);
+
             setUser(userData);
             setError(null);
             setConnectionStatus('connected');
@@ -377,6 +416,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           logger.info('No session found on app load');
           if (isMounted) {
             setUser(null);
+            setIsOwner(false);
           }
         }
 
@@ -388,6 +428,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logger.error('Critical error during auth initialization:', error);
         if (isMounted) {
           setUser(null);
+          setIsOwner(false);
           setLoading(false);
           setSessionChecked(true);
         }
@@ -511,13 +552,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 if (redirectUrl) {
                   localStorage.removeItem('redirectUrl');
                   logger.info('🔄 Redirecting to stored URL:', redirectUrl);
-                  navigate(redirectUrl);
+                  throttledNavigate(redirectUrl);
                 } else if (!profile.onboarding_complete) {
                   logger.info('🔄 Redirecting to onboarding');
-                  navigate('/app/onboarding');
+                  throttledNavigate('/app/onboarding');
                 } else {
                   logger.info('🔄 Redirecting to app home');
-                  navigate('/app');
+                  throttledNavigate('/app');
                 }
               }
             }
@@ -579,6 +620,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } else {
               // Other profile errors
               setUser(null);
+              setIsOwner(false);
               setError('Failed to load user profile');
               clearTimeout(authTimeout);
               setLoading(false);
@@ -642,6 +684,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else {
             // Other errors
             setUser(null);
+            setIsOwner(false);
             setError('Failed to process authentication');
             clearTimeout(authTimeout);
             setLoading(false);
@@ -651,6 +694,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // User signed out or no session
         logger.info('🔐 User signed out, clearing state...');
         setUser(null);
+        setIsOwner(false);
         setError(null);
         setLoading(false);
         clearTimeout(authTimeout);

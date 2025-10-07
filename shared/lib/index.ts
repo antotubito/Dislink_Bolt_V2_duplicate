@@ -29,3 +29,5 @@ export * from './sentry';
 export * from './socialLinksUtils';
 export * from './supabaseClient';
 export * from './userPreferences';
+export * from './databaseSetup';
+export * from './adminService';

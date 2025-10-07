@@ -138,6 +138,9 @@ const Contacts = createLazyComponent(() => import('./pages/Contacts').then(modul
 const Settings = createLazyComponent(() => import('./pages/Settings').then(module => ({ default: module.Settings })), 'Settings');
 const ContactProfile = createLazyComponent(() => import('./pages/ContactProfile').then(module => ({ default: module.ContactProfile })), 'ContactProfile');
 const PublicProfile = createLazyComponent(() => import('./pages/PublicProfile').then(module => ({ default: module.PublicProfile })), 'PublicProfile');
+const QRProfilePage = createLazyComponent(() => import('./pages/QRProfilePage').then(module => ({ default: module.QRProfilePage })), 'QRProfilePage');
+const PublicProfileEnhanced = createLazyComponent(() => import('./pages/PublicProfileEnhanced').then(module => ({ default: module.PublicProfileEnhanced })), 'PublicProfileEnhanced');
+const RegistrationWithInvitation = createLazyComponent(() => import('./components/auth/RegistrationWithInvitation').then(module => ({ default: module.RegistrationWithInvitation })), 'RegistrationWithInvitation');
 const Onboarding = createLazyComponent(() => import('./pages/Onboarding').then(module => ({ default: module.Onboarding })), 'Onboarding');
 const WaitlistNew = createLazyComponent(() => import('./pages/WaitlistNew').then(module => ({ default: module.WaitlistNew })), 'WaitlistNew');
 const LandingPage = createLazyComponent(() => import('./pages/LandingPage').then(module => ({ default: module.LandingPage })), 'LandingPage');
@@ -245,6 +248,8 @@ function App() {
                 <Route path="/waitlist" element={<WaitlistNew />} />
                 <Route path="/share/:code" element={<PublicProfile />} />
                 <Route path="/scan/:scanId" element={<PublicProfile />} />
+                <Route path="/profile/:connectionCode" element={<PublicProfileEnhanced />} />
+                <Route path="/connect/:connectionCode" element={<PublicProfileEnhanced />} />
                 <Route path="/terms" element={<TermsConditions />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/story" element={<Story />} />
@@ -261,7 +266,7 @@ function App() {
                 } />
                 <Route path="/app/register" element={
                   <AccessGuard>
-                    <Register />
+                    <RegistrationWithInvitation />
                   </AccessGuard>
                 } />
                 <Route path="/app/reset-password" element={
