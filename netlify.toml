@@ -1,7 +1,7 @@
 [build]
-  base = "web"
+  base = "."
   command = "pnpm install --frozen-lockfile && pnpm --filter web build"
-  publish = "dist"
+  publish = "web/dist"
 
 [build.environment]
   NODE_VERSION = "22"
