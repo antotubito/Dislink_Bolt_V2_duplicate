@@ -234,6 +234,25 @@ export const handleSupabaseError = (error: any, operation: string) => {
 // Export base URL for use in other modules (already declared above)
 export { getBaseUrl };
 
+// Wait for Supabase to be ready (for backward compatibility)
+export async function waitForSupabaseReady(): Promise<void> {
+  return new Promise((resolve) => {
+    if (isSupabaseSessionReady()) {
+      resolve();
+    } else {
+      // Wait for connection to be healthy
+      const checkReady = () => {
+        if (isSupabaseSessionReady()) {
+          resolve();
+        } else {
+          setTimeout(checkReady, 100);
+        }
+      };
+      checkReady();
+    }
+  });
+}
+
 // Define debug functions first
 const debugFunctions = {
   testConnection: testConnection,
