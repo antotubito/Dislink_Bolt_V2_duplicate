@@ -95,39 +95,50 @@ export class PKCEUtils {
   }
 }
 
-// Enhanced email redirect URL generation
+// Enhanced email redirect URL generation with auto-detection
 export function getEmailRedirectUrl(): string {
-  const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
-  return `${baseUrl}/confirmed`;
+  // Import the base URL from supabase.ts to ensure consistency
+  const { getBaseUrl } = require('./supabase');
+  const baseUrl = getBaseUrl();
+  
+  const redirectUrl = `${baseUrl}/confirmed`;
+  
+  if (import.meta.env.DEV) {
+    console.log('🔗 Email redirect URL generated:', redirectUrl);
+  }
+  
+  return redirectUrl;
 }
 
-// Enhanced registration with PKCE support
-export async function registerWithPKCE(userData: {
+// Get the correct redirect URL after successful login/registration
+export function getPostAuthRedirectUrl(): string {
+  // Import the base URL from supabase.ts to ensure consistency
+  const { getBaseUrl } = require('./supabase');
+  const baseUrl = getBaseUrl();
+  
+  const redirectUrl = `${baseUrl}/app`;
+  
+  if (import.meta.env.DEV) {
+    console.log('🔗 Post-auth redirect URL generated:', redirectUrl);
+  }
+  
+  return redirectUrl;
+}
+
+// Simplified registration function
+export async function registerUser(userData: {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
 }): Promise<{ user: any; session: any; error: any; success: boolean }> {
   try {
-    logger.info('🔐 Starting PKCE-enabled registration for:', userData.email);
-
-    // Generate PKCE parameters
-    const codeVerifier = PKCEUtils.generateCodeVerifier();
-    const codeChallenge = await PKCEUtils.generateCodeChallenge(codeVerifier);
-
-    // Store code verifier for later use
-    PKCEUtils.storeCodeVerifier(codeVerifier);
+    logger.info('🔐 Starting registration for:', userData.email);
 
     // Get redirect URL
     const redirectUrl = getEmailRedirectUrl();
 
-    logger.info('🔐 PKCE parameters generated:', {
-      hasCodeVerifier: !!codeVerifier,
-      hasCodeChallenge: !!codeChallenge,
-      redirectUrl
-    });
-
-    // Attempt sign up with PKCE
+    // Attempt sign up
     const { data, error } = await supabase.auth.signUp({
       email: userData.email.trim().toLowerCase(),
       password: userData.password,
@@ -137,19 +148,24 @@ export async function registerWithPKCE(userData: {
           lastName: userData.lastName.trim(),
           full_name: `${userData.firstName.trim()} ${userData.lastName.trim()}`
         },
-        emailRedirectTo: redirectUrl,
-        codeChallenge: codeChallenge,
-        codeChallengeMethod: 'S256'
+        emailRedirectTo: redirectUrl
       }
     });
 
     if (error) {
       logger.error('Registration failed:', error);
-      PKCEUtils.clearCodeVerifier(); // Clear on error
+      
+      // Use shared error handling for consistent messaging
+      const { handleSupabaseError } = await import('./supabase');
+      const userFriendlyMessage = handleSupabaseError(error, 'registration');
+      
       return {
         user: null,
         session: null,
-        error,
+        error: {
+          ...error,
+          message: userFriendlyMessage
+        },
         success: false
       };
     }
@@ -164,7 +180,6 @@ export async function registerWithPKCE(userData: {
 
   } catch (err: any) {
     logger.error('Registration error:', err);
-    PKCEUtils.clearCodeVerifier(); // Clear on error
     return {
       user: null,
       session: null,
@@ -174,88 +189,25 @@ export async function registerWithPKCE(userData: {
   }
 }
 
-// Enhanced email verification with PKCE
-export async function verifyEmailWithPKCE(url: string): Promise<{
+// Simplified email verification
+export async function verifyEmail(url: string): Promise<{
   user: any;
   session: any;
   error: any;
   success: boolean;
 }> {
   try {
-    logger.info('🔐 Starting PKCE-enabled email verification', { url });
+    logger.info('🔐 Starting email verification', { url });
 
-    // Get stored code verifier
-    const codeVerifier = PKCEUtils.getCodeVerifier();
+    // Use standard verification
+    const { data, error } = await supabase.auth.exchangeCodeForSession(url);
 
-    if (!codeVerifier) {
-      logger.warn('No code verifier found, attempting standard verification');
-      // Fallback to standard verification without PKCE
-      try {
-        const { data, error } = await supabase.auth.exchangeCodeForSession(url);
-
-        if (error) {
-          logger.error('Standard verification failed:', error);
-          return { user: null, session: null, error, success: false };
-        }
-
-        logger.info('✅ Standard email verification successful (no PKCE)');
-        return { user: data.user, session: data.session, error: null, success: true };
-      } catch (err: any) {
-        logger.error('Standard verification error:', err);
-        return { user: null, session: null, error: err, success: false };
-      }
-    }
-
-    logger.info('🔐 Using stored code verifier for verification', {
-      hasCodeVerifier: !!codeVerifier,
-      codeVerifierLength: codeVerifier.length
-    });
-
-    // Extract code from URL
-    const urlObj = new URL(url);
-    const code = urlObj.searchParams.get('code');
-
-    if (!code) {
-      const error = new Error('No verification code found in URL');
-      logger.error('Verification failed:', error);
+    if (error) {
+      logger.error('Email verification failed:', error);
       return { user: null, session: null, error, success: false };
     }
 
-    logger.info('🔐 Attempting PKCE verification', {
-      hasCode: !!code,
-      codeLength: code.length,
-      hasCodeVerifier: !!codeVerifier
-    });
-
-    // Exchange code for session with PKCE
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code, codeVerifier);
-
-    if (error) {
-      logger.error('PKCE verification failed:', error);
-
-      // If PKCE fails, try standard verification as fallback
-      logger.info('🔄 PKCE failed, attempting standard verification as fallback');
-      try {
-        const { data: fallbackData, error: fallbackError } = await supabase.auth.exchangeCodeForSession(url);
-
-        if (fallbackError) {
-          logger.error('Fallback verification also failed:', fallbackError);
-          return { user: null, session: null, error, success: false };
-        }
-
-        logger.info('✅ Fallback verification successful');
-        PKCEUtils.clearCodeVerifier(); // Clear anyway
-        return { user: fallbackData.user, session: fallbackData.session, error: null, success: true };
-      } catch (fallbackErr: any) {
-        logger.error('Fallback verification error:', fallbackErr);
-        return { user: null, session: null, error, success: false };
-      }
-    }
-
-    // Clear code verifier after successful verification
-    PKCEUtils.clearCodeVerifier();
-
-    logger.info('✅ PKCE email verification successful');
+    logger.info('✅ Email verification successful');
     return { user: data.user, session: data.session, error: null, success: true };
 
   } catch (err: any) {
