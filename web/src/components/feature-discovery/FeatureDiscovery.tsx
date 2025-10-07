@@ -301,3 +301,6 @@ export function FeatureDiscovery({ onFeatureClick }: FeatureDiscoveryProps) {
     </AnimatePresence>
   );
 }
+
+// Default export for better compatibility
+export default FeatureDiscovery;

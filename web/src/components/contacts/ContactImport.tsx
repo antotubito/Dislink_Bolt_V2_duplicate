@@ -497,3 +497,6 @@ export function ContactImport({ isOpen, onClose, onImportComplete }: ContactImpo
     </AnimatePresence>
   );
 }
+
+// Default export for better compatibility
+export default ContactImport;

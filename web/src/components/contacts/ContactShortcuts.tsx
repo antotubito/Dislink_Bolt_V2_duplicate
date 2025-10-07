@@ -207,3 +207,6 @@ export function ContactShortcuts({
     </div>
   );
 }
+
+// Default export for better compatibility
+export default ContactShortcuts;

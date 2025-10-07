@@ -396,3 +396,6 @@ export function TutorialSystem({ isOpen, onClose, initialTutorial }: TutorialSys
     </AnimatePresence>
   );
 }
+
+// Default export for better compatibility
+export default TutorialSystem;
