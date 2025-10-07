@@ -7,7 +7,7 @@ import {
   MessageSquare as Discord, Twitch, AtSign as Threads,
   Coffee as BuyMeACoffee, Heart as Patreon, Rss as Substack,
   Send, Check, Briefcase, Video, Music, DollarSign, Calendar,
-  Ghost, Dribbble, X, Copy, QrCode, Share2, Edit2, AlertTriangle,
+  Ghost, Dribbble, X, Share2, Edit2, AlertTriangle,
   PlusCircle, ChevronDown, ChevronUp, Pencil
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,7 +24,6 @@ interface ProfileViewProps {
 export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
   const [showCompletionTips, setShowCompletionTips] = useState(true);
   const [expandedSections, setExpandedSections] = useState<string[]>(['about', 'social']);
-  const [copySuccess, setCopySuccess] = useState(false);
   
   // Log user data for debugging
   logger.debug('ProfileView rendering with user data:', { 
@@ -43,19 +42,6 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
     );
   };
 
-  // Handle copy profile link
-  const handleCopyProfileLink = async () => {
-    try {
-      const profileUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
-        ? `https://dislinkboltv2duplicate.netlify.app/share/${user.id}`
-        : `http://localhost:3001/share/${user.id}`;
-      await navigator.clipboard.writeText(profileUrl);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Error copying link:', err);
-    }
-  };
 
   // Handle case when user is null or undefined
   if (!user) {
@@ -248,15 +234,6 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
               >
                 <Edit2 className="-ml-1 mr-2 h-5 w-5 text-gray-600" />
                 <span>Edit Profile</span>
-              </button>
-              
-              <button
-                type="button"
-                onClick={handleCopyProfileLink}
-                className="inline-flex justify-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-              >
-                <Copy className="-ml-1 mr-2 h-5 w-5 text-gray-600" />
-                <span>{copySuccess ? 'Copied!' : 'Copy Link'}</span>
               </button>
             </div>
           </div>
