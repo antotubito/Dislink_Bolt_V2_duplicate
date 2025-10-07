@@ -6,7 +6,7 @@ import {
   Clock, Calendar, CheckCircle, XCircle, User, ArrowRight,
   ChevronDown, ChevronUp, Plus, QrCode, Filter, Search,
   Bell, MapPin, Tag, Briefcase, Building2, UserPlus, Users,
-  Sparkles, Zap, Globe, CalendarDays
+  Sparkles, Zap, Globe, CalendarDays, Lightbulb
 } from 'lucide-react';
 import {
   listConnectionRequests,
@@ -29,6 +29,10 @@ import {
   LazyQRModal,
   LazyLoadingFallback
 } from '../components/lazy';
+import { FeatureDiscovery } from '../components/feature-discovery/FeatureDiscovery';
+import { TutorialSystem } from '../components/tutorials/TutorialSystem';
+import { ContactImport } from '../components/contacts/ContactImport';
+import { ContactShortcuts } from '../components/contacts/ContactShortcuts';
 import { Suspense } from 'react';
 
 export function Home() {
@@ -49,6 +53,9 @@ export function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [showInsights, setShowInsights] = useState(true);
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [showContactImport, setShowContactImport] = useState(false);
+  const [filterQuery, setFilterQuery] = useState('');
 
   // Check authentication status directly
   useEffect(() => {
@@ -63,12 +70,20 @@ export function Home() {
   useEffect(() => {
     async function loadData() {
       try {
+        console.log('🏠 Home component: Starting data load...');
         setLoading(true);
-        const [requestsData, recentContactsData, contactsData] = await Promise.all([
-          listConnectionRequests(),
-          listRecentContacts(3),
-          listContacts()
-        ]);
+        
+        console.log('🏠 Home component: Loading connection requests...');
+        const requestsData = await listConnectionRequests();
+        console.log('🏠 Home component: Connection requests loaded:', requestsData.length);
+        
+        console.log('🏠 Home component: Loading recent contacts...');
+        const recentContactsData = await listRecentContacts(3);
+        console.log('🏠 Home component: Recent contacts loaded:', recentContactsData.length);
+        
+        console.log('🏠 Home component: Loading all contacts...');
+        const contactsData = await listContacts();
+        console.log('🏠 Home component: All contacts loaded:', contactsData.length);
 
         setRequests(requestsData);
         setRecentContacts(recentContactsData);
@@ -91,6 +106,7 @@ export function Home() {
 
         setAllFollowUps(sortedFollowUps);
 
+        console.log('🏠 Home component: Data loaded successfully');
         logger.info('Home data loaded', {
           requestsCount: requestsData.length,
           recentContactsCount: recentContactsData.length,
@@ -98,6 +114,12 @@ export function Home() {
           followUpsCount: followUps.length
         });
       } catch (error) {
+        console.error('❌ Home component: Error loading data:', error);
+        console.error('Error details:', {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined,
+          error: error
+        });
         logger.error('Error loading home data:', error);
       } finally {
         setLoading(false);
@@ -105,8 +127,10 @@ export function Home() {
     }
 
     if (user || isAuthenticated) {
+      console.log('🏠 Home component: User authenticated, loading data...');
       loadData();
     } else {
+      console.log('🏠 Home component: No user, skipping data load');
       setLoading(false);
     }
   }, [user, isAuthenticated]);
@@ -229,6 +253,48 @@ export function Home() {
     navigate(`/app/contact/${contactId}`);
   };
 
+  const handleFeatureClick = (featureId: string) => {
+    switch (featureId) {
+      case 'create-first-contact':
+        navigate('/app/contacts');
+        break;
+      case 'generate-qr-code':
+        setShowQRModal(true);
+        break;
+      case 'schedule-followup':
+        navigate('/app/contacts');
+        break;
+      case 'join-community':
+        // Scroll to daily needs section
+        const dailyNeedsSection = document.getElementById('daily-needs');
+        if (dailyNeedsSection) {
+          dailyNeedsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        break;
+      case 'complete-profile':
+        navigate('/app/profile');
+        break;
+    }
+  };
+
+  const handleContactImportComplete = (importedCount: number) => {
+    // Refresh contacts data
+    loadData();
+    logger.info('Contact import completed:', { importedCount });
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    // Filter contacts based on search query
+    // This would be implemented based on your filtering logic
+  };
+
+  const handleFilter = (filter: string) => {
+    setFilterQuery(filter);
+    // Apply filter to contacts
+    // This would be implemented based on your filtering logic
+  };
+
 
   // Filter contacts based on search query
   const filteredContacts = recentContacts.filter(contact => {
@@ -295,6 +361,21 @@ export function Home() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Feature Discovery */}
+      <FeatureDiscovery onFeatureClick={handleFeatureClick} />
+      
+      {/* Tutorial System */}
+      <TutorialSystem 
+        isOpen={showTutorial} 
+        onClose={() => setShowTutorial(false)} 
+      />
+      
+      {/* Contact Import Modal */}
+      <ContactImport 
+        isOpen={showContactImport} 
+        onClose={() => setShowContactImport(false)}
+        onImportComplete={handleContactImportComplete}
+      />
       {/* Insights Section - Compact and Collapsible */}
       <div className="mb-6">
         <div
@@ -310,8 +391,20 @@ export function Home() {
               <p className="text-sm text-gray-900/70">Track your connections and follow-ups</p>
             </div>
           </div>
-          <div className="flex items-center text-purple-600">
-            {showInsights ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowTutorial(true);
+              }}
+              className="text-blue-600 hover:text-blue-700 transition-colors"
+              title="View Tutorials"
+            >
+              <Lightbulb className="h-5 w-5" />
+            </button>
+            <div className="text-purple-600">
+              {showInsights ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+            </div>
           </div>
         </div>
 
@@ -515,6 +608,22 @@ export function Home() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Contact Management Shortcuts */}
+      {totalConnections === 0 && (
+        <div className="mb-8">
+          <ContactShortcuts
+            onQuickAdd={() => navigate('/app/contacts')}
+            onImport={() => setShowContactImport(true)}
+            onGenerateQR={() => setShowQRModal(true)}
+            onSearch={handleSearch}
+            onFilter={handleFilter}
+            totalContacts={totalConnections}
+            recentContacts={recentContacts.length}
+            upcomingFollowUps={allFollowUps.filter(f => !f.completed).length}
+          />
         </div>
       )}
 

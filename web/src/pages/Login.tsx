@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { login } from '@dislink/shared/lib/auth';
 import { supabase, getSafeSession } from '@dislink/shared/lib/supabase';
 import { logger } from '@dislink/shared/lib/logger';
+import { getPostAuthRedirectUrl } from '@dislink/shared/lib/authUtils';
 import { useCosmicTheme } from '../lib/cosmicThemes';
 
 export function Login() {
@@ -23,6 +24,7 @@ export function Login() {
   const [retryCount, setRetryCount] = useState(0);
   const [rememberMe, setRememberMe] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loginStep, setLoginStep] = useState<'idle' | 'authenticating' | 'loading-profile' | 'redirecting'>('idle');
 
   // Check for email confirmation message
   useEffect(() => {
@@ -147,6 +149,7 @@ export function Login() {
     }
 
     setIsLoggingIn(true);
+    setLoginStep('authenticating');
 
     try {
       // Clear timeout on successful start
@@ -171,7 +174,7 @@ export function Login() {
       }
 
       // Try the enhanced login function first
-      const result = await login({ email, password });
+      const result = await login(email, password);
 
       console.log('🔍 Login function result:', {
         success: result.success,
@@ -187,8 +190,10 @@ export function Login() {
       if (result.success && result.session) {
         logger.info('✅ Login successful with session - navigating immediately');
         console.log('🔍 SUCCESS: Login completed, preparing navigation');
+        setLoginStep('loading-profile');
 
         // Direct navigation after successful login with session
+        setLoginStep('redirecting');
         const redirectUrl = localStorage.getItem('redirectUrl');
         if (redirectUrl) {
           localStorage.removeItem('redirectUrl');
@@ -199,6 +204,8 @@ export function Login() {
           navigate('/app/onboarding');
         } else {
           logger.info('🔄 Redirecting to app home');
+          const redirectUrl = getPostAuthRedirectUrl();
+          console.log('🔗 Login success redirect URL:', redirectUrl);
           navigate('/app');
         }
 
@@ -296,6 +303,7 @@ export function Login() {
     } finally {
       clearTimeout(loginTimeout);
       setIsLoggingIn(false);
+      setLoginStep('idle');
     }
   };
 
@@ -310,7 +318,9 @@ export function Login() {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirmed`
+          emailRedirectTo: window.location.hostname === 'dislinkboltv2duplicate.netlify.app' 
+            ? 'https://dislinkboltv2duplicate.netlify.app/confirmed'
+            : 'http://localhost:3001/confirmed'
         }
       });
 
@@ -345,7 +355,9 @@ export function Login() {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         resetEmail,
         {
-          redirectTo: `${window.location.origin}/app/reset-password`
+          redirectTo: window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+        ? 'https://dislinkboltv2duplicate.netlify.app/app/reset-password'
+        : 'http://localhost:3001/app/reset-password'
         }
       );
 
@@ -623,7 +635,10 @@ export function Login() {
             ) : isLoggingIn ? (
               <div className="flex items-center">
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                Signing in...
+                {loginStep === 'authenticating' && 'Authenticating...'}
+                {loginStep === 'loading-profile' && 'Loading profile...'}
+                {loginStep === 'redirecting' && 'Redirecting...'}
+                {loginStep === 'idle' && 'Signing in...'}
               </div>
             ) : (
               'Sign In'
