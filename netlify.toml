@@ -1,29 +1,39 @@
 [build]
   base = "web"
-  command = "pnpm install && pnpm --filter web build"
+  command = "pnpm install --frozen-lockfile && pnpm --filter web build"
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
+  NODE_VERSION = "22"
   PNPM_VERSION = "10.16.0"
+  NPM_FLAGS = "--version"
+  VITE_SUPABASE_URL = "https://bbonxxvifycwpoeaxsor.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJib254eHZpZnljd3BvZWF4c29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ0Mjg5NDUsImV4cCI6MjA3MDAwNDk0NX0.rUuAcPIHVCfpAMEU2ADyb0F4Q3_eL0mkEyhBcbu0O70"
+  VITE_APP_URL = "https://dislinkboltv2duplicate.netlify.app"
+  VITE_SITE_URL = "https://dislinkboltv2duplicate.netlify.app"
+  VITE_GEOCODING_API_KEY = "AIzaSyBFWDLn8_ifGfI7t3yx17JjMzjwpX7cwUA"
+  VITE_GOOGLE_SHEETS_WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzZPJLqgrxcb1rn0BKJen080uiqJJBjXMkdv2d2CB3chdORB9TwdFWTJXKHslppDAtH/exec"
 
 # Handle email confirmation redirects from Supabase (implicit flow)
 [[redirects]]
   from = "/?code=*"
   to = "/confirmed?code=:code"
   status = 302
+  force = true
 
 # Handle auth callback redirects (PKCE flow)
 [[redirects]]
   from = "/?token_hash=*&type=*"
   to = "/confirmed?token_hash=:token_hash&type=:type"
   status = 302
+  force = true
 
 # Handle error redirects with OTP issues
 [[redirects]]
   from = "/?error=*&error_code=*&error_description=*"
   to = "/confirmed?error=:error&error_code=:error_code&error_description=:error_description"
   status = 302
+  force = true
 
 # Handle QR code invitation redirects
 [[redirects]]
@@ -49,8 +59,39 @@
   to = "/index.html"
   status = 200
 
+# Specific app routes instead of wildcard
 [[redirects]]
-  from = "/app/*"
+  from = "/app/login"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/register"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/onboarding"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/home"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/profile"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/settings"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/app/reset-password"
   to = "/index.html"
   status = 200
 
@@ -84,22 +125,18 @@
   to = "/index.html"
   status = 200
 
-[[redirects]]
-  from = "/share/*"
-  to = "/index.html"
-  status = 200
+# Removed /share/* redirect to prevent asset interference
 
 [[redirects]]
   from = "/demo"
   to = "/index.html"
   status = 200
 
-# Catch-all for other app routes (but not assets)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  conditions = {Path = ["!/assets/*", "!/icons/*", "!/sw.js", "!/manifest.json", "!/robots.txt", "!/security.txt", "!/favicon.ico", "!/apple-touch-icon.png"]}
+# Explicit redirects for app routes (excluding assets)
+# Removed /profile/* and /connect/* redirects to prevent asset interference
+
+# Note: Removed catch-all redirect to prevent asset interference
+# Assets should be served directly by Netlify without redirects
 
 # Headers for better security and performance
 [[headers]]
@@ -109,12 +146,26 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co wss://bbonxxvifycwpoeaxsor.supabase.co https://o4510074051756032.ingest.us.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org; frame-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co; worker-src 'self' blob:; object-src 'none'; base-uri 'self';"
+           Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co https://*.supabase.co wss://bbonxxvifycwpoeaxsor.supabase.co https://o4510074051756032.ingest.us.sentry.io https://*.ingest.us.sentry.io https://nominatim.openstreetmap.org https://fonts.googleapis.com; frame-src 'self' https://bbonxxvifycwpoeaxsor.supabase.co; worker-src 'self' blob:; object-src 'none'; base-uri 'self';"
     Permissions-Policy = "geolocation=*"
 
 [[headers]]
   for = "/assets/*"
   [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers for JavaScript modules
+[[headers]]
+  for = "/assets/js/*.js"
+  [headers.values]
+    Content-Type = "application/javascript; charset=utf-8"
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Headers for CSS files
+[[headers]]
+  for = "/assets/*.css"
+  [headers.values]
+    Content-Type = "text/css; charset=utf-8"
     Cache-Control = "public, max-age=31536000, immutable"
 
 [dev]
@@ -123,6 +174,4 @@
   publish = "dist"
   autoLaunch = true
 
-# Function settings for edge functions if needed
-[functions]
-  directory = "netlify/functions"
+# Function settings removed - not using Netlify functions
