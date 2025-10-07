@@ -4,7 +4,7 @@ import { useAuth } from '../components/auth/AuthProvider';
 import { ArrowLeft, Mail, Lock, Sparkles, AlertCircle, Timer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { signUp } from '@dislink/shared/lib/auth';
-import { registerWithPKCE } from '@dislink/shared/lib/authUtils';
+import { registerUser } from '@dislink/shared/lib/authUtils';
 import type { RegistrationData } from '@dislink/shared/types';
 import { sessionManager } from "@dislink/shared/lib/sessionManager";
 import { logger } from '@dislink/shared/lib/logger';
@@ -20,6 +20,8 @@ import {
   processRegistrationWithInvitation,
   type RegistrationWithInvitation
 } from '@dislink/shared/lib/invitationService';
+import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { AccessibleInput, AccessibleButton, SkipLink, LiveRegion } from '../components/ui/AccessibilityEnhancer';
 
 export function Register() {
   const navigate = useNavigate();
@@ -246,8 +248,8 @@ export function Register() {
         lastName: formData.lastName
       });
 
-      // Create account using enhanced PKCE registration
-      const result = await registerWithPKCE({
+      // Create account using simplified registration
+      const result = await registerUser({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -282,6 +284,7 @@ export function Register() {
 
       if (err instanceof Error) {
         if (err.message.includes('already exists') || err.message.includes('already registered')) {
+          console.log("❌ Registration blocked: existing user detected");
           setError(
             <div className="text-sm">
               <div className="flex items-center gap-2 mb-2">
@@ -289,7 +292,7 @@ export function Register() {
                 <span className="font-medium">Account Already Exists</span>
               </div>
               <p className="text-gray-600 mb-3">
-                An account with this email address is already registered.
+                This email is already registered. Please log in instead.
               </p>
               <div className="flex flex-col gap-2">
                 <Link
@@ -353,7 +356,9 @@ export function Register() {
         type: 'signup',
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/confirmed`
+          emailRedirectTo: window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+            ? 'https://dislinkboltv2duplicate.netlify.app/confirmed'
+            : 'http://localhost:3001/confirmed'
         }
       });
 
@@ -424,9 +429,11 @@ export function Register() {
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
+            <ErrorMessage 
+              error={error} 
+              onRetry={() => setError(null)}
+              retryText="Dismiss"
+            />
           )}
 
           <p className="text-sm text-gray-500 mb-4">
@@ -460,11 +467,18 @@ export function Register() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <SkipLink href="#main-content">Skip to main content</SkipLink>
+      <LiveRegion>
+        {loading && 'Creating your account, please wait...'}
+        {error && `Error: ${error}`}
+        {showVerificationPrompt && 'Please check your email for verification link'}
+      </LiveRegion>
+      
       <div className="text-center mb-8">
         <div className="mx-auto w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
           <Sparkles className="h-10 w-10 text-indigo-600" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900">Hey there! 👋</h1>
+        <h1 id="registration-title" className="text-3xl font-bold text-gray-900">Hey there! 👋</h1>
         <p className="mt-2 text-xl text-gray-600">Let's get you started with Dislink</p>
       </div>
 
@@ -472,12 +486,17 @@ export function Register() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full bg-white p-8 rounded-xl shadow-xl"
+        role="main"
+        id="main-content"
+        aria-labelledby="registration-title"
       >
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" aria-label="Registration form">
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
-            </div>
+            <ErrorMessage 
+              error={error} 
+              onRetry={() => setError(null)}
+              retryText="Dismiss"
+            />
           )}
 
           <div className="grid grid-cols-2 gap-4">
@@ -580,10 +599,12 @@ export function Register() {
             </p>
           </div>
 
-          <button
+          <AccessibleButton
             type="submit"
             disabled={loading || cooldownTime > 0 || isRegistering}
+            loading={loading}
             className="btn-captamundi-primary w-full flex justify-center items-center"
+            aria-label={loading ? 'Creating your account, please wait' : cooldownTime > 0 ? `Please wait ${cooldownTime} seconds before trying again` : 'Create your Dislink account'}
           >
             {loading ? (
               <div className="flex items-center">
@@ -598,7 +619,7 @@ export function Register() {
             ) : (
               'Create Account'
             )}
-          </button>
+          </AccessibleButton>
         </form>
 
         <div className="mt-6 text-center">
