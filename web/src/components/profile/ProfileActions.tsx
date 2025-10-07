@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { QRModal } from '../qr/QRModal';
 import { QRScanner } from '../qr/QRScanner';
 import { ConnectionConfirmation } from '@dislink/shared/components/qr/ConnectionConfirmation';
+import { PublicProfilePreview } from './PublicProfilePreview';
 import { validateQRCode } from "@dislink/shared/lib/qr";
 import { createConnectionRequest } from '@dislink/shared/lib/contacts';
 import type { User } from '@dislink/shared/types';
@@ -19,6 +20,8 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
   const [showQRModal, setShowQRModal] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewConnectionCode, setPreviewConnectionCode] = useState<string>('');
   const [scannedUser, setScannedUser] = useState<User | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -71,12 +74,13 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
       const { generateUserQRCode } = await import('@dislink/shared/lib/qrConnection');
       const qrData = await generateUserQRCode(user.id);
       
-      // Open the public profile in a new tab
-      window.open(qrData.publicProfileUrl, '_blank');
+      // Show static preview modal (NO TRACKING)
+      setPreviewConnectionCode(qrData.connectionCode);
+      setShowPreview(true);
       
-      console.log('🔍 Preview Public Profile URL:', qrData.publicProfileUrl);
+      console.log('🔍 Preview Public Profile (Static, No Tracking):', qrData.publicProfileUrl);
     } catch (err) {
-      console.error('Error generating preview URL:', err);
+      console.error('Error generating preview:', err);
     }
   };
 
@@ -216,6 +220,17 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
           }}
           onConfirm={handleConfirmConnection}
           user={scannedUser}
+        />
+      )}
+
+      {/* Static Preview Modal (No Tracking) */}
+      {showPreview && previewConnectionCode && (
+        <PublicProfilePreview
+          connectionCode={previewConnectionCode}
+          onClose={() => {
+            setShowPreview(false);
+            setPreviewConnectionCode('');
+          }}
         />
       )}
     </>
