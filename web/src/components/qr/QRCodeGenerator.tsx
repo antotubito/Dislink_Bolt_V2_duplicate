@@ -44,12 +44,12 @@ export function QRCodeGenerator({ user, onShare, onDownload }: QRCodeGeneratorPr
       setLoading(true);
       setError(null);
 
-      // Generate QR code for authenticated user
-      const data = await generateUserQRCode(user.id);
+      // Generate QR code for authenticated user (no parameters needed - uses current session)
+      const data = await generateUserQRCode();
       setQrData(data);
 
-      // Load scan statistics
-      const scanStats = await getQRScanStats(user.id);
+      // Load scan statistics (no parameters needed - uses current session)
+      const scanStats = await getQRScanStats();
       setStats(scanStats);
 
       logger.info('QR data loaded successfully:', { userId: user.id });

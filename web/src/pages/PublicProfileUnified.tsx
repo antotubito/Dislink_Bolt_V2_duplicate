@@ -22,9 +22,9 @@ import {
   Download,
   QrCode
 } from 'lucide-react';
-import { validateConnectionCode, markQRCodeAsUsed } from '@dislink/shared/lib/qrConnectionEnhanced';
+import { validateConnectionCode, markQRCodeAsUsed, submitInvitationRequest } from '@dislink/shared/lib/qrConnectionEnhanced';
 import { logger } from '@dislink/shared/lib/logger';
-import type { QRConnectionData } from '@dislink/shared/lib/qrConnectionEnhanced';
+import type { QRConnectionData, InvitationRequest } from '@dislink/shared/lib/qrConnectionEnhanced';
 
 export function PublicProfileUnified() {
   const { connectionCode } = useParams<{ connectionCode: string }>();
@@ -34,6 +34,11 @@ export function PublicProfileUnified() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showInvitationForm, setShowInvitationForm] = useState(false);
+  const [invitationEmail, setInvitationEmail] = useState('');
+  const [invitationMessage, setInvitationMessage] = useState('');
+  const [submittingInvitation, setSubmittingInvitation] = useState(false);
+  const [invitationSuccess, setInvitationSuccess] = useState(false);
 
   useEffect(() => {
     if (connectionCode) {
@@ -105,6 +110,37 @@ export function PublicProfileUnified() {
     } else {
       // Fallback to copy
       handleCopyLink();
+    }
+  };
+
+  const handleInvitationSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!connectionCode || !invitationEmail.trim()) return;
+
+    try {
+      setSubmittingInvitation(true);
+      
+      const invitationData: InvitationRequest = {
+        email: invitationEmail.trim(),
+        message: invitationMessage.trim() || undefined,
+        location: undefined // Could add location tracking here
+      };
+
+      const result = await submitInvitationRequest(connectionCode, invitationData);
+      
+      if (result.success) {
+        setInvitationSuccess(true);
+        setShowInvitationForm(false);
+        setInvitationEmail('');
+        setInvitationMessage('');
+      } else {
+        setError(result.message || 'Failed to send invitation');
+      }
+    } catch (err) {
+      console.error('Error submitting invitation:', err);
+      setError('Failed to send invitation. Please try again.');
+    } finally {
+      setSubmittingInvitation(false);
     }
   };
 
@@ -307,6 +343,91 @@ export function PublicProfileUnified() {
                     </a>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Invitation Form */}
+            {!invitationSuccess && (
+              <div className="mb-8">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">Connect with {name}</h2>
+                {!showInvitationForm ? (
+                  <div className="text-center">
+                    <p className="text-gray-600 mb-4">
+                      Want to connect with {name}? Enter your email to send a connection request.
+                    </p>
+                    <button
+                      onClick={() => setShowInvitationForm(true)}
+                      className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                    >
+                      Request Connection
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleInvitationSubmit} className="space-y-4">
+                    <div>
+                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                        Your Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        value={invitationEmail}
+                        onChange={(e) => setInvitationEmail(e.target.value)}
+                        required
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="your.email@example.com"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                        Message (Optional)
+                      </label>
+                      <textarea
+                        id="message"
+                        value={invitationMessage}
+                        onChange={(e) => setInvitationMessage(e.target.value)}
+                        rows={3}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Hi! I'd like to connect with you..."
+                      />
+                    </div>
+                    
+                    <div className="flex space-x-3">
+                      <button
+                        type="submit"
+                        disabled={submittingInvitation || !invitationEmail.trim()}
+                        className="flex-1 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {submittingInvitation ? 'Sending...' : 'Send Request'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setShowInvitationForm(false)}
+                        className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            )}
+
+            {/* Success Message */}
+            {invitationSuccess && (
+              <div className="mb-8 p-6 bg-green-50 border border-green-200 rounded-lg text-center">
+                <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-green-900 mb-2">Request Sent!</h3>
+                <p className="text-green-700 mb-4">
+                  Your connection request has been sent to {name}. You'll receive an email when they respond.
+                </p>
+                <button
+                  onClick={() => setInvitationSuccess(false)}
+                  className="px-4 py-2 text-green-700 border border-green-300 rounded-lg hover:bg-green-100 transition-colors"
+                >
+                  Send Another Request
+                </button>
               </div>
             )}
 
