@@ -48,6 +48,11 @@ class Logger {
   }
 
   private log(level: LogLevel, message: string, data?: any) {
+    // Check if logging is enabled for this level in current environment
+    if (!this.shouldLog(level)) {
+      return;
+    }
+
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -55,10 +60,12 @@ class Logger {
       data: data ? this.formatData(data) : undefined
     };
 
-    // Add to in-memory logs
-    this.logs.push(entry);
-    if (this.logs.length > this.maxLogs) {
-      this.logs.shift(); // Remove oldest log
+    // Add to in-memory logs (only in development)
+    if (this.isDevelopment()) {
+      this.logs.push(entry);
+      if (this.logs.length > this.maxLogs) {
+        this.logs.shift(); // Remove oldest log
+      }
     }
 
     // Format console output
@@ -67,7 +74,9 @@ class Logger {
     // Log to console with appropriate level
     switch (level) {
       case 'debug':
-        console.debug(formattedMessage, entry.data ? JSON.stringify(entry.data, null, 2) : '');
+        if (this.isDevelopment()) {
+          console.debug(formattedMessage, entry.data ? JSON.stringify(entry.data, null, 2) : '');
+        }
         break;
       case 'info':
         console.info(formattedMessage, entry.data ? JSON.stringify(entry.data, null, 2) : '');
@@ -84,9 +93,29 @@ class Logger {
     }
 
     // In production, you might want to send logs to a service
-    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') {
+    if (this.isProduction()) {
       this.persistLog(entry);
     }
+  }
+
+  private shouldLog(level: LogLevel): boolean {
+    // In production, only log warnings and errors
+    if (this.isProduction()) {
+      return level === 'warn' || level === 'error';
+    }
+    
+    // In development, log everything
+    return true;
+  }
+
+  private isDevelopment(): boolean {
+    return import.meta.env?.DEV === true || 
+           (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development');
+  }
+
+  private isProduction(): boolean {
+    return import.meta.env?.PROD === true || 
+           (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production');
   }
 
   private async persistLog(entry: LogEntry) {

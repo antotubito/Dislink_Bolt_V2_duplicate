@@ -561,6 +561,11 @@ export function Login() {
                 id="email"
                 required
                 disabled={!loading && !!user}
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 input-focus touch-target"
                 value={email}
                 onChange={(e) => {
@@ -585,6 +590,11 @@ export function Login() {
                 id="password"
                 required
                 disabled={!loading && !!user}
+                inputMode="text"
+                autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500 input-focus touch-target"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

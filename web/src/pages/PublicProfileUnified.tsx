@@ -374,6 +374,11 @@ export function PublicProfileUnified() {
                         value={invitationEmail}
                         onChange={(e) => setInvitationEmail(e.target.value)}
                         required
+                        inputMode="email"
+                        autoComplete="email"
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck="false"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         placeholder="your.email@example.com"
                       />
@@ -388,6 +393,11 @@ export function PublicProfileUnified() {
                         value={invitationMessage}
                         onChange={(e) => setInvitationMessage(e.target.value)}
                         rows={3}
+                        inputMode="text"
+                        autoComplete="off"
+                        autoCapitalize="sentences"
+                        autoCorrect="on"
+                        spellCheck="true"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         placeholder="Hi! I'd like to connect with you..."
                       />

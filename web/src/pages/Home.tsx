@@ -22,7 +22,6 @@ import { supabase } from '@dislink/shared/lib/supabase';
 import { logger } from '@dislink/shared/lib/logger';
 import { useCosmicTheme } from '../lib/cosmicThemes';
 import { 
-  LazyContactCard,
   LazyConnectionStats,
   LazyWorldwideStats,
   LazyFollowUpCalendar,
@@ -30,6 +29,7 @@ import {
   LazyQRModal,
   LazyLoadingFallback
 } from '../components/lazy';
+import ContactCard from '../components/contacts/ContactCard';
 import { FeatureDiscovery } from '../components/feature-discovery/FeatureDiscovery';
 import { TutorialSystem } from '../components/tutorials/TutorialSystem';
 import { ContactImport } from '../components/contacts/ContactImport';
@@ -601,7 +601,7 @@ export function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
               {requests.map((request) => (
                 <Suspense key={request.id} fallback={<LazyLoadingFallback />}>
-                  <LazyContactCard
+                  <ContactCard
                     contact={request}
                     onEdit={() => { }}
                     onDelete={() => { }}

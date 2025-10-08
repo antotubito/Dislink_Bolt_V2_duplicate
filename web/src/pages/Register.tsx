@@ -509,6 +509,11 @@ export function Register() {
                   type="text"
                   id="firstName"
                   required
+                  inputMode="text"
+                  autoComplete="given-name"
+                  autoCapitalize="words"
+                  autoCorrect="on"
+                  spellCheck="true"
                   className="block w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                   value={formData.firstName}
                   onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
@@ -525,6 +530,11 @@ export function Register() {
                 type="text"
                 id="lastName"
                 required
+                inputMode="text"
+                autoComplete="family-name"
+                autoCapitalize="words"
+                autoCorrect="on"
+                spellCheck="true"
                 className="block w-full px-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 value={formData.lastName}
                 onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
@@ -543,6 +553,11 @@ export function Register() {
                 type="email"
                 id="email"
                 required
+                inputMode="email"
+                autoComplete="email"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -561,6 +576,11 @@ export function Register() {
                 type="password"
                 id="password"
                 required
+                inputMode="text"
+                autoComplete="new-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -579,6 +599,11 @@ export function Register() {
                 type="password"
                 id="confirmPassword"
                 required
+                inputMode="text"
+                autoComplete="new-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck="false"
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-xl focus:ring-purple-600 focus:border-purple-600 sm:text-sm"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}

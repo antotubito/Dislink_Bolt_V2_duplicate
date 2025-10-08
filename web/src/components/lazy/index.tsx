@@ -87,12 +87,12 @@ export const LazyFaceVerification = lazy(() =>
   }))
 );
 
-// Additional heavy components from Home page
-export const LazyContactCard = lazy(() => 
-  import('../contacts/ContactCard').then(module => ({ 
-    default: module.default 
-  }))
-);
+// ContactCard is used frequently, keep as static import
+// export const LazyContactCard = lazy(() => 
+//   import('../contacts/ContactCard').then(module => ({ 
+//     default: module.default 
+//   }))
+// );
 
 export const LazyConnectionStats = lazy(() => 
   import('../contacts/ConnectionStats').then(module => ({ 
@@ -167,18 +167,18 @@ export const LazyTierModal = lazy(() =>
   }))
 );
 
-// Need-related components
-export const LazyNeedStory = lazy(() => 
-  import('../home/NeedStory').then(module => ({ 
-    default: module.NeedStory 
-  }))
-);
+// Need-related components - used frequently, keep as static imports
+// export const LazyNeedStory = lazy(() => 
+//   import('../home/NeedStory').then(module => ({ 
+//     default: module.NeedStory 
+//   }))
+// );
 
-export const LazyNeedStoryModal = lazy(() => 
-  import('../home/NeedStoryModal').then(module => ({ 
-    default: module.NeedStoryModal 
-  }))
-);
+// export const LazyNeedStoryModal = lazy(() => 
+//   import('../home/NeedStoryModal').then(module => ({ 
+//     default: module.NeedStoryModal 
+//   }))
+// );
 
 // Loading fallback component
 export const LazyLoadingFallback = () => (
