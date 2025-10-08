@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 import { logger } from '@dislink/shared/lib/logger';
@@ -7,10 +7,29 @@ import { shouldRedirectToOnboarding } from '@dislink/shared/lib/authFlow';
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const [onboardingCheck, setOnboardingCheck] = useState<boolean | null>(null);
 
-  // Show loading while AuthProvider is initializing
-  if (loading) {
-    logger.info('🔐 ProtectedRoute: AuthProvider loading, showing loading state');
+  // Check onboarding status when user is available
+  useEffect(() => {
+    if (user && onboardingCheck === null) {
+      const checkOnboarding = async () => {
+        try {
+          const needsOnboarding = await shouldRedirectToOnboarding(user, location.pathname);
+          setOnboardingCheck(needsOnboarding);
+        } catch (error) {
+          logger.error('Failed to check onboarding status:', error);
+          // On error, assume no onboarding needed to prevent redirect loops
+          setOnboardingCheck(false);
+        }
+      };
+      
+      checkOnboarding();
+    }
+  }, [user, location.pathname, onboardingCheck]);
+
+  // Show loading while AuthProvider is initializing or onboarding check is pending
+  if (loading || (user && onboardingCheck === null)) {
+    logger.info('🔐 ProtectedRoute: Loading or checking onboarding status');
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -34,7 +53,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   // If user is logged in but onboarding not complete, redirect to onboarding
-  if (shouldRedirectToOnboarding(user, location.pathname)) {
+  if (onboardingCheck === true) {
     logger.info('🔐 ProtectedRoute: User needs onboarding, redirecting');
     return <Navigate to="/app/onboarding" replace />;
   }

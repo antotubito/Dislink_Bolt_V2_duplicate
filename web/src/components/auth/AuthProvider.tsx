@@ -220,14 +220,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               logger.info('User profile loaded:', { userId: profile.id, onboardingComplete: profile.onboardingComplete });
             } else {
               console.warn('🔐 AuthProvider: Profile not found, using auth user data');
-              // Fallback to auth user if profile not found, but mark onboarding as incomplete
+              // Fallback to auth user if profile not found
+              // Don't assume onboarding status - let the database query determine it
               const fallbackUser = {
                 ...session.user,
-                onboardingComplete: false // Explicitly mark as incomplete for new users
+                // Don't set onboardingComplete to false - this causes false redirects
+                // The shouldRedirectToOnboarding function will handle the database check
               } as unknown as User;
               setUser(fallbackUser);
               setIsOwner(true);
-              logger.warn('Profile not found, using auth user data with onboarding incomplete');
+              logger.warn('Profile not found, using auth user data without assuming onboarding status');
             }
           } catch (profileError) {
             console.error('🔐 AuthProvider: Failed to load user profile:', profileError);
@@ -301,15 +303,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               setError(null);
               logger.info('User profile updated from auth state change:', { userId: profile.id, onboardingComplete: profile.onboardingComplete });
             } else {
-              // Fallback to auth user if profile not found, but mark onboarding as incomplete
+              // Fallback to auth user if profile not found
+              // Don't assume onboarding status - let the database query determine it
               const fallbackUser = {
                 ...session.user,
-                onboardingComplete: false // Explicitly mark as incomplete for new users
+                // Don't set onboardingComplete to false - this causes false redirects
+                // The shouldRedirectToOnboarding function will handle the database check
               } as unknown as User;
               setUser(fallbackUser);
               setIsOwner(true);
               setError(null);
-              logger.warn('Profile not found during auth state change, using auth user data with onboarding incomplete');
+              logger.warn('Profile not found during auth state change, using auth user data without assuming onboarding status');
             }
             
             // Initialize user preferences for new session (don't block on this)

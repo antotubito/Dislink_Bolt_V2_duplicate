@@ -258,10 +258,10 @@ export function setupAuthStateListener(
 /**
  * Check if user should be redirected to onboarding
  */
-export function shouldRedirectToOnboarding(
+export async function shouldRedirectToOnboarding(
   user: any,
   currentPath: string
-): boolean {
+): Promise<boolean> {
   // Don't redirect if already on onboarding
   if (currentPath === '/app/onboarding') {
     return false;
@@ -298,14 +298,9 @@ export function shouldRedirectToOnboarding(
   // Handle both camelCase (onboardingComplete) and snake_case (onboarding_complete) field names
   const onboardingComplete = user.onboardingComplete ?? user.onboarding_complete;
   
-  // Only redirect to onboarding if onboarding is explicitly false or undefined
-  // If onboardingComplete is true, user has completed onboarding
-  const needsOnboarding = onboardingComplete === false || onboardingComplete === undefined || onboardingComplete === null;
-  
   logger.info('🔐 Onboarding check:', { 
     userId: user.id, 
     onboardingComplete: onboardingComplete, 
-    needsOnboarding,
     currentPath,
     userKeys: Object.keys(user),
     userOnboardingComplete: user.onboardingComplete,
@@ -313,32 +308,58 @@ export function shouldRedirectToOnboarding(
     type: typeof onboardingComplete
   });
   
-  // Additional safety check: if user has been using the app for a while, 
-  // don't redirect to onboarding unless explicitly needed
-  if (user.createdAt && typeof user.createdAt === 'string') {
-    const createdAt = new Date(user.createdAt);
-    const daysSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
-    
-    // If user was created more than 1 day ago and onboarding status is unclear,
-    // assume they've completed onboarding to prevent redirect loops
-    if (daysSinceCreation > 1 && onboardingComplete === null) {
-      logger.info('🔐 User created more than 1 day ago with unclear onboarding status, assuming completed');
-      return false;
-    }
+  // If we have a clear onboarding status, use it
+  if (onboardingComplete === true) {
+    logger.info('🔐 User has completed onboarding (from user object)');
+    return false;
   }
   
-  return needsOnboarding;
+  if (onboardingComplete === false) {
+    logger.info('🔐 User needs onboarding (from user object)');
+    return true;
+  }
+  
+  // If onboarding status is unclear (null/undefined), do a direct database check
+  // This prevents false redirects when profile loading fails
+  logger.info('🔐 Onboarding status unclear, checking database directly...');
+  
+  try {
+    const needsOnboarding = await checkOnboardingStatus(user.id);
+    logger.info('🔐 Database onboarding check result:', { userId: user.id, needsOnboarding });
+    return needsOnboarding;
+  } catch (error) {
+    logger.error('🔐 Failed to check onboarding status from database:', error);
+    
+    // Additional safety check: if user has been using the app for a while, 
+    // don't redirect to onboarding unless explicitly needed
+    if (user.createdAt && typeof user.createdAt === 'string') {
+      const createdAt = new Date(user.createdAt);
+      const daysSinceCreation = (Date.now() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
+      
+      // If user was created more than 1 day ago and we can't check onboarding status,
+      // assume they've completed onboarding to prevent redirect loops
+      if (daysSinceCreation > 1) {
+        logger.info('🔐 User created more than 1 day ago with unclear onboarding status, assuming completed');
+        return false;
+      }
+    }
+    
+    // If we can't determine onboarding status and user is relatively new,
+    // assume they need onboarding for safety
+    logger.warn('🔐 Cannot determine onboarding status, assuming onboarding needed for safety');
+    return true;
+  }
 }
 
 /**
  * Get the appropriate redirect path after authentication
  */
-export function getPostAuthRedirectPath(
+export async function getPostAuthRedirectPath(
   user: any,
   storedRedirectUrl?: string
-): string {
+): Promise<string> {
   // If user needs onboarding, go to onboarding
-  if (shouldRedirectToOnboarding(user, '/app')) {
+  if (await shouldRedirectToOnboarding(user, '/app')) {
     return '/app/onboarding';
   }
 
