@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getContact, addNote, addFollowUp, toggleFollowUp, updateContactSharing } from '@dislink/shared/lib/contacts';
+import { getContact, addNote, deleteNote, addFollowUp, toggleFollowUp, updateContactSharing } from '@dislink/shared/lib/contacts';
 import type { Contact } from '@dislink/shared/types';
 import { ContactProfile as ContactProfileComponent } from '../components/contacts/ContactProfile';
 
@@ -44,6 +44,21 @@ function ContactProfilePage() {
       return newNote;
     } catch (error) {
       console.error('Error adding note:', error);
+      throw error;
+    }
+  }
+
+  async function handleDeleteNote(noteId: string) {
+    if (!contact) return;
+    
+    try {
+      await deleteNote(contact.id, noteId);
+      setContact({
+        ...contact,
+        notes: contact.notes.filter(note => note.id !== noteId)
+      });
+    } catch (error) {
+      console.error('Error deleting note:', error);
       throw error;
     }
   }
@@ -130,6 +145,7 @@ function ContactProfilePage() {
         onEdit={() => {/* Edit functionality */}}
         onDelete={handleDeleteContact}
         onAddNote={handleAddNote}
+        onDeleteNote={handleDeleteNote}
         onAddFollowUp={handleAddFollowUp}
         onToggleFollowUp={handleToggleFollowUp}
         onUpdateSharing={handleUpdateSharing}

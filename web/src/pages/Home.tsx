@@ -14,7 +14,8 @@ import {
   declineConnectionRequest,
   listRecentContacts,
   listContacts,
-  updateContactTier
+  updateContactTier,
+  toggleFollowUp
 } from '@dislink/shared/lib/contacts';
 import type { Contact, FollowUp } from '@dislink/shared/types';
 import { supabase } from '@dislink/shared/lib/supabase';
@@ -217,8 +218,10 @@ export function Home() {
 
   const handleToggleFollowUp = async (contactId: string, followUpId: string, completed: boolean) => {
     try {
-      // In a real implementation, this would call an API to update the follow-up
       logger.info('Toggling follow-up completion', { contactId, followUpId, completed });
+
+      // Call the actual database function to persist the change
+      await toggleFollowUp(contactId, followUpId, completed);
 
       // Update local state
       setAllFollowUps(prev =>

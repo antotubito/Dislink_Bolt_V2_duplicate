@@ -18,6 +18,7 @@ interface ContactProfileProps {
   onEdit: () => void;
   onDelete: () => void;
   onAddNote?: (content: string) => Promise<void>;
+  onDeleteNote?: (noteId: string) => Promise<void>;
   onAddFollowUp?: (data: { dueDate: Date; description: string }) => Promise<void>;
   onToggleFollowUp?: (id: string, completed: boolean) => Promise<void>;
   onUpdateSharing?: (contactId: string, sharedLinks: Record<string, boolean>) => Promise<void>;
@@ -29,6 +30,7 @@ export function ContactProfile({
   onEdit,
   onDelete,
   onAddNote,
+  onDeleteNote,
   onAddFollowUp,
   onToggleFollowUp,
   onUpdateSharing
@@ -295,6 +297,7 @@ export function ContactProfile({
                       <ContactNotes
                         notes={contact.notes}
                         onAddNote={onAddNote}
+                        onDeleteNote={onDeleteNote}
                       />
                     </div>
                   </motion.div>
