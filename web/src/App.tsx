@@ -18,7 +18,6 @@ import { redisCache } from './lib/cache/RedisCache';
 import { backupManager } from './lib/backup/BackupManager';
 // Temporarily import LandingPage directly to avoid lazy loading issues
 import { LandingPage } from './pages/LandingPage';
-import { TestLanding } from './pages/TestLanding';
 
 // Legacy error boundary removed - using SecureErrorBoundary instead
 
@@ -192,7 +191,7 @@ function App() {
               <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 {/* Public Routes - No authentication required */}
-                <Route path="/" element={<TestLanding />} />
+                <Route path="/" element={<LandingPage />} />
                 <Route path="/waitlist" element={<WaitlistNew />} />
                 <Route path="/profile/:connectionCode" element={<PublicProfileUnified />} />
                 <Route path="/connect/:connectionCode" element={<PublicProfileUnified />} />
