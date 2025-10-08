@@ -140,7 +140,7 @@ const CreateNeedModal: React.FC<CreateNeedModalProps> = ({ onClose, onSubmit }) 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.9, opacity: 0 }}
-        className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden"
+        className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -160,7 +160,7 @@ const CreateNeedModal: React.FC<CreateNeedModalProps> = ({ onClose, onSubmit }) 
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-600 hover:text-gray-500 hover:bg-gray-100 rounded-full"
+              className="p-2 text-gray-600 hover:text-gray-500 hover:bg-gray-100 rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <X className="h-5 w-5" />
             </button>

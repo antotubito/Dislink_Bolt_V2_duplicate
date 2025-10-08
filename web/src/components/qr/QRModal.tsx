@@ -145,7 +145,7 @@ export function QRModal({ isOpen, onClose, user }: QRModalProps) {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl border border-indigo-100"
+            className="bg-white rounded-xl p-4 sm:p-6 max-w-sm w-full max-h-[90vh] overflow-y-auto shadow-xl border border-indigo-100"
           >
             <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-100">
               <div className="flex items-center">
@@ -161,7 +161,7 @@ export function QRModal({ isOpen, onClose, user }: QRModalProps) {
                 whileHover={{ scale: 1.1, backgroundColor: '#F3F4F6' }}
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               >
                 <X className="h-5 w-5 text-gray-500" />
               </motion.button>
@@ -199,13 +199,13 @@ export function QRModal({ isOpen, onClose, user }: QRModalProps) {
                     </div>
                   )}
                   
-                  <div className="flex justify-center space-x-3 mt-6">
+                  <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
                     <motion.button
                       animate={copyControls}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleCopyLink}
-                      className="flex items-center px-4 py-2 btn-captamundi-primary text-white rounded-lg hover:btn-captamundi-primary hover:opacity-90 shadow-sm"
+                      className="flex items-center justify-center px-4 py-3 btn-captamundi-primary text-white rounded-lg hover:btn-captamundi-primary hover:opacity-90 shadow-sm min-h-[44px]"
                     >
                       <Copy className="h-4 w-4 mr-1.5" />
                       {copySuccess ? 'Copied!' : 'Copy Link'}
@@ -216,7 +216,7 @@ export function QRModal({ isOpen, onClose, user }: QRModalProps) {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleDownload}
-                      className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 shadow-sm"
+                      className="flex items-center justify-center px-4 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 shadow-sm min-h-[44px]"
                     >
                       <Download className="h-4 w-4 mr-1.5" />
                       {qrDownloaded ? 'Saved!' : 'Save'}

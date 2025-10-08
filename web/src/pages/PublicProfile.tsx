@@ -402,7 +402,7 @@ export function PublicProfile() {
   const sharedLinks = profile.publicProfile?.defaultSharedLinks || {};
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pb-[env(safe-area-inset-bottom)]">
       {/* Dislink Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -443,7 +443,7 @@ export function PublicProfile() {
           </div>
         </div>
 
-        <div className="relative max-w-4xl mx-auto px-4 py-16 text-center">
+        <div className="relative max-w-4xl mx-auto px-4 py-8 sm:py-16 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -459,13 +459,13 @@ export function PublicProfile() {
               <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6">
                 <Heart className="h-8 w-8 text-white" />
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-4 leading-tight">
                 Every Great Relationship<br />
                 <span className="bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
                   Starts with a Single Connection
                 </span>
               </h1>
-              <p className="text-xl md:text-2xl opacity-90 font-light max-w-3xl mx-auto leading-relaxed">
+              <p className="text-lg sm:text-xl md:text-2xl opacity-90 font-light max-w-3xl mx-auto leading-relaxed">
                 This is your moment to build something meaningful with <span className="font-semibold">{profile.name}</span>
               </p>
             </motion.div>
@@ -602,17 +602,17 @@ export function PublicProfile() {
               )}
 
               {/* Share button */}
-              <div className="mt-4 flex space-x-3">
+              <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={handleCopyLink}
-                  className="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100"
+                  className="inline-flex items-center justify-center px-4 py-3 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 min-h-[44px]"
                 >
                   <Copy className="h-4 w-4 mr-1.5" />
                   {copySuccess ? 'Copied!' : 'Copy Link'}
                 </button>
                 <a
                   href={`mailto:?subject=Connect with ${profile.name} on Dislink&body=Check out ${profile.name}'s profile on Dislink: ${window.location.href}`}
-                  className="inline-flex items-center px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100"
+                  className="inline-flex items-center justify-center px-4 py-3 bg-indigo-50 text-indigo-700 rounded-lg hover:bg-indigo-100 min-h-[44px]"
                 >
                   <Share2 className="h-4 w-4 mr-1.5" />
                   Share
@@ -624,7 +624,7 @@ export function PublicProfile() {
 
         {/* Email Form */}
         {showEmailForm && (
-          <div className="bg-white p-6 rounded-xl shadow-lg border border-indigo-100">
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-indigo-100">
             <div className="text-center mb-8">
               <h2 className="text-xl font-bold text-gray-900 mb-2">
                 Choose Your Connection Method
@@ -800,11 +800,11 @@ export function PublicProfile() {
 
       {/* Profile Content */}
       {profile.publicProfile?.enabled && (
-        <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto px-4 py-4 sm:py-8">
           {/* Bio Section */}
           {allowedFields.bio && profile.bio && (
             <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
                   <BookOpen className="h-6 w-6 mr-2" />
                   About

@@ -244,7 +244,7 @@ export function Profile() {
 
   // Render profile
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-8 pb-[env(safe-area-inset-bottom)]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Actions */}
         <div className="mb-6">
@@ -259,21 +259,19 @@ export function Profile() {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
             </div>
-            <div className="ml-3">
+            <div className="ml-3 flex-1 min-w-0">
               <p className="text-sm font-medium text-green-800">
                 Your profile has been updated and notifications have been sent to your selected circles.
               </p>
             </div>
-            <div className="ml-auto pl-3">
-              <div className="-mx-1.5 -my-1.5">
-                <button
-                  onClick={() => setNotificationSent(false)}
-                  className="inline-flex bg-green-50 rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                >
-                  <span className="sr-only">Dismiss</span>
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
+            <div className="ml-3 flex-shrink-0">
+              <button
+                onClick={() => setNotificationSent(false)}
+                className="inline-flex bg-green-50 rounded-md p-2 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 min-h-[44px] min-w-[44px] items-center justify-center"
+              >
+                <span className="sr-only">Dismiss</span>
+                <X className="h-5 w-5" />
+              </button>
             </div>
           </div>
         )}
@@ -288,7 +286,7 @@ export function Profile() {
         {/* Profile Content */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           {isEditing ? (
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               <ProfileEdit
                 user={localUser}
                 onSave={handleSave}

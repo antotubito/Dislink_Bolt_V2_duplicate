@@ -67,8 +67,8 @@ export function Home() {
     checkAuth();
   }, []);
 
-  useEffect(() => {
-    async function loadData() {
+  // Define loadData function
+  const loadData = async () => {
       try {
         console.log('🏠 Home component: Starting data load...');
         setLoading(true);
@@ -124,8 +124,9 @@ export function Home() {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
+  useEffect(() => {
     if (user || isAuthenticated) {
       console.log('🏠 Home component: User authenticated, loading data...');
       loadData();
@@ -360,7 +361,7 @@ export function Home() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 pb-[env(safe-area-inset-bottom)]">
       {/* Feature Discovery */}
       <FeatureDiscovery onFeatureClick={handleFeatureClick} />
       
@@ -417,13 +418,13 @@ export function Home() {
               transition={{ duration: 0.3 }}
               className="overflow-hidden"
             >
-              <div className="pt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-1">
+              <div className="pt-3 grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-1">
                   <Suspense fallback={<LazyLoadingFallback />}>
                     <LazyWorldwideStats />
                   </Suspense>
                 </div>
-                <div className="md:col-span-2">
+                <div className="lg:col-span-2">
                   <Suspense fallback={<LazyLoadingFallback />}>
                     <LazyConnectionStats
                       totalConnections={totalConnections}
@@ -450,31 +451,32 @@ export function Home() {
             <input
               type="text"
               placeholder="Search contacts, companies, or locations..."
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-purple-600 focus:border-purple-600 transition-all duration-200 group-hover:border-purple-600 group-hover:shadow-sm"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-purple-600 focus:border-purple-600 transition-all duration-200 group-hover:border-purple-600 group-hover:shadow-sm text-base"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 sm:flex-nowrap flex-wrap">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center px-3 py-2 border rounded-lg text-sm font-medium transition-all duration-200 ${showFilters || activeFilter
+              className={`inline-flex items-center px-4 py-3 border rounded-lg text-sm font-medium transition-all duration-200 min-h-[44px] ${showFilters || activeFilter
                 ? 'border-indigo-600 text-indigo-600 bg-indigo-50 shadow-sm'
                 : 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 hover:shadow-sm'
                 }`}
             >
               <Filter className="h-5 w-5 mr-1.5" />
-              Filters
+              <span className="hidden xs:inline">Filters</span>
               {activeFilter && <span className="ml-1 text-xs bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded-full">1</span>}
             </button>
 
             <button
               onClick={() => setShowQRModal(true)}
-              className="btn-captamundi-primary inline-flex items-center px-3 py-2 rounded-lg text-sm"
+              className="btn-captamundi-primary inline-flex items-center px-4 py-3 rounded-lg text-sm min-h-[44px] flex-1 sm:flex-none"
             >
               <QrCode className="h-5 w-5 mr-1.5" />
               <span className="hidden sm:inline">Show QR</span>
+              <span className="sm:hidden">QR</span>
             </button>
           </div>
         </div>
@@ -505,7 +507,7 @@ export function Home() {
                       <button
                         key={filter.id}
                         onClick={() => setActiveFilter(isActive ? null : filter.id)}
-                        className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isActive
+                        className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all min-h-[44px] ${isActive
                           ? 'bg-purple-600/10 text-purple-600 border border-purple-600/20'
                           : 'bg-gray-100 text-gray-900/70 hover:bg-purple-600/5 border border-gray-200'
                           }`}
@@ -593,7 +595,7 @@ export function Home() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
               {requests.map((request) => (
                 <Suspense key={request.id} fallback={<LazyLoadingFallback />}>
                   <LazyContactCard
@@ -698,7 +700,7 @@ export function Home() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
             {filteredContacts.map((connection) => (
               <Suspense key={connection.id} fallback={<LazyLoadingFallback />}>
                 <LazyContactCard

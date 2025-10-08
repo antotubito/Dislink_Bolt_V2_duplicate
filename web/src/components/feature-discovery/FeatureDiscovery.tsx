@@ -137,7 +137,7 @@ export function FeatureDiscovery({ onFeatureClick }: FeatureDiscoveryProps) {
         .limit(1);
 
       // Check if user has completed their profile
-      const profileComplete = user.jobTitle && user.company && user.bio?.location;
+      const profileComplete = Boolean(user.jobTitle && user.company && user.bio?.location);
 
       // Update features with completion status
       const updatedFeatures = allFeatures.map(feature => {
@@ -238,9 +238,9 @@ export function FeatureDiscovery({ onFeatureClick }: FeatureDiscoveryProps) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        className="fixed top-4 right-4 z-50 max-w-sm"
+        className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 sm:max-w-sm z-50"
       >
-        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4 w-full sm:w-auto">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
@@ -250,7 +250,7 @@ export function FeatureDiscovery({ onFeatureClick }: FeatureDiscoveryProps) {
             </div>
             <button
               onClick={handleDismissAll}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-2 -m-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <X className="w-4 h-4" />
             </button>
@@ -267,7 +267,7 @@ export function FeatureDiscovery({ onFeatureClick }: FeatureDiscoveryProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer min-h-[60px]"
                 onClick={() => handleFeatureClick(feature)}
               >
                 <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm">

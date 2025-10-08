@@ -360,10 +360,10 @@ export function Layout() {
           transition={{ duration: 0.2 }}
           className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-purple-600/20 sm:hidden z-50"
         >
-          <div className="grid grid-cols-4 h-16">
+          <div className="grid grid-cols-4 h-16 pb-[env(safe-area-inset-bottom)]">
             <Link
               to="/app"
-              className={`flex flex-col items-center justify-center ${location.pathname === '/app' ? 'text-purple-600' : 'text-gray-900/70'
+              className={`flex flex-col items-center justify-center min-h-[44px] ${location.pathname === '/app' ? 'text-purple-600' : 'text-gray-900/70'
                 }`}
             >
               <Home className="h-6 w-6" />
@@ -371,7 +371,7 @@ export function Layout() {
             </Link>
             <Link
               to="/app/contacts"
-              className={`flex flex-col items-center justify-center ${location.pathname === '/app/contacts' ? 'text-purple-600' : 'text-gray-900/70'
+              className={`flex flex-col items-center justify-center min-h-[44px] ${location.pathname === '/app/contacts' ? 'text-purple-600' : 'text-gray-900/70'
                 }`}
             >
               <Users className="h-6 w-6" />
@@ -381,7 +381,7 @@ export function Layout() {
             {/* QR Code Button */}
             <button
               onClick={() => setShowQRModal(true)}
-              className="flex flex-col items-center justify-center relative group"
+              className="flex flex-col items-center justify-center relative group min-h-[44px]"
             >
               <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center -mt-5 shadow-lg group-hover:shadow-purple-600/50 transition-all duration-300">
                 <QrCode className="h-6 w-6 text-white group-hover:scale-110 transition-transform duration-300" />
@@ -395,7 +395,7 @@ export function Layout() {
 
             <Link
               to="/app/profile"
-              className={`flex flex-col items-center justify-center ${location.pathname === '/app/profile' ? 'text-purple-600' : 'text-gray-900/70'
+              className={`flex flex-col items-center justify-center min-h-[44px] ${location.pathname === '/app/profile' ? 'text-purple-600' : 'text-gray-900/70'
                 }`}
             >
               <UserCircle2 className="h-6 w-6" />
@@ -406,7 +406,7 @@ export function Layout() {
       )}
 
       {/* Main Content */}
-      <main className={`pt-20 ${showAuthenticatedUI && !hideNavigation ? 'mb-16 sm:mb-6' : ''} flex-1`}>
+      <main className={`pt-20 ${showAuthenticatedUI && !hideNavigation ? 'mb-16 sm:mb-6 pb-[env(safe-area-inset-bottom)]' : ''} flex-1`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
