@@ -10,7 +10,7 @@ import {
   Loader2,
   ArrowLeft
 } from 'lucide-react';
-import { processRegistrationWithInvitation } from '@dislink/shared/lib/qrConnectionEnhanced';
+import { registerUser } from '@dislink/shared/lib/authUtils';
 import { supabase } from '@dislink/shared/lib/supabase';
 import { logger } from '@dislink/shared/lib/logger';
 
@@ -156,15 +156,13 @@ export function RegistrationWithInvitation() {
     setError(null);
 
     try {
-      // Process registration with invitation
-      const result = await processRegistrationWithInvitation(
-        formData.email,
-        formData.password,
-        formData.firstName,
-        formData.lastName,
-        invitationId || undefined,
-        connectionCode || undefined
-      );
+      // Use simplified registration
+      const result = await registerUser({
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName
+      });
 
       if (result.success) {
         setSuccess(true);
@@ -176,13 +174,14 @@ export function RegistrationWithInvitation() {
         }, 3000);
       } else {
         // Enhanced error handling for existing users
-        if (result.message?.includes('already registered') || 
-            result.message?.includes('already exists') ||
-            result.message?.includes('User already registered')) {
+        const errorMessage = result.error?.message || 'Registration failed';
+        if (errorMessage.includes('already registered') || 
+            errorMessage.includes('already exists') ||
+            errorMessage.includes('User already registered')) {
           console.log("❌ Registration blocked: existing user detected");
           setError('This email is already registered. Please log in instead.');
         } else {
-          setError(result.message);
+          setError(errorMessage);
         }
       }
     } catch (err) {
