@@ -248,7 +248,13 @@ export function Profile() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Profile Actions */}
         <div className="mb-6">
-          <ProfileActions user={localUser} onEdit={() => setIsEditing(true)} />
+          {localUser && localUser.id ? (
+            <ProfileActions user={localUser} onEdit={() => setIsEditing(true)} />
+          ) : (
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-yellow-700 text-sm">Loading profile actions...</p>
+            </div>
+          )}
         </div>
 
         {/* Notification Success Message */}

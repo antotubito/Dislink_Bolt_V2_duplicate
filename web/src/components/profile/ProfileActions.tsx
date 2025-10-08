@@ -20,6 +20,16 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
   const [previewConnectionCode, setPreviewConnectionCode] = useState<string>('');
   const [scannedUser, setScannedUser] = useState<User | null>(null);
 
+  // Add defensive programming to handle null/undefined user
+  if (!user || !user.id) {
+    console.error('ProfileActions: Invalid user object provided', { user });
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <p className="text-red-600 text-sm">Error: Invalid user data</p>
+      </div>
+    );
+  }
+
   const handleScan = async (data: string) => {
     try {
       const scannedProfile = await validateQRCode(data);
@@ -50,6 +60,12 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
 
   const handlePreviewPublicProfile = async () => {
     try {
+      // Validate user object before proceeding
+      if (!user || !user.id) {
+        console.error('Cannot generate preview: Invalid user object', { user });
+        return;
+      }
+
       // For preview, we'll use a mock connection code to avoid database issues
       // This prevents 406 errors and connection code validation problems
       const mockConnectionCode = `preview_${user.id}_${Date.now()}`;
@@ -61,6 +77,7 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
       console.log('🔍 Preview Public Profile (Static, No Tracking, Mock Code):', mockConnectionCode);
     } catch (err) {
       console.error('Error generating preview:', err);
+      // Don't crash the component, just log the error
     }
   };
 

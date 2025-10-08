@@ -48,6 +48,10 @@ export function PublicProfilePreview({ connectionCode, onClose }: PublicProfileP
       // For preview, we'll get the current user's profile data directly
       // This avoids the need to validate connection codes and prevents 406 errors
       const { supabase } = await import('@dislink/shared/lib/supabase');
+      
+      if (!supabase) {
+        throw new Error('Failed to import Supabase client');
+      }
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session?.user) {
@@ -124,6 +128,27 @@ export function PublicProfilePreview({ connectionCode, onClose }: PublicProfileP
     }
     return url;
   };
+
+  // Safety check for connectionCode
+  if (!connectionCode) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Invalid Preview</h3>
+            <p className="text-gray-600 mb-4">No connection code provided for preview.</p>
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
