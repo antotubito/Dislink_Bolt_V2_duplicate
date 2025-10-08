@@ -3,7 +3,7 @@
  * Implements Cache First, Network First, Stale While Revalidate, and Network Only strategies
  */
 
-const CACHE_VERSION = 'v1.0.2';
+const CACHE_VERSION = 'v1.0.3';
 const STATIC_CACHE_NAME = `dislink-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE_NAME = `dislink-dynamic-${CACHE_VERSION}`;
 const API_CACHE_NAME = `dislink-api-${CACHE_VERSION}`;
@@ -18,9 +18,8 @@ const CACHE_STRATEGIES = {
   CACHE_ONLY: 'cache-only'
 };
 
-// Static assets to cache immediately
+// Static assets to cache immediately (excluding root path to prevent blank page issues)
 const STATIC_ASSETS = [
-  '/',
   '/manifest.json',
   '/favicon.ico'
 ];
@@ -124,6 +123,11 @@ self.addEventListener('fetch', (event) => {
 // Determine caching strategy for a request
 function getCachingStrategy(request) {
   const url = new URL(request.url);
+  
+  // Root path - always network first to prevent blank page issues
+  if (url.pathname === '/' || url.pathname === '/index.html') {
+    return CACHE_STRATEGIES.NETWORK_FIRST;
+  }
   
   // API requests - network first
   if (API_ENDPOINTS.some(endpoint => url.pathname.startsWith(endpoint))) {
