@@ -66,18 +66,20 @@ export function ProfileActions({ user, onEdit }: ProfileActionsProps) {
         return;
       }
 
-      // For preview, we'll use a mock connection code to avoid database issues
-      // This prevents 406 errors and connection code validation problems
-      const mockConnectionCode = `preview_${user.id}_${Date.now()}`;
+      // Generate a real connection code for the preview
+      const { generateUserQRCode } = await import('@dislink/shared/lib/qrConnectionEnhanced');
+      const qrData = await generateUserQRCode();
       
-      // Show static preview modal (NO TRACKING)
-      setPreviewConnectionCode(mockConnectionCode);
-      setShowPreview(true);
+      // Open the public profile in a new tab
+      window.open(qrData.publicProfileUrl, '_blank');
       
-      console.log('🔍 Preview Public Profile (Static, No Tracking, Mock Code):', mockConnectionCode);
+      console.log('🔍 Preview Public Profile opened:', qrData.publicProfileUrl);
     } catch (err) {
       console.error('Error generating preview:', err);
-      // Don't crash the component, just log the error
+      // Fallback: show modal with mock data
+      const mockConnectionCode = `preview_${user.id}_${Date.now()}`;
+      setPreviewConnectionCode(mockConnectionCode);
+      setShowPreview(true);
     }
   };
 

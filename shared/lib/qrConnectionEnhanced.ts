@@ -103,10 +103,11 @@ export async function generateUserQRCode(): Promise<QRConnectionData> {
 
     if (codeError) throw codeError;
 
-    // Generate public profile URL
-    const publicProfileUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
-      ? `https://dislinkboltv2duplicate.netlify.app/profile/${connectionCode}`
-      : `http://localhost:3001/profile/${connectionCode}`;
+    // Generate public profile URL - use unified route structure
+    const baseUrl = window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
+      ? 'https://dislinkboltv2duplicate.netlify.app'
+      : 'http://localhost:3001';
+    const publicProfileUrl = `${baseUrl}/profile/${connectionCode}`;
 
     const qrData: QRConnectionData = {
       userId: profile.id,

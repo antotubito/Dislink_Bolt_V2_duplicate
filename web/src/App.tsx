@@ -58,8 +58,7 @@ const ResetPassword = createLazyComponent(() => import('./pages/ResetPassword').
 const Demo = createLazyComponent(() => import('./pages/Demo').then(module => ({ default: module.Demo })), 'Demo');
 const EmailConfirmationUnified = createLazyComponent(() => import('./pages/EmailConfirmationUnified').then(module => ({ default: module.EmailConfirmationUnified })), 'EmailConfirmationUnified');
 const Confirmed = createLazyComponent(() => import('./pages/Confirmed').then(module => ({ default: module.Confirmed })), 'Confirmed');
-const PublicProfile = createLazyComponent(() => import('./pages/PublicProfile').then(module => ({ default: module.PublicProfile })), 'PublicProfile');
-const PublicProfileEnhanced = createLazyComponent(() => import('./pages/PublicProfileEnhanced').then(module => ({ default: module.PublicProfileEnhanced })), 'PublicProfileEnhanced');
+const PublicProfileUnified = createLazyComponent(() => import('./pages/PublicProfileUnified').then(module => ({ default: module.PublicProfileUnified })), 'PublicProfileUnified');
 const RegistrationWithInvitation = createLazyComponent(() => import('./components/auth/RegistrationWithInvitation').then(module => ({ default: module.RegistrationWithInvitation })), 'RegistrationWithInvitation');
 const Onboarding = createLazyComponent(() => import('./pages/Onboarding').then(module => ({ default: module.Onboarding })), 'Onboarding');
 const WaitlistNew = createLazyComponent(() => import('./pages/WaitlistNew').then(module => ({ default: module.WaitlistNew })), 'WaitlistNew');
@@ -194,10 +193,9 @@ function App() {
                 {/* Public Routes - No authentication required */}
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/waitlist" element={<WaitlistNew />} />
-                <Route path="/share/:code" element={<PublicProfile />} />
-                <Route path="/scan/:scanId" element={<PublicProfile />} />
-                <Route path="/profile/:connectionCode" element={<PublicProfileEnhanced />} />
-                <Route path="/connect/:connectionCode" element={<PublicProfileEnhanced />} />
+                <Route path="/profile/:connectionCode" element={<PublicProfileUnified />} />
+                <Route path="/connect/:connectionCode" element={<PublicProfileUnified />} />
+                <Route path="/share/:connectionCode" element={<PublicProfileUnified />} />
                 <Route path="/terms" element={<TermsConditions />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/story" element={<Story />} />
