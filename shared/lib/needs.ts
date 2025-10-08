@@ -50,7 +50,7 @@ export async function listNeeds(): Promise<Need[]> {
         created_at,
         updated_at,
         category_label,
-        profiles!needs_user_id_fkey(name, profile_image)
+        profiles!needs_user_id_fkey(first_name, last_name, profile_image)
       `)
       .eq('is_satisfied', false)
       .gt('expires_at', now.toISOString())
@@ -61,10 +61,10 @@ export async function listNeeds(): Promise<Need[]> {
       throw error;
     }
     
-    return data?.map(need => ({
+    const mappedNeeds = data?.map(need => ({
       id: need.id,
       userId: need.user_id,
-      userName: need.profiles?.name || 'Unknown User',
+      userName: need.profiles ? `${need.profiles.first_name || ''} ${need.profiles.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
       userImage: need.profiles?.profile_image,
       category: need.category,
       categoryLabel: need.category_label || generateCategoryLabel(need.category),
@@ -75,6 +75,13 @@ export async function listNeeds(): Promise<Need[]> {
       isSatisfied: need.is_satisfied,
       createdAt: new Date(need.created_at)
     })) || [];
+
+    // Sort needs to show current user's needs first, then others
+    return mappedNeeds.sort((a, b) => {
+      if (a.userId === user.id && b.userId !== user.id) return -1;
+      if (a.userId !== user.id && b.userId === user.id) return 1;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
   } catch (error) {
     logger.error('Error listing needs:', error);
     return [];
@@ -92,7 +99,7 @@ export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'created
     // Get user profile for name and image
     const { data: profile } = await supabase
       .from('profiles')
-      .select('name, profile_image')
+      .select('first_name, last_name, profile_image')
       .eq('id', user.id)
       .single();
 
@@ -119,7 +126,7 @@ export async function createNeed(needData: Omit<Need, 'id' | 'userId' | 'created
     return {
       id: data.id,
       userId: data.user_id,
-      userName: profile?.name || 'Unknown User',
+      userName: profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
       userImage: profile?.profile_image,
       category: data.category,
       categoryLabel: data.category_label,
@@ -155,7 +162,7 @@ export async function getNeed(id: string): Promise<Need | null> {
         created_at,
         updated_at,
         category_label,
-        profiles!needs_user_id_fkey(name, profile_image)
+        profiles!needs_user_id_fkey(first_name, last_name, profile_image)
       `)
       .eq('id', id)
       .single();
@@ -168,7 +175,7 @@ export async function getNeed(id: string): Promise<Need | null> {
     return {
       id: data.id,
       userId: data.user_id,
-      userName: data.profiles?.name || 'Unknown User',
+      userName: data.profiles ? `${data.profiles.first_name || ''} ${data.profiles.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
       userImage: data.profiles?.profile_image,
       category: data.category,
       categoryLabel: data.category_label || generateCategoryLabel(data.category),
@@ -216,7 +223,7 @@ export async function getNeedReplies(needId: string, currentUserId?: string): Pr
       .from('need_replies')
       .select(`
         *,
-        profiles!need_replies_user_id_fkey(name, profile_image)
+        profiles!need_replies_user_id_fkey(first_name, last_name, profile_image)
       `)
       .eq('need_id', needId)
       .order('created_at', { ascending: true });
@@ -227,7 +234,7 @@ export async function getNeedReplies(needId: string, currentUserId?: string): Pr
       id: reply.id,
       needId: reply.need_id,
       userId: reply.user_id,
-      userName: reply.profiles?.name || 'Unknown User',
+      userName: reply.profiles ? `${reply.profiles.first_name || ''} ${reply.profiles.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
       userImage: reply.profiles?.profile_image,
       message: reply.message,
       replyToUserId: reply.reply_to_user_id,
@@ -349,7 +356,7 @@ export async function getArchivedNeeds(): Promise<Need[]> {
         created_at,
         updated_at,
         category_label,
-        profiles!needs_user_id_fkey(name, profile_image)
+        profiles!needs_user_id_fkey(first_name, last_name, profile_image)
       `)
       .eq('user_id', user.id)
       .or(`is_satisfied.eq.true,expires_at.lt.${now.toISOString()}`)
@@ -360,7 +367,7 @@ export async function getArchivedNeeds(): Promise<Need[]> {
     return data?.map(need => ({
       id: need.id,
       userId: need.user_id,
-      userName: need.profiles?.name || 'Unknown User',
+      userName: need.profiles ? `${need.profiles.first_name || ''} ${need.profiles.last_name || ''}`.trim() || 'Unknown User' : 'Unknown User',
       userImage: need.profiles?.profile_image,
       category: need.category,
       categoryLabel: need.category_label || generateCategoryLabel(need.category),
