@@ -95,6 +95,8 @@ export async function generateUserQRCode(): Promise<QRConnectionData> {
         is_active: true,
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
         created_at: new Date().toISOString()
+      }, {
+        onConflict: 'code'
       })
       .select()
       .single();
