@@ -22,7 +22,7 @@ export * from './mobileOptimized';
 export * from './mobileUtils';
 export * from './monitoring';
 export * from './nominatimService';
-export * from './qr';
+export * from './qrConnectionEnhanced';
 export * from './qrConnectionHandler';
 export * from './qrEnhanced';
 export * from './sentry';
