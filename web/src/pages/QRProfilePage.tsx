@@ -16,10 +16,10 @@ import {
   AlertCircle,
   CheckCircle
 } from 'lucide-react';
-import { validateConnectionCode, trackQRScan } from '@dislink/shared/lib/qrConnection';
+import { validateConnectionCode, trackQRScan } from '@dislink/shared/lib/qrConnectionEnhanced';
 import { InvitationForm } from '../components/qr/InvitationForm';
 import { logger } from '@dislink/shared/lib/logger';
-import type { QRConnectionData } from '@dislink/shared/lib/qrConnection';
+import type { QRConnectionData } from '@dislink/shared/lib/qrConnectionEnhanced';
 
 export function QRProfilePage() {
   const { connectionCode } = useParams<{ connectionCode: string }>();

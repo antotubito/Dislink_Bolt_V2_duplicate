@@ -19,7 +19,7 @@ import {
   createConnectionMemory,
   validateInvitationCode 
 } from "@dislink/shared/lib/qrEnhanced";
-import { generateUserQRCode } from "@dislink/shared/lib/qrConnection";
+import { generateUserQRCode } from "@dislink/shared/lib/qrConnectionEnhanced";
 import { useAuth } from '../auth/AuthProvider';
 
 interface TestResult {

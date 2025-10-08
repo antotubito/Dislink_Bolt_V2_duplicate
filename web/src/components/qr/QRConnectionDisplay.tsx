@@ -11,7 +11,7 @@ import {
   CheckCircle,
   AlertCircle
 } from 'lucide-react';
-import { generateUserQRCode, getQRScanStats } from '@dislink/shared/lib/qrConnection';
+import { generateUserQRCode, getQRScanStats } from '@dislink/shared/lib/qrConnectionEnhanced';
 import { logger } from '@dislink/shared/lib/logger';
 import type { User } from '@dislink/shared/types/user';
 

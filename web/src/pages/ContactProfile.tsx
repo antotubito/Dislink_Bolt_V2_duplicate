@@ -108,6 +108,15 @@ function ContactProfilePage() {
     }
   }
 
+  function handleBadgesUpdate(badges: string[]) {
+    if (!contact) return;
+    
+    setContact({
+      ...contact,
+      badges
+    });
+  }
+
   async function handleDeleteContact() {
     // Implementation will be added when backend is ready
     navigate('/app/contacts');
@@ -149,6 +158,7 @@ function ContactProfilePage() {
         onAddFollowUp={handleAddFollowUp}
         onToggleFollowUp={handleToggleFollowUp}
         onUpdateSharing={handleUpdateSharing}
+        onBadgesUpdate={handleBadgesUpdate}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ConnectionConfirmation } from '@dislink/shared/components/qr/ConnectionConfirmation';
 import { PublicProfilePreview } from './PublicProfilePreview';
-import { validateQRCode } from "@dislink/shared/lib/qr";
+import { validateQRCode } from "@dislink/shared/lib/qrConnectionEnhanced";
 import { createConnectionRequest } from '@dislink/shared/lib/contacts';
 import type { User } from '@dislink/shared/types';
 

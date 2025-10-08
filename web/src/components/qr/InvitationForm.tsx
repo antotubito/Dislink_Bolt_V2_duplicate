@@ -10,7 +10,7 @@ import {
   Loader2,
   User
 } from 'lucide-react';
-import { submitInvitationRequest, type InvitationRequest } from '@dislink/shared/lib/qrConnection';
+import { submitInvitationRequest, type InvitationRequest } from '@dislink/shared/lib/qrConnectionEnhanced';
 import { logger } from '@dislink/shared/lib/logger';
 
 interface InvitationFormProps {

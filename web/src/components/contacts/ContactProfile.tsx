@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import type { Contact } from '@dislink/shared/types';
 import { ContactNotes } from './ContactNotes';
 import { ContactFollowUps } from './ContactFollowUps';
+import { ContactBadges } from './ContactBadges';
 import { SOCIAL_CATEGORIES } from '@dislink/shared/constants/social';
 import { SharingSettingsModal } from '@dislink/shared/components/modals/SharingSettingsModal';
 
@@ -22,6 +23,7 @@ interface ContactProfileProps {
   onAddFollowUp?: (data: { dueDate: Date; description: string }) => Promise<void>;
   onToggleFollowUp?: (id: string, completed: boolean) => Promise<void>;
   onUpdateSharing?: (contactId: string, sharedLinks: Record<string, boolean>) => Promise<void>;
+  onBadgesUpdate?: (badges: string[]) => void;
 }
 
 export function ContactProfile({
@@ -33,7 +35,8 @@ export function ContactProfile({
   onDeleteNote,
   onAddFollowUp,
   onToggleFollowUp,
-  onUpdateSharing
+  onUpdateSharing,
+  onBadgesUpdate
 }: ContactProfileProps) {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -266,6 +269,15 @@ export function ContactProfile({
                 </AnimatePresence>
               </div>
             )}
+
+            {/* Badges Section */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <ContactBadges
+                contact={contact}
+                onBadgesUpdate={onBadgesUpdate || (() => {})}
+                canEdit={true}
+              />
+            </div>
 
             {/* Notes Section */}
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">

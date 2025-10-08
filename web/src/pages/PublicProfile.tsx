@@ -12,9 +12,7 @@ import {
   Smartphone, ArrowUpRight, Clock, Bell
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { validateQRCode, requestConnection } from "@dislink/shared/lib/qr";
-import { validateConnectionCode, markQRCodeAsUsed } from "@dislink/shared/lib/qrConnection";
-import { validateConnectionCode as validateConnectionCodeEnhanced } from "@dislink/shared/lib/qrConnectionEnhanced";
+import { validateQRCode, validateConnectionCode, markQRCodeAsUsed } from "@dislink/shared/lib/qrConnectionEnhanced";
 import {
   trackEnhancedQRScan,
   sendEmailInvitation,

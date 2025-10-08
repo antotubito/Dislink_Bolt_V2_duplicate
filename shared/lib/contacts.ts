@@ -606,6 +606,143 @@ export async function toggleFollowUp(contactId: string, followUpId: string, comp
   }
 }
 
+/**
+ * Assign badges to a contact
+ */
+export async function assignBadges(contactId: string, badges: string[]): Promise<void> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    // Verify contact ownership
+    const { data: contact } = await supabase
+      .from('contacts')
+      .select('id')
+      .eq('id', contactId)
+      .eq('user_id', user.id)
+      .single();
+    
+    if (!contact) throw new Error('Contact not found');
+
+    // Validate badges (ensure they're from the allowed list)
+    const allowedBadges = [
+      'vibe-setter', 'energy-booster', 'smooth-operator', 'idea-spark',
+      'detail-ninja', 'mood-maven', 'reliable-one', 'wildcard-wizard'
+    ];
+    
+    const validBadges = badges.filter(badge => allowedBadges.includes(badge));
+    
+    if (validBadges.length !== badges.length) {
+      logger.warn('Some badges were filtered out as invalid:', { 
+        provided: badges, 
+        valid: validBadges 
+      });
+    }
+
+    const { error } = await supabase
+      .from('contacts')
+      .update({ 
+        badges: validBadges,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', contactId);
+    
+    if (error) throw error;
+    
+    logger.info('Badges assigned successfully:', { contactId, badges: validBadges });
+  } catch (error) {
+    logger.error('Error assigning badges:', error);
+    throw error;
+  }
+}
+
+/**
+ * Remove a badge from a contact
+ */
+export async function removeBadge(contactId: string, badgeToRemove: string): Promise<void> {
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    // Get current badges
+    const { data: contact, error: fetchError } = await supabase
+      .from('contacts')
+      .select('badges')
+      .eq('id', contactId)
+      .eq('user_id', user.id)
+      .single();
+    
+    if (fetchError || !contact) throw new Error('Contact not found');
+
+    // Remove the badge
+    const currentBadges = contact.badges || [];
+    const updatedBadges = currentBadges.filter(badge => badge !== badgeToRemove);
+
+    const { error } = await supabase
+      .from('contacts')
+      .update({ 
+        badges: updatedBadges,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', contactId);
+    
+    if (error) throw error;
+    
+    logger.info('Badge removed successfully:', { contactId, removedBadge: badgeToRemove });
+  } catch (error) {
+    logger.error('Error removing badge:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get available badges for assignment
+ */
+export function getAvailableBadges(): Array<{ id: string; name: string; description: string }> {
+  return [
+    {
+      id: 'vibe-setter',
+      name: 'Vibe Setter',
+      description: 'Creates the perfect atmosphere'
+    },
+    {
+      id: 'energy-booster',
+      name: 'Energy Booster',
+      description: 'Brings energy to the group'
+    },
+    {
+      id: 'smooth-operator',
+      name: 'Smooth Operator',
+      description: 'Handles things with style'
+    },
+    {
+      id: 'idea-spark',
+      name: 'Idea Spark',
+      description: 'Ignites brilliant conversations'
+    },
+    {
+      id: 'detail-ninja',
+      name: 'Detail Ninja',
+      description: 'Catches the little things'
+    },
+    {
+      id: 'mood-maven',
+      name: 'Mood Maven',
+      description: 'Shifts vibes to positive ones'
+    },
+    {
+      id: 'reliable-one',
+      name: 'The Reliable One',
+      description: 'Go-to problem solver'
+    },
+    {
+      id: 'wildcard-wizard',
+      name: 'Wildcard Wizard',
+      description: 'Surprises in the best way'
+    }
+  ];
+}
+
 export async function approveConnectionRequest(
   requestId: string, 
   location: { name: string; latitude: number; longitude: number; venue?: string; eventContext?: string }, 
@@ -664,6 +801,7 @@ export async function approveConnectionRequest(
         meeting_date: new Date().toISOString(),
         meeting_location: location,
         tags,
+        badges: badges || [], // ✅ Store badges if provided
         tier: tier || 3, // ✅ Use provided tier or default to outer circle
         first_met_at: new Date().toISOString(),
         first_met_location: location,

@@ -700,6 +700,106 @@ export async function getQRScanStats(): Promise<{
 }
 
 /**
+ * Mark QR code as used (one-time use system)
+ * This prevents the same QR code from being used by multiple people
+ */
+export async function markQRCodeAsUsed(
+  connectionCode: string,
+  scannerUserId?: string,
+  location?: { latitude: number; longitude: number },
+  deviceInfo?: any
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    logger.info('Marking QR code as used:', { connectionCode, scannerUserId });
+
+    // First, check if the code is still available
+    const { data: existingCode, error: checkError } = await supabase
+      .from('connection_codes')
+      .select('id, is_active, scan_count, scanned_by')
+      .eq('code', connectionCode)
+      .eq('is_active', true)
+      .single();
+
+    if (checkError) {
+      logger.error('Error checking QR code status:', checkError);
+      return { success: false, error: 'Failed to check QR code status' };
+    }
+
+    if (!existingCode) {
+      return { success: false, error: 'QR code not found or expired' };
+    }
+
+    // Check if already used
+    if (existingCode.scanned_by) {
+      return { success: false, error: 'QR code has already been used' };
+    }
+
+    // Mark as used and update scan tracking
+    const { error: updateError } = await supabase
+      .from('connection_codes')
+      .update({
+        scanned_by: scannerUserId || null,
+        scanned_at: new Date().toISOString(),
+        scan_count: (existingCode.scan_count || 0) + 1,
+        last_scanned_at: new Date().toISOString(),
+        last_scan_location: location ? {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          timestamp: new Date().toISOString()
+        } : null
+      })
+      .eq('code', connectionCode);
+
+    if (updateError) {
+      logger.error('Error marking QR code as used:', updateError);
+      return { success: false, error: 'Failed to mark QR code as used' };
+    }
+
+    // Create detailed scan tracking entry
+    if (scannerUserId) {
+      const scanId = `scan_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      
+      const { error: trackingError } = await supabase
+        .from('qr_scan_tracking')
+        .insert({
+          scan_id: scanId,
+          code: connectionCode,
+          scanned_at: new Date().toISOString(),
+          location: location ? {
+            latitude: location.latitude,
+            longitude: location.longitude,
+            scanned_at: new Date().toISOString()
+          } : null,
+          device_info: deviceInfo || {
+            user_agent: navigator.userAgent,
+            platform: navigator.platform,
+            timestamp: new Date().toISOString()
+          }
+        });
+
+      if (trackingError) {
+        logger.error('Error creating scan tracking entry:', trackingError);
+        // Don't fail the whole operation for tracking errors
+      }
+    }
+
+    logger.info('QR code marked as used successfully:', { connectionCode });
+    return { success: true };
+
+  } catch (error) {
+    logger.error('Error marking QR code as used:', error);
+    return { success: false, error: 'Failed to mark QR code as used' };
+  }
+}
+
+/**
+ * Validate QR code (alias for validateConnectionCode for backward compatibility)
+ */
+export async function validateQRCode(code: string): Promise<QRConnectionData | null> {
+  return validateConnectionCode(code);
+}
+
+/**
  * Track QR scan (for analytics)
  */
 export async function trackQRScan(

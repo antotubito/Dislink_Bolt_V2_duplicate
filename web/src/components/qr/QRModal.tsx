@@ -3,7 +3,7 @@ import { X, QrCode, Copy, Download, Share2 } from 'lucide-react';
 import { motion, AnimatePresence, useAnimation } from 'framer-motion';
 import { QRCode } from '@dislink/shared/components/qr/QRCode';
 import type { User } from '@dislink/shared/types';
-import { generateUserQRCode } from "@dislink/shared/lib/qrConnection";
+import { generateUserQRCode } from "@dislink/shared/lib/qrConnectionEnhanced";
 
 interface QRModalProps {
   isOpen: boolean;

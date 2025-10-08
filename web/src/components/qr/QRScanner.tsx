@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Camera, X, Scan, Navigation } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import QrScanner from 'qr-scanner';
-import { validateQRCode, trackQRCodeScan } from "@dislink/shared/lib/qr";
+import { validateQRCode } from "@dislink/shared/lib/qrConnectionEnhanced";
+import { trackEnhancedQRScan } from "@dislink/shared/lib/qrEnhanced";
 import { ConnectionConfirmation } from '@dislink/shared/components/qr/ConnectionConfirmation';
 
 interface QRScannerProps {
@@ -85,7 +86,7 @@ export function QRScanner({ isOpen, onClose, onScan }: QRScannerProps) {
               
               // Track the scan with location data
               if (location) {
-                await trackQRCodeScan(qrResult.code!, {
+                await trackEnhancedQRScan(qrResult.code!, {
                   latitude: location.latitude,
                   longitude: location.longitude
                 });
