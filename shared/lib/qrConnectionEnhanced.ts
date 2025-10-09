@@ -62,22 +62,28 @@ export interface ConnectionRequestData {
 /**
  * Generate a unique QR code for authenticated user
  * Creates connection code and public profile URL
+ * @param userId - Optional user ID (if not provided, uses current authenticated user)
  */
-export async function generateUserQRCode(): Promise<QRConnectionData> {
+export async function generateUserQRCode(userId?: string): Promise<QRConnectionData> {
   try {
-    // Get current authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      throw new Error('User must be authenticated to generate QR code');
+    let targetUserId = userId;
+    
+    // If no userId provided, get current authenticated user
+    if (!targetUserId) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('User must be authenticated to generate QR code');
+      }
+      targetUserId = user.id;
     }
 
-    logger.info('Generating QR code for authenticated user:', { userId: user.id });
+    logger.info('Generating QR code for user:', { userId: targetUserId });
 
     // Get user profile data
     const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('*')
-      .eq('id', user.id)
+      .eq('id', targetUserId)
       .single();
 
     if (profileError) throw profileError;
@@ -90,7 +96,7 @@ export async function generateUserQRCode(): Promise<QRConnectionData> {
     const { data: codeData, error: codeError } = await supabase
       .from('connection_codes')
       .upsert({
-        user_id: user.id, // ✅ Use auth.uid() for RLS compliance
+        user_id: targetUserId, // ✅ Use target user ID for RLS compliance
         code: connectionCode,
         is_active: true,
         expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
@@ -666,22 +672,29 @@ async function createConnectionFromInvitation(
 
 /**
  * Get QR scan statistics for authenticated user
+ * @param userId - Optional user ID (if not provided, uses current authenticated user)
  */
-export async function getQRScanStats(): Promise<{
+export async function getQRScanStats(userId?: string): Promise<{
   totalScans: number;
   recentScans: any[];
   lastScanDate?: Date;
 }> {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return { totalScans: 0, recentScans: [] };
+    let targetUserId = userId;
+    
+    // If no userId provided, get current authenticated user
+    if (!targetUserId) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        return { totalScans: 0, recentScans: [] };
+      }
+      targetUserId = user.id;
     }
 
     const { data: scans, error } = await supabase
       .from('qr_scan_tracking')
       .select('*')
-      .eq('user_id', user.id) // ✅ Use auth.uid() for RLS compliance
+      .eq('user_id', targetUserId) // ✅ Use target user ID for RLS compliance
       .order('scanned_at', { ascending: false })
       .limit(50);
 
