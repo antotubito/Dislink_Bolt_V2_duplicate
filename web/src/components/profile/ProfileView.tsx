@@ -42,7 +42,6 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
     );
   };
 
-
   // Handle case when user is null or undefined
   if (!user) {
     return (
@@ -51,19 +50,57 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
       </div>
     );
   }
-  
-  // Check if user has social links, interests, and bio
-  const hasSocialLinks = user.socialLinks && Object.keys(user.socialLinks).length > 0;
-  const hasInterests = user.interests && user.interests.length > 0;
-  const hasBio = user.bio?.about || user.bio?.location || user.bio?.from;
-  const hasLocation = user.bio?.location;
-  const hasFrom = user.bio?.from;
-  const hasJobInfo = user.jobTitle && user.company;
 
-  // Calculate profile completion percentage
+  // Create safe user object with comprehensive null checks
+  const safeUser = {
+    id: user?.id || '',
+    name: user?.name || 'Unknown User',
+    email: user?.email || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    middleName: user?.middleName || '',
+    profileImage: user?.profileImage || null,
+    coverImage: user?.coverImage || null,
+    bio: user?.bio || {},
+    interests: user?.interests || [],
+    socialLinks: user?.socialLinks || {},
+    jobTitle: user?.jobTitle || '',
+    company: user?.company || '',
+    industry: user?.industry || '',
+    onboardingComplete: user?.onboardingComplete || false,
+    registrationComplete: user?.registrationComplete || false,
+    registrationStatus: user?.registrationStatus || 'pending',
+    createdAt: user?.createdAt || new Date(),
+    updatedAt: user?.updatedAt || new Date(),
+    twoFactorEnabled: user?.twoFactorEnabled || false,
+    publicProfile: user?.publicProfile || {
+      enabled: true,
+      defaultSharedLinks: {},
+      allowedFields: {
+        email: false,
+        phone: false,
+        company: true,
+        jobTitle: true,
+        bio: true,
+        interests: true,
+        location: true,
+        birthday: false
+      }
+    }
+  };
+  
+  // Check if user has social links, interests, and bio using safe user object
+  const hasSocialLinks = safeUser.socialLinks && Object.keys(safeUser.socialLinks).length > 0;
+  const hasInterests = safeUser.interests && safeUser.interests.length > 0;
+  const hasBio = safeUser.bio?.about || safeUser.bio?.location || safeUser.bio?.from;
+  const hasLocation = safeUser.bio?.location;
+  const hasFrom = safeUser.bio?.from;
+  const hasJobInfo = safeUser.jobTitle && safeUser.company;
+
+  // Calculate profile completion percentage using safe user object
   const completionItems = [
-    !!user.profileImage,
-    !!user.coverImage,
+    !!safeUser.profileImage,
+    !!safeUser.coverImage,
     hasBio,
     hasInterests,
     hasSocialLinks,
@@ -75,11 +112,11 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
   const completedItems = completionItems.filter(Boolean).length;
   const completionPercentage = Math.round((completedItems / completionItems.length) * 100);
   
-  // Determine which sections need completion
+  // Determine which sections need completion using safe user object
   const incompleteSections = {
-    photo: !user.profileImage,
-    cover: !user.coverImage,
-    bio: !user.bio?.about,
+    photo: !safeUser.profileImage,
+    cover: !safeUser.coverImage,
+    bio: !safeUser.bio?.about,
     location: !hasLocation,
     from: !hasFrom,
     interests: !hasInterests,
@@ -100,9 +137,9 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
     <div className="relative">
       {/* Cover Image */}
       <div className="relative h-48 sm:h-64">
-        {user.coverImage ? (
+        {safeUser.coverImage ? (
           <img
-            src={user.coverImage}
+            src={safeUser.coverImage}
             alt="Profile cover"
             className="w-full h-full object-cover"
           />
@@ -120,7 +157,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
         <div className="absolute inset-0 bg-black/20" />
         
         {/* Edit Cover Button */}
-        {user.coverImage && (
+        {safeUser.coverImage && (
           <button
             onClick={() => handleEditSection('images')}
             className="absolute bottom-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
@@ -170,11 +207,11 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
         {/* Profile Header */}
         <div className="sm:flex sm:items-end sm:space-x-5">
           <div className="relative flex">
-            {user.profileImage ? (
+            {safeUser.profileImage ? (
               <div className="relative">
                 <img
-                  src={user.profileImage}
-                  alt={user.name}
+                  src={safeUser.profileImage}
+                  alt={safeUser.name}
                   className="h-24 w-24 rounded-xl ring-4 ring-white object-cover sm:h-32 sm:w-32"
                 />
                 <button
@@ -200,7 +237,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
           <div className="mt-6 sm:flex-1 sm:min-w-0 sm:flex sm:items-center sm:justify-end sm:space-x-6 sm:pb-1">
             <div className="sm:hidden md:block mt-6 min-w-0 flex-1">
               <h1 className="text-2xl font-bold text-gray-900 truncate flex items-center">
-                {user.name}
+                {safeUser.name}
                 <button
                   onClick={() => handleEditSection('basic')}
                   className="ml-2 p-1 text-gray-600 hover:text-indigo-600 hover:bg-gray-100 rounded-full"
@@ -208,15 +245,15 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                   <Pencil className="h-4 w-4" />
                 </button>
               </h1>
-              {user.jobTitle && (
+              {safeUser.jobTitle && (
                 <p className="text-lg text-gray-600">
-                  {user.jobTitle}
-                  {user.company && (
-                    <> at {user.company}</>
+                  {safeUser.jobTitle}
+                  {safeUser.company && (
+                    <> at {safeUser.company}</>
                   )}
                 </p>
               )}
-              {!user.jobTitle && !user.company && (
+              {!safeUser.jobTitle && !safeUser.company && (
                 <button
                   onClick={() => handleEditSection('basic')}
                   className="mt-1 text-sm text-indigo-600 hover:text-indigo-700 flex items-center"
@@ -284,16 +321,16 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                   {/* Location Info */}
                   {(hasLocation || hasFrom) ? (
                     <div className="flex flex-wrap gap-6 mb-4">
-                      {user.bio?.location && (
+                      {safeUser.bio?.location && (
                         <div className="flex items-center text-gray-600">
                           <MapPin className="h-5 w-5 mr-2 text-gray-600" />
-                          <span>Located in {user.bio.location}</span>
+                          <span>Located in {safeUser.bio.location}</span>
                         </div>
                       )}
-                      {user.bio?.from && (
+                      {safeUser.bio?.from && (
                         <div className="flex items-center text-gray-600">
                           <Globe className="h-5 w-5 mr-2 text-gray-600" />
-                          <span>From {user.bio.from}</span>
+                          <span>From {safeUser.bio.from}</span>
                         </div>
                       )}
                     </div>
@@ -313,10 +350,10 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                   )}
 
                   {/* Bio Text */}
-                  {user.bio?.about ? (
+                  {safeUser.bio?.about ? (
                     <div className="prose max-w-none mb-6">
                       <p className="text-gray-600 whitespace-pre-wrap">
-                        {user.bio.about}
+                        {safeUser.bio.about}
                       </p>
                     </div>
                   ) : (
@@ -354,7 +391,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                     
                     {hasInterests ? (
                       <div className="flex flex-wrap gap-2">
-                        {user.interests.map((interest, index) => (
+                        {safeUser.interests.map((interest, index) => (
                           <span
                             key={index}
                             className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-50 text-indigo-700"
@@ -417,7 +454,7 @@ export function ProfileView({ user, onEdit, onEditSection }: ProfileViewProps) {
                   {hasSocialLinks ? (
                     /* Group links by category */
                     Object.entries(SOCIAL_CATEGORIES).map(([categoryKey, category]) => {
-                      const categoryLinks = Object.entries(user.socialLinks || {})
+                      const categoryLinks = Object.entries(safeUser.socialLinks || {})
                         .filter(([key]) => category.links[key])
                         .map(([key, value]) => ({
                           key,

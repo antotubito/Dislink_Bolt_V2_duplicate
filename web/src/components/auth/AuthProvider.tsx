@@ -41,6 +41,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isTestingChannel] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'connecting'>('connecting');
+  const [userLoading, setUserLoading] = useState(false);
+  const [userError, setUserError] = useState<string | null>(null);
 
   // Initialize user preferences
   useEffect(() => {
@@ -74,9 +76,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Refresh user data
+  // Refresh user data with enhanced error handling
   const refreshUser = async () => {
     try {
+      setUserLoading(true);
+      setUserError(null);
+      
       const { data: { user: currentUser } } = await supabase.auth.getUser();
       if (currentUser) {
         // Force a direct database query to get the most up-to-date profile data
@@ -106,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (profile) {
               setUser(profile);
               setIsOwner(true);
+              setUserError(null);
               logger.info('✅ User profile refreshed successfully (fallback):', { 
                 userId: profile.id, 
                 onboardingComplete: profile.onboardingComplete,
@@ -114,17 +120,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } else {
               setUser(currentUser as unknown as User);
               setIsOwner(true);
+              setUserError('Profile not found');
               logger.warn('Profile not found, using auth user data');
             }
           } catch (fallbackError) {
             logger.warn('Profile refresh timeout or error, using auth user data:', fallbackError);
             setUser(currentUser as unknown as User);
             setIsOwner(true);
+            setUserError('Profile refresh failed');
           }
         } else if (freshProfile) {
           // Use the fresh profile data from direct database query
           setUser(freshProfile as User);
           setIsOwner(true);
+          setUserError(null);
           logger.info('✅ User profile refreshed successfully (direct query):', { 
             userId: freshProfile.id, 
             onboardingComplete: freshProfile.onboarding_complete,
@@ -134,15 +143,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Fallback to auth user if no profile found
           setUser(currentUser as unknown as User);
           setIsOwner(true);
+          setUserError('No profile found');
           logger.warn('No profile found in direct query, using auth user data');
         }
       } else {
         setUser(null);
         setIsOwner(false);
+        setUserError(null);
       }
     } catch (error) {
       logger.error('Failed to refresh user:', error);
+      setUserError('Failed to refresh user data');
       setError('Failed to refresh user data');
+    } finally {
+      setUserLoading(false);
     }
   };
 
@@ -342,8 +356,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const contextValue: AuthContextType = {
     user,
-    loading,
-    error,
+    loading: loading || userLoading,
+    error: error || userError,
     isOwner,
     isTestingChannel,
     refreshUser,

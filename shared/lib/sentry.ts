@@ -55,6 +55,16 @@ export function initSentry() {
 }
 
 export function captureError(error: Error, context?: Record<string, any>) {
+  // Enhanced error context for better debugging
+  const enhancedContext = {
+    ...context,
+    timestamp: new Date().toISOString(),
+    url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+    userAgent: typeof window !== 'undefined' ? navigator.userAgent : 'unknown',
+    environment: import.meta.env.MODE,
+    version: import.meta.env.VITE_APP_VERSION || '1.0.0'
+  };
+
   // Only capture errors in production
   if (import.meta.env.PROD) {
     const sentryDsn = import.meta.env.VITE_SENTRY_DSN || 'https://5cf6baeb345997373227ec819ed8cafe@o4510074051756032.ingest.us.sentry.io/4510074063749120'
@@ -62,14 +72,19 @@ export function captureError(error: Error, context?: Record<string, any>) {
     if (sentryDsn && sentryDsn !== 'your_sentry_dsn_here') {
       Sentry.captureException(error, {
         contexts: {
-          custom: context
-        }
+          custom: enhancedContext
+        },
+        tags: {
+          component: context?.context || 'unknown',
+          userId: context?.userId || 'unknown'
+        },
+        level: 'error'
       })
     } else {
-      console.error('Error captured:', error, context)
+      console.error('Error captured:', error, enhancedContext)
     }
   } else {
-    console.error('Error captured (dev mode):', error, context)
+    console.error('Error captured (dev mode):', error, enhancedContext)
   }
 }
 
@@ -96,6 +111,31 @@ export function captureMessage(message: string, level: string = 'info') {
     console.error("Failed to capture message:", err);
     console.log(`[ERROR] ${message} (fallback)`);
   }
+}
+
+export function captureProfileError(error: Error, user: any, context: string) {
+  const profileContext = {
+    context: `Profile-${context}`,
+    userId: user?.id || 'unknown',
+    userEmail: user?.email || 'unknown',
+    hasUserData: !!user,
+    userDataKeys: user ? Object.keys(user) : [],
+    timestamp: new Date().toISOString(),
+    url: typeof window !== 'undefined' ? window.location.href : 'unknown',
+    userAgent: typeof window !== 'undefined' ? navigator.userAgent : 'unknown',
+    // Profile-specific context
+    profileData: {
+      hasProfileImage: !!user?.profileImage,
+      hasCoverImage: !!user?.coverImage,
+      hasBio: !!user?.bio,
+      hasInterests: !!user?.interests?.length,
+      hasSocialLinks: !!user?.socialLinks && Object.keys(user.socialLinks).length > 0,
+      onboardingComplete: user?.onboardingComplete,
+      registrationComplete: user?.registrationComplete
+    }
+  };
+
+  captureError(error, profileContext);
 }
 
 export function setUserContext(user: { id: string; email: string; name?: string }) {

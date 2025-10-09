@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-10-09T14:52:03.169Z",
+  "timestamp": "2025-10-09T16:44:29.563Z",
   "verification": {
-    "timestamp": "2025-10-09T14:51:36.566Z",
+    "timestamp": "2025-10-09T16:43:34.578Z",
     "build": {
       "status": "PASSED",
       "buildTime": "34.28s",
@@ -13,17 +13,9 @@
       "redirects": 5
     },
     "authentication": {
-      "status": "FAILED",
-      "missing": [
-        {
-          "name": "User state",
-          "pattern": {}
-        },
-        {
-          "name": "Session management",
-          "pattern": {}
-        }
-      ]
+      "status": "PASSED",
+      "components": 4,
+      "envVars": 3
     },
     "qrFlow": {
       "status": "PASSED",
@@ -47,31 +39,24 @@
     "overall": "PENDING"
   },
   "alerts": {
-    "total": 3,
-    "critical": 1,
+    "total": 2,
+    "critical": 0,
     "warnings": 2
   },
-  "criticalAlerts": [
-    {
-      "timestamp": "2025-10-09T14:52:03.165Z",
-      "type": "auth_config",
-      "message": "Missing auth components: User state, Session management",
-      "severity": "critical"
-    }
-  ],
+  "criticalAlerts": [],
   "warnings": [
     {
-      "timestamp": "2025-10-09T14:52:03.162Z",
+      "timestamp": "2025-10-09T16:44:29.547Z",
       "type": "bundle_size",
-      "message": "Bundle size too large: 5.09MB",
+      "message": "Bundle size too large: 5.10MB",
       "severity": "warning"
     },
     {
-      "timestamp": "2025-10-09T14:52:03.169Z",
+      "timestamp": "2025-10-09T16:44:29.563Z",
       "type": "responsiveness",
       "message": "Low responsiveness score: 44.4%",
       "severity": "warning"
     }
   ],
-  "overall": "FAILED"
+  "overall": "PASSED"
 }
