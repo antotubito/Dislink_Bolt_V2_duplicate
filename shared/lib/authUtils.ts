@@ -97,9 +97,12 @@ export class PKCEUtils {
 
 // Enhanced email redirect URL generation with auto-detection
 export function getEmailRedirectUrl(): string {
-  // Import the base URL from supabase.ts to ensure consistency
-  const { getBaseUrl } = require('./supabase');
-  const baseUrl = getBaseUrl();
+  // Determine base URL based on environment
+  const baseUrl = typeof window !== 'undefined' 
+    ? (window.location.hostname === 'dislinkboltv2duplicate.netlify.app' 
+        ? 'https://dislinkboltv2duplicate.netlify.app' 
+        : 'http://localhost:3001')
+    : 'http://localhost:3001';
   
   const redirectUrl = `${baseUrl}/confirmed`;
   
@@ -112,14 +115,17 @@ export function getEmailRedirectUrl(): string {
 
 // Get the correct redirect URL after successful login/registration
 export function getPostAuthRedirectUrl(): string {
-  // Import the base URL from supabase.ts to ensure consistency
-  const { getBaseUrl } = require('./supabase');
-  const baseUrl = getBaseUrl();
+  // Fallback for immediate return
+  const baseUrl = typeof window !== 'undefined' 
+    ? (window.location.hostname === 'dislinkboltv2duplicate.netlify.app' 
+        ? 'https://dislinkboltv2duplicate.netlify.app' 
+        : 'http://localhost:3001')
+    : 'http://localhost:3001';
   
   const redirectUrl = `${baseUrl}/app`;
   
   if (import.meta.env.DEV) {
-    console.log('🔗 Post-auth redirect URL generated:', redirectUrl);
+    console.log('🔗 Post-auth redirect URL generated (fallback):', redirectUrl);
   }
   
   return redirectUrl;
@@ -155,9 +161,18 @@ export async function registerUser(userData: {
     if (error) {
       logger.error('Registration failed:', error);
       
-      // Use shared error handling for consistent messaging
-      const { handleSupabaseError } = await import('./supabase');
-      const userFriendlyMessage = handleSupabaseError(error, 'registration');
+      // Simple error handling without dynamic import
+      let userFriendlyMessage = 'Registration failed. Please try again.';
+      
+      if (error.message?.includes('already registered') || 
+          error.message?.includes('already exists') ||
+          error.message?.includes('User already registered')) {
+        userFriendlyMessage = 'This email is already registered. Please log in instead.';
+      } else if (error.message?.includes('password')) {
+        userFriendlyMessage = 'Password does not meet requirements. Please choose a stronger password.';
+      } else if (error.message?.includes('email')) {
+        userFriendlyMessage = 'Please enter a valid email address.';
+      }
       
       return {
         user: null,
