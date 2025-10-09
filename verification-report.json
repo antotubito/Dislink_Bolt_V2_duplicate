@@ -1,0 +1,77 @@
+{
+  "timestamp": "2025-10-09T14:52:03.169Z",
+  "verification": {
+    "timestamp": "2025-10-09T14:51:36.566Z",
+    "build": {
+      "status": "PASSED",
+      "buildTime": "34.28s",
+      "bundleSize": "1.2MB"
+    },
+    "routing": {
+      "status": "PASSED",
+      "routes": 5,
+      "redirects": 5
+    },
+    "authentication": {
+      "status": "FAILED",
+      "missing": [
+        {
+          "name": "User state",
+          "pattern": {}
+        },
+        {
+          "name": "Session management",
+          "pattern": {}
+        }
+      ]
+    },
+    "qrFlow": {
+      "status": "PASSED",
+      "functions": 4,
+      "components": 4
+    },
+    "dataPersistence": {
+      "status": "PASSED",
+      "files": 3,
+      "needsOps": 3,
+      "contactsOps": 3
+    },
+    "caching": {
+      "status": "PASSED",
+      "features": 5
+    },
+    "responsiveness": {
+      "status": "PASSED",
+      "score": 44.44444444444444
+    },
+    "overall": "PENDING"
+  },
+  "alerts": {
+    "total": 3,
+    "critical": 1,
+    "warnings": 2
+  },
+  "criticalAlerts": [
+    {
+      "timestamp": "2025-10-09T14:52:03.165Z",
+      "type": "auth_config",
+      "message": "Missing auth components: User state, Session management",
+      "severity": "critical"
+    }
+  ],
+  "warnings": [
+    {
+      "timestamp": "2025-10-09T14:52:03.162Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.09MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T14:52:03.169Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    }
+  ],
+  "overall": "FAILED"
+}

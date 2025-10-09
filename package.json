@@ -28,11 +28,16 @@
     "deploy:web": "pnpm --filter web deploy",
     "mobile:android": "pnpm --filter mobile android",
     "mobile:ios": "pnpm --filter mobile ios",
+    "verify": "node scripts/continuous-verification.js",
+    "verify:watch": "node scripts/watch-verification.js",
+    "verify:dashboard": "node scripts/verification-dashboard.js",
+    "verify:setup": "./scripts/setup-verification.sh",
     "mobile:start": "pnpm --filter mobile start"
   },
   "devDependencies": {
-    "typescript": "^5.2.2",
-    "@types/node": "^20.0.0"
+    "@types/node": "^20.0.0",
+    "chalk": "^5.6.2",
+    "typescript": "^5.2.2"
   },
   "packageManager": "pnpm@10.16.0+sha512.8066e7b034217b700a9a4dbb3a005061d641ba130a89915213a10b3ca4919c19c037bec8066afdc559b89635fdb806b16ea673f2468fbb28aabfa13c53e3f769",
   "engines": {
