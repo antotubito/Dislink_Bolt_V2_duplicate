@@ -20,10 +20,13 @@ import {
   Share2,
   Copy,
   Download,
-  QrCode
+  QrCode,
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 import { validateConnectionCode, markQRCodeAsUsed, submitInvitationRequest } from '@dislink/shared/lib/qrConnectionEnhanced';
 import { logger } from '@dislink/shared/lib/logger';
+import { captureError } from '@dislink/shared/lib/sentry';
 import type { QRConnectionData, InvitationRequest } from '@dislink/shared/lib/qrConnectionEnhanced';
 
 export function PublicProfileUnified() {
@@ -33,6 +36,8 @@ export function PublicProfileUnified() {
   const [profileData, setProfileData] = useState<QRConnectionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isExpired, setIsExpired] = useState(false);
+  const [isNotPublic, setIsNotPublic] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
   const [showInvitationForm, setShowInvitationForm] = useState(false);
   const [invitationEmail, setInvitationEmail] = useState('');
@@ -58,13 +63,64 @@ export function PublicProfileUnified() {
       console.log('🔍 [PublicProfile] Loading profile data for connection code:', connectionCode);
       setLoading(true);
       setError(null);
+      setIsExpired(false);
+      setIsNotPublic(false);
 
       // Validate connection code and get profile data
       const data = await validateConnectionCode(connectionCode);
       
       if (!data) {
         console.warn('⚠️ [PublicProfile] Connection code validation failed:', connectionCode);
-        setError('Profile not found or not publicly available. This QR code may have expired, been used already, or the profile may not be set to public.');
+        
+        // Check if it's an expired code or not public
+        if (data && typeof data === 'object' && 'error' in data) {
+          if (data.error === 'expired') {
+            setIsExpired(true);
+            setError('This QR code has expired. Please ask the profile owner to share a new QR code.');
+          } else if (data.error === 'not_public') {
+            setIsNotPublic(true);
+            setError('This profile is not publicly available. The owner has not enabled public profile sharing.');
+          } else {
+            setError('Profile not found or not publicly available. This QR code may have expired, been used already, or the profile may not be set to public.');
+          }
+        } else {
+          setError('Profile not found or not publicly available. This QR code may have expired, been used already, or the profile may not be set to public.');
+        }
+        
+        // Send error to Sentry with context
+        captureError(new Error('Connection code validation failed'), {
+          tags: {
+            component: 'PublicProfileUnified',
+            operation: 'validateConnectionCode'
+          },
+          extra: {
+            connectionCode,
+            errorType: data && typeof data === 'object' && 'error' in data ? data.error : 'unknown',
+            timestamp: new Date().toISOString()
+          }
+        });
+        return;
+      }
+
+      // Check if public profile is enabled
+      if (!data.publicProfile || data.publicProfile.enabled !== true) {
+        console.warn('⚠️ [PublicProfile] Public profile not enabled:', data.publicProfile);
+        setIsNotPublic(true);
+        setError('This profile is not publicly available. The owner has not enabled public profile sharing.');
+        
+        // Send error to Sentry
+        captureError(new Error('Public profile not enabled'), {
+          tags: {
+            component: 'PublicProfileUnified',
+            operation: 'checkPublicProfile'
+          },
+          extra: {
+            connectionCode,
+            userId: data.userId,
+            publicProfile: data.publicProfile,
+            timestamp: new Date().toISOString()
+          }
+        });
         return;
       }
 
@@ -79,6 +135,20 @@ export function PublicProfileUnified() {
     } catch (err) {
       console.error('❌ [PublicProfile] Error loading profile data:', err);
       logger.error('Error loading profile data:', err);
+      
+      // Send error to Sentry with context
+      captureError(err instanceof Error ? err : new Error('Unknown error loading profile'), {
+        tags: {
+          component: 'PublicProfileUnified',
+          operation: 'loadProfileData'
+        },
+        extra: {
+          connectionCode,
+          errorMessage: err instanceof Error ? err.message : 'Unknown error',
+          timestamp: new Date().toISOString()
+        }
+      });
+      
       setError('Failed to load profile. Please try again.');
     } finally {
       setLoading(false);
@@ -178,15 +248,43 @@ export function PublicProfileUnified() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-          <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1>
-          <p className="text-gray-600 mb-6">{error}</p>
+          {isExpired ? (
+            <>
+              <Clock className="h-16 w-16 text-amber-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">QR Code Expired</h1>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <p className="text-amber-800 text-sm">
+                  <strong>What to do:</strong> Ask the profile owner to generate a new QR code for you to scan.
+                </p>
+              </div>
+            </>
+          ) : isNotPublic ? (
+            <>
+              <AlertCircle className="h-16 w-16 text-blue-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Profile Not Public</h1>
+              <p className="text-gray-600 mb-6">{error}</p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-blue-800 text-sm">
+                  <strong>Privacy First:</strong> This user has chosen to keep their profile private. Only they can share their information with you.
+                </p>
+              </div>
+            </>
+          ) : (
+            <>
+              <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1>
+              <p className="text-gray-600 mb-6">{error}</p>
+            </>
+          )}
+          
           <div className="flex flex-col space-y-3">
             <button
               onClick={loadProfileData}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center"
             >
-              🔄 Try Again
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Try Again
             </button>
             <button
               onClick={() => navigate('/')}
@@ -220,10 +318,40 @@ export function PublicProfileUnified() {
 
   const { name, jobTitle, company, profileImage, bio, interests, socialLinks, publicProfile } = profileData;
 
-  // Filter social links based on publicProfile settings
-  const filteredSocialLinks = Object.entries(socialLinks || {}).filter(([platform, link]) => {
-    return publicProfile?.defaultSharedLinks ? publicProfile.defaultSharedLinks[platform] : true;
-  });
+  // Safely sanitize and filter profile data based on publicProfile settings
+  const sanitizeProfileData = () => {
+    const allowedFields = publicProfile?.allowedFields || {
+      email: false,
+      phone: false,
+      company: true,
+      jobTitle: true,
+      bio: true,
+      interests: true,
+      location: true
+    };
+
+    const sharedLinks = publicProfile?.defaultSharedLinks || {};
+
+    return {
+      allowedFields,
+      sharedLinks,
+      // Safely extract bio data
+      bioText: bio?.text || bio?.about || '',
+      bioLocation: bio?.location || '',
+      bioFrom: bio?.from || '',
+      // Safely extract interests
+      safeInterests: Array.isArray(interests) ? interests.filter(interest => 
+        typeof interest === 'string' && interest.trim().length > 0
+      ) : [],
+      // Safely extract social links
+      safeSocialLinks: Object.entries(socialLinks || {}).filter(([platform, link]) => {
+        return typeof link === 'string' && link.trim().length > 0 && 
+               (sharedLinks[platform] !== false);
+      })
+    };
+  };
+
+  const { allowedFields, sharedLinks, bioText, bioLocation, bioFrom, safeInterests, safeSocialLinks } = sanitizeProfileData();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
@@ -303,19 +431,37 @@ export function PublicProfileUnified() {
           {/* Profile Content */}
           <div className="p-8">
             {/* Bio Section */}
-            {bio?.text && (
+            {allowedFields.bio && bioText && (
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">About</h2>
-                <p className="text-gray-700 text-lg leading-relaxed">{bio.text}</p>
+                <p className="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">{bioText}</p>
+                
+                {/* Location and From info */}
+                {(allowedFields.location && (bioLocation || bioFrom)) && (
+                  <div className="mt-4 flex flex-wrap gap-4 text-sm text-gray-600">
+                    {bioLocation && (
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        <span>Located in {bioLocation}</span>
+                      </div>
+                    )}
+                    {bioFrom && (
+                      <div className="flex items-center">
+                        <Globe className="h-4 w-4 mr-1" />
+                        <span>From {bioFrom}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
             {/* Interests Section */}
-            {interests && interests.length > 0 && (
+            {allowedFields.interests && safeInterests.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Interests</h2>
                 <div className="flex flex-wrap gap-3">
-                  {interests.map((interest, index) => (
+                  {safeInterests.map((interest, index) => (
                     <span
                       key={index}
                       className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-purple-100 text-purple-800"
@@ -328,14 +474,14 @@ export function PublicProfileUnified() {
             )}
 
             {/* Social Links Section */}
-            {filteredSocialLinks.length > 0 && (
+            {safeSocialLinks.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-2xl font-semibold text-gray-900 mb-4">Connect</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {filteredSocialLinks.map(([platform, link]) => (
+                  {safeSocialLinks.map(([platform, link]) => (
                     <a
                       key={platform}
-                      href={formatSocialUrl(link as string)}
+                      href={formatSocialUrl(link)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors group"
@@ -345,7 +491,7 @@ export function PublicProfileUnified() {
                       </div>
                       <div className="ml-4 flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 capitalize">{platform}</p>
-                        <p className="text-sm text-gray-500 truncate">{link as string}</p>
+                        <p className="text-sm text-gray-500 truncate">{link}</p>
                       </div>
                       <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-500 transition-colors" />
                     </a>

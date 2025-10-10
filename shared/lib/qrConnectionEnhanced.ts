@@ -109,12 +109,10 @@ export async function generateUserQRCode(userId?: string): Promise<QRConnectionD
 
     if (codeError) throw codeError;
 
-    // Generate public profile URL using environment variables
-    const baseUrl = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 
-      (typeof window !== 'undefined' && window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
-        ? 'https://dislinkboltv2duplicate.netlify.app'
-        : 'http://localhost:3001');
-    const publicProfileUrl = `${baseUrl}/profile/${connectionCode}`;
+    // Generate public profile URL using canonical site URL
+    const base = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 
+      (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+    const publicProfileUrl = `${base.replace(/\/$/, '')}/profile/${connectionCode}`;
 
     const qrData: QRConnectionData = {
       userId: profile.id,
@@ -131,7 +129,7 @@ export async function generateUserQRCode(userId?: string): Promise<QRConnectionD
     };
 
     logger.info('QR code generated successfully:', { 
-      userId: user.id, 
+      userId: targetUserId, 
       connectionCode, 
       publicProfileUrl 
     });
@@ -147,43 +145,94 @@ export async function generateUserQRCode(userId?: string): Promise<QRConnectionD
 /**
  * Validate connection code and return user profile data
  * Used when someone scans a QR code
- * Now uses optimized database function for better performance and security
+ * Uses safe select with inner join and comprehensive error handling
  */
 export async function validateConnectionCode(code: string): Promise<QRConnectionData | null> {
   try {
     console.debug('🔍 [QR] Starting connection code validation:', { code });
     logger.info('Validating connection code:', { code });
 
-    // Use the optimized database function that joins connection_codes and profiles
-    console.debug('🔍 [QR] Calling validate_connection_code_with_profile function...');
-    const { data: result, error } = await supabase
-      .rpc('validate_connection_code_with_profile', { connection_code: code });
+    // Use safe select with inner join to profiles table
+    console.debug('🔍 [QR] Querying connection_codes with profiles join...');
+    const { data: connectionData, error } = await supabase
+      .from('connection_codes')
+      .select(`
+        *,
+        profiles!inner (
+          id,
+          first_name,
+          last_name,
+          job_title,
+          company,
+          profile_image,
+          bio,
+          interests,
+          social_links,
+          public_profile
+        )
+      `)
+      .eq('code', code)
+      .eq('is_active', true)
+      .single();
 
-    console.debug('🔍 [QR] Database function result:', { 
-      result, 
+    console.debug('🔍 [QR] validateConnectionCode query result:', { 
+      code, 
+      connectionData, 
       error,
-      hasData: !!result && result.length > 0,
-      resultCount: result?.length || 0
+      hasData: !!connectionData,
+      hasProfile: !!connectionData?.profiles
     });
 
     if (error) {
-      console.error('❌ [QR] Database error calling validate_connection_code_with_profile:', error);
+      console.error('❌ [QR] Database error querying connection_codes:', error);
       logger.error('Database error validating connection code:', error);
+      
+      // Handle specific error cases
+      if (error.code === 'PGRST116') {
+        console.warn('⚠️ [QR] Connection code not found:', { code });
+        return null;
+      }
+      
       return null;
     }
 
-    if (!result || result.length === 0) {
-      console.warn('⚠️ [QR] No valid connection code found:', { 
-        code,
-        reason: 'Code not found, expired, or public profile not enabled'
+    if (!connectionData) {
+      console.warn('⚠️ [QR] No connection data returned:', { code });
+      logger.info('Invalid connection code:', { code });
+      return null;
+    }
+
+    // Check if code is expired
+    if (connectionData.expires_at && new Date(connectionData.expires_at) < new Date()) {
+      console.warn('⚠️ [QR] Connection code expired:', { 
+        code, 
+        expiresAt: connectionData.expires_at,
+        currentTime: new Date().toISOString()
       });
-      logger.info('Invalid or expired connection code:', { code });
+      logger.info('Connection code expired:', { code, expiresAt: connectionData.expires_at });
       return null;
     }
 
-    const profileData = result[0]; // Get the first (and should be only) result
+    // Check if profile exists and has public profile enabled
+    if (!connectionData.profiles) {
+      console.error('❌ [QR] No profile data found for connection code:', { code });
+      logger.error('Profile not found for connection code:', { code });
+      return null;
+    }
 
-    // Track the QR scan for analytics
+    const profile = connectionData.profiles;
+
+    // Check if public profile is enabled
+    if (!profile.public_profile?.enabled) {
+      console.warn('⚠️ [QR] Public profile not enabled for user:', {
+        userId: profile.id,
+        publicProfile: profile.public_profile
+      });
+      logger.info('Public profile not enabled for user:', { userId: profile.id });
+      return null;
+    }
+
+    // Track the QR scan for analytics (non-blocking)
     try {
       const scanLocation = {
         latitude: null,
@@ -219,37 +268,36 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
       console.warn('⚠️ [QR] Error tracking QR scan (non-critical):', trackError);
     }
 
-    // Construct the public profile URL using environment variables
-    const baseUrl = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 
-      (typeof window !== 'undefined' && window.location.hostname === 'dislinkboltv2duplicate.netlify.app'
-        ? 'https://dislinkboltv2duplicate.netlify.app'
-        : 'http://localhost:3001');
+    // Construct the public profile URL using canonical site URL
+    const base = import.meta.env.VITE_SITE_URL || import.meta.env.VITE_APP_URL || 
+      (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3001');
+    const baseUrl = base.replace(/\/$/, '');
 
     const qrData: QRConnectionData = {
-      userId: profileData.user_id,
-      name: `${profileData.first_name} ${profileData.last_name}`.trim(),
-      jobTitle: profileData.job_title,
-      company: profileData.company,
-      profileImage: profileData.profile_image,
-      bio: profileData.bio,
-      interests: profileData.interests || [],
-      socialLinks: profileData.social_links || {},
-      publicProfile: profileData.public_profile,
+      userId: profile.id,
+      name: `${profile.first_name} ${profile.last_name}`.trim(),
+      jobTitle: profile.job_title,
+      company: profile.company,
+      profileImage: profile.profile_image,
+      bio: profile.bio,
+      interests: profile.interests || [],
+      socialLinks: profile.social_links || {},
+      publicProfile: profile.public_profile,
       connectionCode: code,
       publicProfileUrl: `${baseUrl}/profile/${code}`
     };
 
     console.debug('✅ [QR] Connection code validated successfully:', { 
       code, 
-      userId: profileData.user_id,
+      userId: profile.id,
       name: qrData.name,
       publicProfileUrl: qrData.publicProfileUrl,
-      expiresAt: profileData.code_expires_at
+      expiresAt: connectionData.expires_at
     });
     logger.info('Connection code validated successfully:', { 
       code, 
-      userId: profileData.user_id,
-      expiresAt: profileData.code_expires_at
+      userId: profile.id,
+      expiresAt: connectionData.expires_at
     });
     
     return qrData;

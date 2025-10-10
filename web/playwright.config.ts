@@ -22,7 +22,9 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3001',
+    baseURL: process.env.TEST_ENV === 'production' 
+      ? 'https://dislinkboltv2duplicate.netlify.app'
+      : 'http://localhost:3001',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -32,12 +34,6 @@ export default defineConfig({
     
     /* Record video on failure */
     video: 'retain-on-failure',
-    
-    /* Global timeout for each action */
-    actionTimeout: 10000,
-    
-    /* Global timeout for navigation */
-    navigationTimeout: 30000,
   },
 
   /* Configure projects for major browsers */
@@ -79,10 +75,22 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: {
-    command: 'pnpm dev',
+  webServer: process.env.TEST_ENV === 'production' ? undefined : {
+    command: 'pnpm --filter web dev',
     url: 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
+    timeout: 120 * 1000, // 2 minutes
+  },
+
+  /* Global setup and teardown */
+  globalSetup: require.resolve('./e2e/global-setup.ts'),
+  globalTeardown: require.resolve('./e2e/global-teardown.ts'),
+
+  /* Test timeout */
+  timeout: 30 * 1000, // 30 seconds
+
+  /* Expect timeout */
+  expect: {
+    timeout: 10 * 1000, // 10 seconds
   },
 });

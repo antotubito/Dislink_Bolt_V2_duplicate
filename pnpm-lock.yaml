@@ -274,7 +274,7 @@ importers:
         specifier: ^5.7.8
         version: 5.7.8
       '@playwright/test':
-        specifier: ^1.55.1
+        specifier: ^1.56.0
         version: 1.56.0
       '@tailwindcss/forms':
         specifier: ^0.5.7

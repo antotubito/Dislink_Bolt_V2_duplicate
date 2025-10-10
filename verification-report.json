@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-10-10T01:14:46.756Z",
+  "timestamp": "2025-10-10T17:17:44.719Z",
   "verification": {
     "timestamp": "2025-10-09T15:10:43.619Z",
     "build": {
@@ -39,9 +39,9 @@
     "overall": "PENDING"
   },
   "alerts": {
-    "total": 37,
+    "total": 116,
     "critical": 0,
-    "warnings": 37
+    "warnings": 116
   },
   "criticalAlerts": [],
   "warnings": [
@@ -263,6 +263,480 @@
     },
     {
       "timestamp": "2025-10-10T01:14:46.756Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:17:32.894Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:17:32.902Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:18:01.365Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:18:01.377Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:20:18.537Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:20:18.545Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:23:44.363Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T01:23:44.375Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T14:59:00.990Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T14:59:01.006Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:42:13.219Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:42:13.240Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:42:39.843Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:42:39.856Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:43:05.536Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:43:05.543Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:43:29.459Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:43:48.561Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:43:48.565Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:44:28.582Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:44:28.592Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:44:54.042Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:44:54.047Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:45:27.930Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:45:27.936Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:47:08.712Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:47:08.732Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:48:03.724Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:48:03.736Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:48:34.814Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:48:34.825Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:54:16.628Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T15:54:16.641Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:23:58.672Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:23:58.695Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:24:33.518Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:24:33.528Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:26:54.230Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:26:54.236Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:27:38.000Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:27:38.007Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:45:27.047Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:45:27.057Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:49:27.507Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:49:27.515Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:49:54.886Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:49:54.896Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:50:22.923Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:50:22.930Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:50:57.225Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:50:57.235Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:51:23.510Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T16:51:23.513Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:12:28.581Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:12:28.597Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:12:49.062Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:12:49.071Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:13:07.776Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:13:07.781Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:13:24.417Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:13:24.420Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:13:59.080Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:13:59.083Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:14:20.195Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:14:20.197Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:14:40.855Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:14:40.858Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:15:01.701Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:15:01.704Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:15:24.624Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:15:24.630Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:15:47.112Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:15:47.114Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:16:04.525Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:16:04.529Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:17:25.815Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:17:25.824Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:17:44.712Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T17:17:44.719Z",
       "type": "responsiveness",
       "message": "Low responsiveness score: 44.4%",
       "severity": "warning"

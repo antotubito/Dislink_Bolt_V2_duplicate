@@ -38,6 +38,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
+    "test:e2e:local": "TEST_ENV=local playwright test",
+    "test:e2e:production": "TEST_ENV=production playwright test",
+    "test:e2e:qr": "playwright test qr-profile-flow.spec.ts",
     "test:all": "pnpm test:run && pnpm test:e2e",
     "build:analyze": "pnpm build && npx vite-bundle-analyzer dist/assets/*.js",
     "security:audit": "pnpm audit && npx audit-ci --config audit-ci.json",
@@ -82,7 +85,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^5.7.8",
-    "@playwright/test": "^1.55.1",
+    "@playwright/test": "^1.56.0",
     "@tailwindcss/forms": "^0.5.7",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",

@@ -1,0 +1,2360 @@
+<testsuites id="" name="" tests="70" failures="52" skipped="0" errors="0" time="459.85275800000005">
+<testsuite name="qr-profile-flow.spec.ts" timestamp="2025-10-10T15:54:55.232Z" hostname="chromium" tests="14" failures="9" skipped="0" time="137.262" errors="0">
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code" classname="qr-profile-flow.spec.ts" time="5.638">
+<failure message="qr-profile-flow.spec.ts:22:9 should load public profile for valid connection code" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:22:9 › QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: not visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "not toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      38 |       
+      39 |       // Verify it's not showing error states
+    > 40 |       await expect(page.locator('text=Profile Not Found')).not.toBeVisible();
+         |                                                                ^
+      41 |       await expect(page.locator('text=QR Code Expired')).not.toBeVisible();
+      42 |       await expect(page.locator('text=Profile Not Public')).not.toBeVisible();
+      43 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:40:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-chromium/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should show connection request form" classname="qr-profile-flow.spec.ts" time="7.328">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should have working copy link functionality" classname="qr-profile-flow.spec.ts" time="7.873">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should be mobile responsive" classname="qr-profile-flow.spec.ts" time="6.332">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code" classname="qr-profile-flow.spec.ts" time="5.885">
+<failure message="qr-profile-flow.spec.ts:107:9 should show error for invalid connection code" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:107:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      110 |
+      111 |       // Should show error message
+    > 112 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+          |                                                            ^
+      113 |       await expect(page.locator('text=Profile not found or not publicly available')).toBeVisible();
+      114 |       
+      115 |       // Should have try again button
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:112:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-chromium/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code" classname="qr-profile-flow.spec.ts" time="18.719">
+<failure message="qr-profile-flow.spec.ts:120:9 should allow retry on invalid code" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:120:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Loading profile...')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Loading profile...')
+
+
+      126 |       
+      127 |       // Should show loading state
+    > 128 |       await expect(page.locator('text=Loading profile...')).toBeVisible();
+          |                                                             ^
+      129 |       
+      130 |       // Should return to error state
+      131 |       await page.waitForTimeout(2000); // Wait for retry to complete
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:128:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-chromium/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code" classname="qr-profile-flow.spec.ts" time="17.509">
+<failure message="qr-profile-flow.spec.ts:137:9 should show expired message for expired code" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:137:9 › QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=QR Code Expired')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=QR Code Expired')
+
+
+      140 |
+      141 |       // Should show expired message
+    > 142 |       await expect(page.locator('text=QR Code Expired')).toBeVisible();
+          |                                                          ^
+      143 |       await expect(page.locator('text=This QR code has expired')).toBeVisible();
+      144 |       await expect(page.locator('text=Ask the profile owner to share a new QR code')).toBeVisible();
+      145 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:142:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-chromium/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully" classname="qr-profile-flow.spec.ts" time="0.809">
+<failure message="qr-profile-flow.spec.ts:149:9 should handle network errors gracefully" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:149:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully 
+
+    Error: page.goto: net::ERR_FAILED at http://localhost:3001/profile/22f75aa8
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      151 |       await page.route('**/*', route => route.abort());
+      152 |       
+    > 153 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      154 |       await page.waitForLoadState('networkidle');
+      155 |
+      156 |       // Should show error state
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:153:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-chromium/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections" classname="qr-profile-flow.spec.ts" time="38.892">
+<failure message="qr-profile-flow.spec.ts:161:9 should handle slow network connections" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:161:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      166 |       });
+      167 |       
+    > 168 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      169 |       
+      170 |       // Should show loading state
+      171 |       await expect(page.locator('text=Loading profile...')).toBeVisible();
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:168:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-chromium/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles" classname="qr-profile-flow.spec.ts" time="10.747">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable" classname="qr-profile-flow.spec.ts" time="6.785">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should load within acceptable time" classname="qr-profile-flow.spec.ts" time="5.802">
+<failure message="qr-profile-flow.spec.ts:224:9 should load within acceptable time" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:224:9 › QR Profile Flow E2E Tests › Performance › should load within acceptable time 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 5000
+    Received:   5388
+
+      231 |       
+      232 |       // Should load within 5 seconds
+    > 233 |       expect(loadTime).toBeLessThan(5000);
+          |                        ^
+      234 |     });
+      235 |
+      236 |     test('should not have console errors', async ({ page }) => {
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:233:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-chromium/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should not have console errors" classname="qr-profile-flow.spec.ts" time="4.626">
+<failure message="qr-profile-flow.spec.ts:236:9 should not have console errors" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:236:9 › QR Profile Flow E2E Tests › Performance › should not have console errors 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 0
+    Received length: 8
+    Received array:  ["❌ [QR] Database error querying connection_codes: {code: PGRST201, details: Array(2), hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T15:55:03.381Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed
+        at loadProfileData (http://localhost:3001/src/pages/PublicProfileUnified.tsx:91:22) {tags: Object, extra: Object, timestamp: 2025-10-10T15:55:03.382Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…L, like Gecko) Chrome/141.0.7390.37 Safari/537.36}", "❌ [QR] Database error querying connection_codes: {code: PGRST201, details: Array(2), hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T15:55:03.382Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed
+        at loadProfileData (http://localhost:3001/src/pages/PublicProfileUnified.tsx:91:22) {tags: Object, extra: Object, timestamp: 2025-10-10T15:55:03.382Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWeb…L, like Gecko) Chrome/141.0.7390.37 Safari/537.36}"]
+
+      253 |       );
+      254 |       
+    > 255 |       expect(criticalErrors).toHaveLength(0);
+          |                              ^
+      256 |     });
+      257 |   });
+      258 | });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:255:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-chromium/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-chromium/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-chromium/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-chromium/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Incognito Mode Tests › should work in incognito mode" classname="qr-profile-flow.spec.ts" time="0.317">
+<failure message="qr-profile-flow.spec.ts:262:7 should work in incognito mode" type="FAILURE">
+<![CDATA[  [chromium] › qr-profile-flow.spec.ts:262:7 › Incognito Mode Tests › should work in incognito mode 
+
+    ReferenceError: baseUrl is not defined
+
+      266 |     
+      267 |     try {
+    > 268 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                          ^
+      269 |       await page.waitForLoadState('networkidle');
+      270 |       
+      271 |       // Should load without authentication
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:268:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-chromium/test-failed-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="qr-profile-flow.spec.ts" timestamp="2025-10-10T15:54:55.232Z" hostname="firefox" tests="14" failures="12" skipped="0" time="384.774" errors="0">
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code" classname="qr-profile-flow.spec.ts" time="31.264">
+<failure message="qr-profile-flow.spec.ts:22:9 should load public profile for valid connection code" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:22:9 › QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      25 |
+      26 |       // Wait for page to load
+    > 27 |       await page.waitForLoadState('networkidle');
+         |                  ^
+      28 |
+      29 |       // Check that we're not redirected to login
+      30 |       expect(page.url()).toContain(`/profile/${TEST_CONNECTION_CODE}`);
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:27:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should show connection request form" classname="qr-profile-flow.spec.ts" time="24.3">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should have working copy link functionality" classname="qr-profile-flow.spec.ts" time="17.666">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should be mobile responsive" classname="qr-profile-flow.spec.ts" time="35.503">
+<failure message="qr-profile-flow.spec.ts:80:9 should be mobile responsive" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:80:9 › QR Profile Flow E2E Tests › Valid Connection Code › should be mobile responsive 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.boundingBox: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('button').nth(1)
+
+
+       95 |         const button = buttons.nth(i);
+       96 |         if (await button.isVisible()) {
+    >  97 |           const box = await button.boundingBox();
+          |                                    ^
+       98 |           if (box) {
+       99 |             expect(box.height).toBeGreaterThanOrEqual(44);
+      100 |           }
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:97:36
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5f693-should-be-mobile-responsive-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5f693-should-be-mobile-responsive-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-5f693-should-be-mobile-responsive-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5f693-should-be-mobile-responsive-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5f693-should-be-mobile-responsive-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5f693-should-be-mobile-responsive-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code" classname="qr-profile-flow.spec.ts" time="31.531">
+<failure message="qr-profile-flow.spec.ts:107:9 should show error for invalid connection code" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:107:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      107 |     test('should show error for invalid connection code', async ({ page }) => {
+      108 |       await page.goto(`${baseUrl}/profile/${INVALID_CONNECTION_CODE}`);
+    > 109 |       await page.waitForLoadState('networkidle');
+          |                  ^
+      110 |
+      111 |       // Should show error message
+      112 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:109:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code" classname="qr-profile-flow.spec.ts" time="23.755">
+<failure message="qr-profile-flow.spec.ts:120:9 should allow retry on invalid code" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:120:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      130 |       // Should return to error state
+      131 |       await page.waitForTimeout(2000); // Wait for retry to complete
+    > 132 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+          |                                                            ^
+      133 |     });
+      134 |   });
+      135 |
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:132:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code" classname="qr-profile-flow.spec.ts" time="30.431">
+<failure message="qr-profile-flow.spec.ts:137:9 should show expired message for expired code" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:137:9 › QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=QR Code Expired')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=QR Code Expired')
+
+
+      140 |
+      141 |       // Should show expired message
+    > 142 |       await expect(page.locator('text=QR Code Expired')).toBeVisible();
+          |                                                          ^
+      143 |       await expect(page.locator('text=This QR code has expired')).toBeVisible();
+      144 |       await expect(page.locator('text=Ask the profile owner to share a new QR code')).toBeVisible();
+      145 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:142:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully" classname="qr-profile-flow.spec.ts" time="7.076">
+<failure message="qr-profile-flow.spec.ts:149:9 should handle network errors gracefully" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:149:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully 
+
+    Error: page.goto: NS_ERROR_FAILURE
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      151 |       await page.route('**/*', route => route.abort());
+      152 |       
+    > 153 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      154 |       await page.waitForLoadState('networkidle');
+      155 |
+      156 |       // Should show error state
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:153:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-firefox/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections" classname="qr-profile-flow.spec.ts" time="35.791">
+<failure message="qr-profile-flow.spec.ts:161:9 should handle slow network connections" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:161:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Loading profile...')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Loading profile...')
+
+
+      169 |       
+      170 |       // Should show loading state
+    > 171 |       await expect(page.locator('text=Loading profile...')).toBeVisible();
+          |                                                             ^
+      172 |       
+      173 |       // Wait for content to load
+      174 |       await page.waitForLoadState('networkidle');
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:171:61
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles" classname="qr-profile-flow.spec.ts" time="31.503">
+<failure message="qr-profile-flow.spec.ts:185:9 should have proper ARIA labels and roles" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:185:9 › QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.waitForLoadState: Test timeout of 30000ms exceeded.
+
+      185 |     test('should have proper ARIA labels and roles', async ({ page }) => {
+      186 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+    > 187 |       await page.waitForLoadState('networkidle');
+          |                  ^
+      188 |
+      189 |       // Check for proper heading structure
+      190 |       const headings = page.locator('h1, h2, h3');
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:187:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable" classname="qr-profile-flow.spec.ts" time="40.235">
+<failure message="qr-profile-flow.spec.ts:210:9 should be keyboard navigable" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:210:9 › QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      209 |
+      210 |     test('should be keyboard navigable', async ({ page }) => {
+    > 211 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      212 |       await page.waitForLoadState('networkidle');
+      213 |
+      214 |       // Tab through interactive elements
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:211:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-firefox/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should load within acceptable time" classname="qr-profile-flow.spec.ts" time="46.032">
+<failure message="qr-profile-flow.spec.ts:224:9 should load within acceptable time" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:224:9 › QR Profile Flow E2E Tests › Performance › should load within acceptable time 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      225 |       const startTime = Date.now();
+      226 |       
+    > 227 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      228 |       await page.waitForLoadState('networkidle');
+      229 |       
+      230 |       const loadTime = Date.now() - startTime;
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:227:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-firefox/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should not have console errors" classname="qr-profile-flow.spec.ts" time="23.212">
+<failure message="qr-profile-flow.spec.ts:236:9 should not have console errors" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:236:9 › QR Profile Flow E2E Tests › Performance › should not have console errors 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 0
+    Received length: 8
+    Received array:  ["❌ [QR] Database error querying connection_codes: JSHandle@object", "[2025-10-10T15:56:30.522Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error JSHandle@object", "❌ [QR] Database error querying connection_codes: JSHandle@object", "[2025-10-10T15:56:30.670Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error JSHandle@object"]
+
+      253 |       );
+      254 |       
+    > 255 |       expect(criticalErrors).toHaveLength(0);
+          |                              ^
+      256 |     });
+      257 |   });
+      258 | });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:255:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-firefox/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-firefox/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-firefox/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-firefox/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-firefox/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Incognito Mode Tests › should work in incognito mode" classname="qr-profile-flow.spec.ts" time="6.475">
+<failure message="qr-profile-flow.spec.ts:262:7 should work in incognito mode" type="FAILURE">
+<![CDATA[  [firefox] › qr-profile-flow.spec.ts:262:7 › Incognito Mode Tests › should work in incognito mode ─
+
+    ReferenceError: baseUrl is not defined
+
+      266 |     
+      267 |     try {
+    > 268 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                          ^
+      269 |       await page.waitForLoadState('networkidle');
+      270 |       
+      271 |       // Should load without authentication
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:268:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-firefox/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-firefox/test-failed-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="qr-profile-flow.spec.ts" timestamp="2025-10-10T15:54:55.232Z" hostname="webkit" tests="14" failures="11" skipped="0" time="329.732" errors="0">
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code" classname="qr-profile-flow.spec.ts" time="11.033">
+<failure message="qr-profile-flow.spec.ts:22:9 should load public profile for valid connection code" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:22:9 › QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: not visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "not toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      38 |       
+      39 |       // Verify it's not showing error states
+    > 40 |       await expect(page.locator('text=Profile Not Found')).not.toBeVisible();
+         |                                                                ^
+      41 |       await expect(page.locator('text=QR Code Expired')).not.toBeVisible();
+      42 |       await expect(page.locator('text=Profile Not Public')).not.toBeVisible();
+      43 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:40:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should show connection request form" classname="qr-profile-flow.spec.ts" time="14.195">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should have working copy link functionality" classname="qr-profile-flow.spec.ts" time="9.748">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should be mobile responsive" classname="qr-profile-flow.spec.ts" time="13.449">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code" classname="qr-profile-flow.spec.ts" time="14.577">
+<failure message="qr-profile-flow.spec.ts:107:9 should show error for invalid connection code" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:107:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      110 |
+      111 |       // Should show error message
+    > 112 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+          |                                                            ^
+      113 |       await expect(page.locator('text=Profile not found or not publicly available')).toBeVisible();
+      114 |       
+      115 |       // Should have try again button
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:112:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code" classname="qr-profile-flow.spec.ts" time="17.783">
+<failure message="qr-profile-flow.spec.ts:120:9 should allow retry on invalid code" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:120:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      130 |       // Should return to error state
+      131 |       await page.waitForTimeout(2000); // Wait for retry to complete
+    > 132 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+          |                                                            ^
+      133 |     });
+      134 |   });
+      135 |
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:132:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code" classname="qr-profile-flow.spec.ts" time="38.833">
+<failure message="qr-profile-flow.spec.ts:137:9 should show expired message for expired code" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:137:9 › QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=QR Code Expired')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=QR Code Expired')
+
+
+      140 |
+      141 |       // Should show expired message
+    > 142 |       await expect(page.locator('text=QR Code Expired')).toBeVisible();
+          |                                                          ^
+      143 |       await expect(page.locator('text=This QR code has expired')).toBeVisible();
+      144 |       await expect(page.locator('text=Ask the profile owner to share a new QR code')).toBeVisible();
+      145 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:142:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully" classname="qr-profile-flow.spec.ts" time="12.059">
+<failure message="qr-profile-flow.spec.ts:149:9 should handle network errors gracefully" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:149:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully 
+
+    Error: page.goto: Blocked by Web Inspector
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      151 |       await page.route('**/*', route => route.abort());
+      152 |       
+    > 153 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      154 |       await page.waitForLoadState('networkidle');
+      155 |
+      156 |       // Should show error state
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:153:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-webkit/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections" classname="qr-profile-flow.spec.ts" time="59.822">
+<failure message="qr-profile-flow.spec.ts:161:9 should handle slow network connections" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:161:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      166 |       });
+      167 |       
+    > 168 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      169 |       
+      170 |       // Should show loading state
+      171 |       await expect(page.locator('text=Loading profile...')).toBeVisible();
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:168:18
+
+    attachment #1: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-webkit/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles" classname="qr-profile-flow.spec.ts" time="37.177">
+<failure message="qr-profile-flow.spec.ts:185:9 should have proper ARIA labels and roles" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:185:9 › QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      190 |       const headings = page.locator('h1, h2, h3');
+      191 |       const headingCount = await headings.count();
+    > 192 |       expect(headingCount).toBeGreaterThan(0);
+          |                            ^
+      193 |
+      194 |       // Check for proper button labels
+      195 |       const buttons = page.locator('button');
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:192:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable" classname="qr-profile-flow.spec.ts" time="48.487">
+<failure message="qr-profile-flow.spec.ts:210:9 should be keyboard navigable" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:210:9 › QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator(':focus')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator(':focus')
+
+
+      217 |       // Check that focus is visible
+      218 |       const focusedElement = page.locator(':focus');
+    > 219 |       await expect(focusedElement).toBeVisible();
+          |                                    ^
+      220 |     });
+      221 |   });
+      222 |
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:219:36
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should load within acceptable time" classname="qr-profile-flow.spec.ts" time="33.536">
+<failure message="qr-profile-flow.spec.ts:224:9 should load within acceptable time" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:224:9 › QR Profile Flow E2E Tests › Performance › should load within acceptable time 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 5000
+    Received:   19956
+
+      231 |       
+      232 |       // Should load within 5 seconds
+    > 233 |       expect(loadTime).toBeLessThan(5000);
+          |                        ^
+      234 |     });
+      235 |
+      236 |     test('should not have console errors', async ({ page }) => {
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:233:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should not have console errors" classname="qr-profile-flow.spec.ts" time="15.619">
+<failure message="qr-profile-flow.spec.ts:236:9 should not have console errors" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:236:9 › QR Profile Flow E2E Tests › Performance › should not have console errors 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 0
+    Received length: 8
+    Received array:  ["❌ [QR] Database error querying connection_codes: {code: PGRST201, details: undefined, hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T15:58:07.147Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed {tags: undefined, extra: undefined, timestamp: 2025-10-10T15:58:07.147Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap… (KHTML, like Gecko) Version/26.0 Safari/605.1.15}", "❌ [QR] Database error querying connection_codes: {code: PGRST201, details: undefined, hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T15:58:07.151Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed {tags: undefined, extra: undefined, timestamp: 2025-10-10T15:58:07.151Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Ap… (KHTML, like Gecko) Version/26.0 Safari/605.1.15}"]
+
+      253 |       );
+      254 |       
+    > 255 |       expect(criticalErrors).toHaveLength(0);
+          |                              ^
+      256 |     });
+      257 |   });
+      258 | });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:255:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-webkit/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-webkit/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-webkit/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-webkit/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-webkit/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Incognito Mode Tests › should work in incognito mode" classname="qr-profile-flow.spec.ts" time="3.414">
+<failure message="qr-profile-flow.spec.ts:262:7 should work in incognito mode" type="FAILURE">
+<![CDATA[  [webkit] › qr-profile-flow.spec.ts:262:7 › Incognito Mode Tests › should work in incognito mode ──
+
+    ReferenceError: baseUrl is not defined
+
+      266 |     
+      267 |     try {
+    > 268 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                          ^
+      269 |       await page.waitForLoadState('networkidle');
+      270 |       
+      271 |       // Should load without authentication
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:268:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-webkit/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-webkit/test-failed-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="qr-profile-flow.spec.ts" timestamp="2025-10-10T15:54:55.232Z" hostname="Mobile Chrome" tests="14" failures="11" skipped="0" time="231.708" errors="0">
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code" classname="qr-profile-flow.spec.ts" time="11.373">
+<failure message="qr-profile-flow.spec.ts:22:9 should load public profile for valid connection code" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:22:9 › QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: not visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "not toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      38 |       
+      39 |       // Verify it's not showing error states
+    > 40 |       await expect(page.locator('text=Profile Not Found')).not.toBeVisible();
+         |                                                                ^
+      41 |       await expect(page.locator('text=QR Code Expired')).not.toBeVisible();
+      42 |       await expect(page.locator('text=Profile Not Public')).not.toBeVisible();
+      43 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:40:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should show connection request form" classname="qr-profile-flow.spec.ts" time="12.422">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should have working copy link functionality" classname="qr-profile-flow.spec.ts" time="6.424">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should be mobile responsive" classname="qr-profile-flow.spec.ts" time="13.149">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code" classname="qr-profile-flow.spec.ts" time="13.303">
+<failure message="qr-profile-flow.spec.ts:107:9 should show error for invalid connection code" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:107:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      110 |
+      111 |       // Should show error message
+    > 112 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+          |                                                            ^
+      113 |       await expect(page.locator('text=Profile not found or not publicly available')).toBeVisible();
+      114 |       
+      115 |       // Should have try again button
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:112:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code" classname="qr-profile-flow.spec.ts" time="20.449">
+<failure message="qr-profile-flow.spec.ts:120:9 should allow retry on invalid code" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:120:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Loading profile...')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Loading profile...')
+
+
+      126 |       
+      127 |       // Should show loading state
+    > 128 |       await expect(page.locator('text=Loading profile...')).toBeVisible();
+          |                                                             ^
+      129 |       
+      130 |       // Should return to error state
+      131 |       await page.waitForTimeout(2000); // Wait for retry to complete
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:128:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code" classname="qr-profile-flow.spec.ts" time="29.09">
+<failure message="qr-profile-flow.spec.ts:137:9 should show expired message for expired code" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:137:9 › QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=QR Code Expired')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=QR Code Expired')
+
+
+      140 |
+      141 |       // Should show expired message
+    > 142 |       await expect(page.locator('text=QR Code Expired')).toBeVisible();
+          |                                                          ^
+      143 |       await expect(page.locator('text=This QR code has expired')).toBeVisible();
+      144 |       await expect(page.locator('text=Ask the profile owner to share a new QR code')).toBeVisible();
+      145 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:142:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully" classname="qr-profile-flow.spec.ts" time="0.799">
+<failure message="qr-profile-flow.spec.ts:149:9 should handle network errors gracefully" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:149:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully 
+
+    Error: page.goto: net::ERR_FAILED at http://localhost:3001/profile/22f75aa8
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      151 |       await page.route('**/*', route => route.abort());
+      152 |       
+    > 153 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      154 |       await page.waitForLoadState('networkidle');
+      155 |
+      156 |       // Should show error state
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:153:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Chrome/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections" classname="qr-profile-flow.spec.ts" time="63.679">
+<failure message="qr-profile-flow.spec.ts:161:9 should handle slow network connections" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:161:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: page.goto: Test timeout of 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      166 |       });
+      167 |       
+    > 168 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      169 |       
+      170 |       // Should show loading state
+      171 |       await expect(page.locator('text=Loading profile...')).toBeVisible();
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:168:18
+
+    Tearing down "context" exceeded the test timeout of 30000ms.
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles" classname="qr-profile-flow.spec.ts" time="18.277">
+<failure message="qr-profile-flow.spec.ts:185:9 should have proper ARIA labels and roles" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:185:9 › QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles 
+
+    Error: expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      190 |       const headings = page.locator('h1, h2, h3');
+      191 |       const headingCount = await headings.count();
+    > 192 |       expect(headingCount).toBeGreaterThan(0);
+          |                            ^
+      193 |
+      194 |       // Check for proper button labels
+      195 |       const buttons = page.locator('button');
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:192:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-662ed-roper-ARIA-labels-and-roles-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable" classname="qr-profile-flow.spec.ts" time="21.945">
+<failure message="qr-profile-flow.spec.ts:210:9 should be keyboard navigable" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:210:9 › QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator(':focus')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator(':focus')
+
+
+      217 |       // Check that focus is visible
+      218 |       const focusedElement = page.locator(':focus');
+    > 219 |       await expect(focusedElement).toBeVisible();
+          |                                    ^
+      220 |     });
+      221 |   });
+      222 |
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:219:36
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should load within acceptable time" classname="qr-profile-flow.spec.ts" time="13.025">
+<failure message="qr-profile-flow.spec.ts:224:9 should load within acceptable time" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:224:9 › QR Profile Flow E2E Tests › Performance › should load within acceptable time 
+
+    Error: expect(received).toBeLessThan(expected)
+
+    Expected: < 5000
+    Received:   9361
+
+      231 |       
+      232 |       // Should load within 5 seconds
+    > 233 |       expect(loadTime).toBeLessThan(5000);
+          |                        ^
+      234 |     });
+      235 |
+      236 |     test('should not have console errors', async ({ page }) => {
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:233:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-43b4d-load-within-acceptable-time-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should not have console errors" classname="qr-profile-flow.spec.ts" time="7.006">
+<failure message="qr-profile-flow.spec.ts:236:9 should not have console errors" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:236:9 › QR Profile Flow E2E Tests › Performance › should not have console errors 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 0
+    Received length: 8
+    Received array:  ["❌ [QR] Database error querying connection_codes: {code: PGRST201, details: Array(2), hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T15:59:42.334Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed
+        at loadProfileData (http://localhost:3001/src/pages/PublicProfileUnified.tsx:91:22) {tags: Object, extra: Object, timestamp: 2025-10-10T15:59:42.335Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebK… Gecko) Chrome/141.0.7390.37 Mobile Safari/537.36}", "❌ [QR] Database error querying connection_codes: {code: PGRST201, details: Array(2), hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T15:59:42.341Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed
+        at loadProfileData (http://localhost:3001/src/pages/PublicProfileUnified.tsx:91:22) {tags: Object, extra: Object, timestamp: 2025-10-10T15:59:42.341Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebK… Gecko) Chrome/141.0.7390.37 Mobile Safari/537.36}"]
+
+      253 |       );
+      254 |       
+    > 255 |       expect(criticalErrors).toHaveLength(0);
+          |                              ^
+      256 |     });
+      257 |   });
+      258 | });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:255:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Chrome/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Chrome/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Chrome/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Incognito Mode Tests › should work in incognito mode" classname="qr-profile-flow.spec.ts" time="0.767">
+<failure message="qr-profile-flow.spec.ts:262:7 should work in incognito mode" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › qr-profile-flow.spec.ts:262:7 › Incognito Mode Tests › should work in incognito mode 
+
+    ReferenceError: baseUrl is not defined
+
+      266 |     
+      267 |     try {
+    > 268 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                          ^
+      269 |       await page.waitForLoadState('networkidle');
+      270 |       
+      271 |       // Should load without authentication
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:268:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-Mobile-Chrome/test-failed-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="qr-profile-flow.spec.ts" timestamp="2025-10-10T15:54:55.232Z" hostname="Mobile Safari" tests="14" failures="9" skipped="0" time="226.722" errors="0">
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code" classname="qr-profile-flow.spec.ts" time="27.669">
+<failure message="qr-profile-flow.spec.ts:22:9 should load public profile for valid connection code" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:22:9 › QR Profile Flow E2E Tests › Valid Connection Code › should load public profile for valid connection code 
+
+    Error: expect(locator).not.toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: not visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "not toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      38 |       
+      39 |       // Verify it's not showing error states
+    > 40 |       await expect(page.locator('text=Profile Not Found')).not.toBeVisible();
+         |                                                                ^
+      41 |       await expect(page.locator('text=QR Code Expired')).not.toBeVisible();
+      42 |       await expect(page.locator('text=Profile Not Public')).not.toBeVisible();
+      43 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:40:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-69416-e-for-valid-connection-code-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should show connection request form" classname="qr-profile-flow.spec.ts" time="24.052">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should have working copy link functionality" classname="qr-profile-flow.spec.ts" time="10.149">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Valid Connection Code › should be mobile responsive" classname="qr-profile-flow.spec.ts" time="21.213">
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code" classname="qr-profile-flow.spec.ts" time="21.178">
+<failure message="qr-profile-flow.spec.ts:107:9 should show error for invalid connection code" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:107:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should show error for invalid connection code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      110 |
+      111 |       // Should show error message
+    > 112 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+          |                                                            ^
+      113 |       await expect(page.locator('text=Profile not found or not publicly available')).toBeVisible();
+      114 |       
+      115 |       // Should have try again button
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:112:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-a150b-for-invalid-connection-code-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code" classname="qr-profile-flow.spec.ts" time="27.309">
+<failure message="qr-profile-flow.spec.ts:120:9 should allow retry on invalid code" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:120:9 › QR Profile Flow E2E Tests › Invalid Connection Code › should allow retry on invalid code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Profile Not Found')
+    Expected: visible
+    Error: strict mode violation: locator('text=Profile Not Found') resolved to 2 elements:
+        1) <h1 class="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1> aka getByRole('heading', { name: 'Profile Not Found' })
+        2) <p class="text-gray-600 mb-6">Profile not found or not publicly available. This…</p> aka getByText('Profile not found or not')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Profile Not Found')
+
+
+      130 |       // Should return to error state
+      131 |       await page.waitForTimeout(2000); // Wait for retry to complete
+    > 132 |       await expect(page.locator('text=Profile Not Found')).toBeVisible();
+          |                                                            ^
+      133 |     });
+      134 |   });
+      135 |
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:132:60
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-62947-allow-retry-on-invalid-code-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code" classname="qr-profile-flow.spec.ts" time="20.064">
+<failure message="qr-profile-flow.spec.ts:137:9 should show expired message for expired code" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:137:9 › QR Profile Flow E2E Tests › Expired Connection Code › should show expired message for expired code 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=QR Code Expired')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=QR Code Expired')
+
+
+      140 |
+      141 |       // Should show expired message
+    > 142 |       await expect(page.locator('text=QR Code Expired')).toBeVisible();
+          |                                                          ^
+      143 |       await expect(page.locator('text=This QR code has expired')).toBeVisible();
+      144 |       await expect(page.locator('text=Ask the profile owner to share a new QR code')).toBeVisible();
+      145 |     });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:142:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-3a666-ed-message-for-expired-code-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully" classname="qr-profile-flow.spec.ts" time="2.85">
+<failure message="qr-profile-flow.spec.ts:149:9 should handle network errors gracefully" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:149:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle network errors gracefully 
+
+    Error: page.goto: Blocked by Web Inspector
+    Call log:
+      - navigating to "http://localhost:3001/profile/22f75aa8", waiting until "load"
+
+
+      151 |       await page.route('**/*', route => route.abort());
+      152 |       
+    > 153 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                  ^
+      154 |       await page.waitForLoadState('networkidle');
+      155 |
+      156 |       // Should show error state
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:153:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-cad77-e-network-errors-gracefully-Mobile-Safari/video.webm]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections" classname="qr-profile-flow.spec.ts" time="32.524">
+<failure message="qr-profile-flow.spec.ts:161:9 should handle slow network connections" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:161:9 › QR Profile Flow E2E Tests › Network and Error Handling › should handle slow network connections 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('text=Loading profile...')
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator('text=Loading profile...')
+
+
+      169 |       
+      170 |       // Should show loading state
+    > 171 |       await expect(page.locator('text=Loading profile...')).toBeVisible();
+          |                                                             ^
+      172 |       
+      173 |       // Wait for content to load
+      174 |       await page.waitForLoadState('networkidle');
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:171:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-e7fac-le-slow-network-connections-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should have proper ARIA labels and roles" classname="qr-profile-flow.spec.ts" time="4.197">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable" classname="qr-profile-flow.spec.ts" time="15.284">
+<failure message="qr-profile-flow.spec.ts:210:9 should be keyboard navigable" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:210:9 › QR Profile Flow E2E Tests › Accessibility › should be keyboard navigable 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator(':focus')
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for locator(':focus')
+
+
+      217 |       // Check that focus is visible
+      218 |       const focusedElement = page.locator(':focus');
+    > 219 |       await expect(focusedElement).toBeVisible();
+          |                                    ^
+      220 |     });
+      221 |   });
+      222 |
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:219:36
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-5d297-hould-be-keyboard-navigable-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should load within acceptable time" classname="qr-profile-flow.spec.ts" time="3.859">
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+]]>
+</system-out>
+</testcase>
+<testcase name="QR Profile Flow E2E Tests › Performance › should not have console errors" classname="qr-profile-flow.spec.ts" time="14.226">
+<failure message="qr-profile-flow.spec.ts:236:9 should not have console errors" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:236:9 › QR Profile Flow E2E Tests › Performance › should not have console errors 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 0
+    Received length: 8
+    Received array:  ["❌ [QR] Database error querying connection_codes: {code: PGRST201, details: undefined, hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T16:01:44.106Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed {tags: undefined, extra: undefined, timestamp: 2025-10-10T16:01:44.106Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac O…ke Gecko) Version/26.0 Mobile/15E148 Safari/604.1}", "❌ [QR] Database error querying connection_codes: {code: PGRST201, details: undefined, hint: Try changing 'profiles' to one of the following: '…nd the desired relationship in the 'details' key., message: Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'}", "[2025-10-10T16:01:44.107Z] ERROR: Database error validating connection code:", "Error details: {
+      \"code\": \"PGRST201\",
+      \"details\": [
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_scanned_by_fkey using connection_codes(scanned_by) and profiles(id)\"
+        },
+        {
+          \"cardinality\": \"many-to-one\",
+          \"embedding\": \"connection_codes with profiles\",
+          \"relationship\": \"connection_codes_user_id_fkey using connection_codes(user_id) and profiles(id)\"
+        }
+      ],
+      \"hint\": \"Try changing 'profiles' to one of the following: 'profiles!connection_codes_scanned_by_fkey', 'profiles!connection_codes_user_id_fkey'. Find the desired relationship in the 'details' key.\",
+      \"message\": \"Could not embed because more than one relationship was found for 'connection_codes' and 'profiles'\"
+    }", "Error captured (dev mode): Error: Connection code validation failed {tags: undefined, extra: undefined, timestamp: 2025-10-10T16:01:44.108Z, url: http://localhost:3001/profile/22f75aa8, userAgent: Mozilla/5.0 (iPhone; CPU iPhone OS 14_4 like Mac O…ke Gecko) Version/26.0 Mobile/15E148 Safari/604.1}"]
+
+      253 |       );
+      254 |       
+    > 255 |       expect(criticalErrors).toHaveLength(0);
+          |                              ^
+      256 |     });
+      257 |   });
+      258 | });
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:255:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Safari/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../test-results/qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Safari/error-context.md
+]]>
+</failure>
+<system-out>
+<![CDATA[🧪 Testing against: http://localhost:3001
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Safari/test-failed-1.png]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Safari/video.webm]]
+
+[[ATTACHMENT|qr-profile-flow-QR-Profile-df49a-uld-not-have-console-errors-Mobile-Safari/error-context.md]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Incognito Mode Tests › should work in incognito mode" classname="qr-profile-flow.spec.ts" time="2.148">
+<failure message="qr-profile-flow.spec.ts:262:7 should work in incognito mode" type="FAILURE">
+<![CDATA[  [Mobile Safari] › qr-profile-flow.spec.ts:262:7 › Incognito Mode Tests › should work in incognito mode 
+
+    ReferenceError: baseUrl is not defined
+
+      266 |     
+      267 |     try {
+    > 268 |       await page.goto(`${baseUrl}/profile/${TEST_CONNECTION_CODE}`);
+          |                          ^
+      269 |       await page.waitForLoadState('networkidle');
+      270 |       
+      271 |       // Should load without authentication
+        at /Users/antoniotubito/Desktop/PROGETTI/DISLINK/Versions/Dislink_Bolt_V2_duplicate/web/e2e/qr-profile-flow.spec.ts:268:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-Mobile-Safari/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|qr-profile-flow-Incognito--28a0d-ould-work-in-incognito-mode-Mobile-Safari/test-failed-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>
