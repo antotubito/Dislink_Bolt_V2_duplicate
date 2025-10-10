@@ -16,6 +16,46 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [showTestModal, setShowTestModal] = useState(false);
 
+  // Retry pending emails on component mount
+  React.useEffect(() => {
+    const retryPendingEmails = async () => {
+      try {
+        const pendingEmails = JSON.parse(localStorage.getItem('pendingWaitlistEmails') || '[]');
+        if (pendingEmails.length > 0) {
+          console.log('🔄 Retrying pending waitlist emails:', pendingEmails.length);
+          
+          const { googleSheetsService } = await import('../../lib/googleSheetsService');
+          const successfulRetries = [];
+          
+          for (const pendingEmail of pendingEmails) {
+            try {
+              const success = await googleSheetsService.submitEmail(pendingEmail.email, pendingEmail.source);
+              if (success) {
+                successfulRetries.push(pendingEmail);
+                console.log('✅ Retry successful for:', pendingEmail.email.substring(0, 3) + '***');
+              }
+            } catch (retryError) {
+              console.warn('⚠️ Retry failed for:', pendingEmail.email.substring(0, 3) + '***', retryError);
+            }
+          }
+          
+          // Remove successfully retried emails
+          if (successfulRetries.length > 0) {
+            const remainingEmails = pendingEmails.filter(email => 
+              !successfulRetries.some(successful => successful.email === email.email)
+            );
+            localStorage.setItem('pendingWaitlistEmails', JSON.stringify(remainingEmails));
+            console.log('✅ Retried', successfulRetries.length, 'emails successfully');
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ Error retrying pending emails:', error);
+      }
+    };
+
+    retryPendingEmails();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -58,7 +98,22 @@ export function WaitlistForm({ onSuccess }: WaitlistFormProps) {
         });
       } else {
         console.error('❌ WAITLIST: Submission failed - Google Sheets service returned false');
-        setError("Failed to join waitlist. Please try again or contact support.");
+        
+        // Store email locally as fallback
+        try {
+          const pendingEmails = JSON.parse(localStorage.getItem('pendingWaitlistEmails') || '[]');
+          pendingEmails.push({
+            email: email,
+            timestamp: new Date().toISOString(),
+            source: 'waitlist-form-fallback'
+          });
+          localStorage.setItem('pendingWaitlistEmails', JSON.stringify(pendingEmails));
+          console.log('📧 Email stored locally as fallback');
+        } catch (storageError) {
+          console.warn('⚠️ Could not store email locally:', storageError);
+        }
+        
+        setError("Unable to join waitlist at this time. Your email has been saved locally and will be processed when the service is available. Please try again in a few moments.");
       }
 
     } catch (err) {

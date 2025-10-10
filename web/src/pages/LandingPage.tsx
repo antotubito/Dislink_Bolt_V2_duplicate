@@ -413,7 +413,12 @@ export function LandingPage() {
 
                             {/* Waitlist Form */}
                             <div className="max-w-md mx-auto">
-                                <WaitlistForm />
+                                <WaitlistForm 
+                                    onSuccess={() => {
+                                        console.log('✅ Waitlist signup successful!');
+                                        // Optional: Show additional success message or redirect
+                                    }}
+                                />
                             </div>
 
                             <p className="text-sm text-gray-400 mt-6">

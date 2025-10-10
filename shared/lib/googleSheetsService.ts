@@ -63,7 +63,11 @@ class GoogleSheetsService {
                     body: formData
                 });
 
-                if (response.ok) {
+                console.log('Google Sheets webhook response status:', response.status);
+                console.log('Google Sheets webhook response headers:', Object.fromEntries(response.headers.entries()));
+
+                // Google Apps Script returns 302 redirects, which is normal
+                if (response.ok || response.status === 302) {
                     const result = await response.text();
                     console.log('Google Sheets webhook response:', result);
                     return true;
@@ -172,18 +176,35 @@ class GoogleSheetsService {
 
         // Try webhook first (most reliable), then fallback to API
         if (this.config.webhookUrl) {
-            const webhookSuccess = await this.submitViaWebhook(entry);
-            if (webhookSuccess) {
-                return true;
+            try {
+                const webhookSuccess = await this.submitViaWebhook(entry);
+                if (webhookSuccess) {
+                    console.log('✅ Webhook submission successful');
+                    return true;
+                } else {
+                    console.warn('⚠️ Webhook submission failed, trying fallback methods');
+                }
+            } catch (webhookError) {
+                console.error('❌ Webhook submission error:', webhookError);
             }
         }
 
         // Fallback to API if webhook fails or is not configured
         if (this.config.apiKey && this.config.spreadsheetId) {
-            return await this.submitViaAPI(entry);
+            try {
+                const apiSuccess = await this.submitViaAPI(entry);
+                if (apiSuccess) {
+                    console.log('✅ API submission successful');
+                    return true;
+                } else {
+                    console.warn('⚠️ API submission failed');
+                }
+            } catch (apiError) {
+                console.error('❌ API submission error:', apiError);
+            }
         }
 
-        console.warn('No Google Sheets integration method available');
+        console.warn('❌ No Google Sheets integration method available or all methods failed');
         return false;
     }
 

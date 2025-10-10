@@ -1,7 +1,7 @@
 {
-  "timestamp": "2025-10-09T16:44:29.563Z",
+  "timestamp": "2025-10-10T00:57:48.530Z",
   "verification": {
-    "timestamp": "2025-10-09T16:43:34.578Z",
+    "timestamp": "2025-10-09T15:10:43.619Z",
     "build": {
       "status": "PASSED",
       "buildTime": "34.28s",
@@ -39,20 +39,116 @@
     "overall": "PENDING"
   },
   "alerts": {
-    "total": 2,
+    "total": 18,
     "critical": 0,
-    "warnings": 2
+    "warnings": 18
   },
   "criticalAlerts": [],
   "warnings": [
     {
-      "timestamp": "2025-10-09T16:44:29.547Z",
+      "timestamp": "2025-10-09T15:11:06.939Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.09MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T15:11:06.945Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:37:53.878Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.09MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:37:53.887Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:39:21.941Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.09MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:39:21.958Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:40:39.260Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.09MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:40:39.270Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:41:32.976Z",
       "type": "bundle_size",
       "message": "Bundle size too large: 5.10MB",
       "severity": "warning"
     },
     {
-      "timestamp": "2025-10-09T16:44:29.563Z",
+      "timestamp": "2025-10-09T16:41:32.989Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:42:18.055Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:42:18.061Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:43:30.851Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-09T16:43:30.864Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T00:57:12.094Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T00:57:12.102Z",
+      "type": "responsiveness",
+      "message": "Low responsiveness score: 44.4%",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T00:57:48.515Z",
+      "type": "bundle_size",
+      "message": "Bundle size too large: 5.10MB",
+      "severity": "warning"
+    },
+    {
+      "timestamp": "2025-10-10T00:57:48.530Z",
       "type": "responsiveness",
       "message": "Low responsiveness score: 44.4%",
       "severity": "warning"
