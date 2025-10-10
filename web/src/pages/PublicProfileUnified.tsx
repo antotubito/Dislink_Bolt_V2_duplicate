@@ -64,7 +64,7 @@ export function PublicProfileUnified() {
       
       if (!data) {
         console.warn('⚠️ [PublicProfile] Connection code validation failed:', connectionCode);
-        setError('Profile not found or not publicly available. This QR code may have expired or the profile may not be set to public.');
+        setError('Profile not found or not publicly available. This QR code may have expired, been used already, or the profile may not be set to public.');
         return;
       }
 
@@ -181,12 +181,20 @@ export function PublicProfileUnified() {
           <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Profile Not Found</h1>
           <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-          >
-            Go to Dislink
-          </button>
+          <div className="flex flex-col space-y-3">
+            <button
+              onClick={loadProfileData}
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              🔄 Try Again
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Go to Dislink
+            </button>
+          </div>
         </div>
       </div>
     );
