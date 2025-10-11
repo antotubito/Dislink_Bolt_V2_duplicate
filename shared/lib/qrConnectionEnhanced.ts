@@ -2,6 +2,7 @@ import { supabase } from './supabase';
 import { logger } from './logger';
 import { createOrUpdateProfile } from './profileCreation';
 import { getEmailRedirectUrl } from './authUtils';
+import { logQROperation, logDatabaseQuery, logUserAction, logPerformance } from './qrLogging';
 import type { User } from '../types/user';
 
 // =====================================================
@@ -65,6 +66,8 @@ export interface ConnectionRequestData {
  * @param userId - Optional user ID (if not provided, uses current authenticated user)
  */
 export async function generateUserQRCode(userId?: string): Promise<QRConnectionData> {
+  const startTime = Date.now();
+  
   try {
     let targetUserId = userId;
     
@@ -72,11 +75,17 @@ export async function generateUserQRCode(userId?: string): Promise<QRConnectionD
     if (!targetUserId) {
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) {
+        logQROperation('GENERATE_AUTH_ERROR', 'unknown', { 
+          error: authError?.message || 'No user found' 
+        }, 'error');
         throw new Error('User must be authenticated to generate QR code');
       }
       targetUserId = user.id;
     }
 
+    logUserAction('GENERATE_QR_START', targetUserId, { 
+      timestamp: new Date().toISOString() 
+    });
     logger.info('Generating QR code for user:', { userId: targetUserId });
 
     // Get user profile data
@@ -148,12 +157,17 @@ export async function generateUserQRCode(userId?: string): Promise<QRConnectionD
  * Uses safe select with inner join and comprehensive error handling
  */
 export async function validateConnectionCode(code: string): Promise<QRConnectionData | null> {
+  const startTime = Date.now();
+  
   try {
+    logQROperation('VALIDATE_START', code, { timestamp: new Date().toISOString() }, 'debug');
     console.debug('🔍 [QR] Starting connection code validation:', { code });
     logger.info('Validating connection code:', { code });
 
     // Use safe select with inner join to profiles table
     console.debug('🔍 [QR] Querying connection_codes with profiles join...');
+    const queryStartTime = Date.now();
+    
     const { data: connectionData, error } = await supabase
       .from('connection_codes')
       .select(`
@@ -175,20 +189,43 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
       .eq('is_active', true)
       .single();
 
-    console.debug('🔍 [QR] validateConnectionCode query result:', { 
-      code, 
-      connectionData, 
+    const queryDuration = Date.now() - queryStartTime;
+    
+    // Log database query with sanitized data
+    logDatabaseQuery('SELECT', 'connection_codes', {
+      code: code.substring(0, 8) + '...' + code.substring(code.length - 4),
+      filters: { is_active: true }
+    }, { data: connectionData, error });
+
+    logPerformance('QR_VALIDATE_QUERY', queryDuration, {
+      code: code.substring(0, 8) + '...' + code.substring(code.length - 4),
+      hasData: !!connectionData,
+      hasError: !!error
+    });
+
+    console.debug('🔍 [QR] validateConnectionCode query result:', {
+      code,
+      connectionData,
       error,
       hasData: !!connectionData,
       hasProfile: !!connectionData?.profiles
     });
 
     if (error) {
+      logQROperation('VALIDATE_ERROR', code, { 
+        error: error.message,
+        code: error.code,
+        details: error.details 
+      }, 'error');
       console.error('❌ [QR] Database error querying connection_codes:', error);
       logger.error('Database error validating connection code:', error);
       
       // Handle specific error cases
       if (error.code === 'PGRST116') {
+        logQROperation('VALIDATE_NOT_FOUND', code, { 
+          reason: 'connection_code_not_found',
+          errorCode: error.code 
+        }, 'warning');
         console.warn('⚠️ [QR] Connection code not found:', { code });
         return null;
       }
@@ -197,6 +234,9 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
     }
 
     if (!connectionData) {
+      logQROperation('VALIDATE_NOT_FOUND', code, { 
+        reason: 'no_connection_data' 
+      }, 'warning');
       console.warn('⚠️ [QR] No connection data returned:', { code });
       logger.info('Invalid connection code:', { code });
       return null;
@@ -204,6 +244,11 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
 
     // Check if code is expired
     if (connectionData.expires_at && new Date(connectionData.expires_at) < new Date()) {
+      logQROperation('VALIDATE_EXPIRED', code, { 
+        expiresAt: connectionData.expires_at,
+        currentTime: new Date().toISOString(),
+        userId: connectionData.profiles?.id 
+      }, 'warning');
       console.warn('⚠️ [QR] Connection code expired:', { 
         code, 
         expiresAt: connectionData.expires_at,
@@ -215,6 +260,9 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
 
     // Check if profile exists and has public profile enabled
     if (!connectionData.profiles) {
+      logQROperation('VALIDATE_NO_PROFILE', code, { 
+        reason: 'no_profile_data' 
+      }, 'error');
       console.error('❌ [QR] No profile data found for connection code:', { code });
       logger.error('Profile not found for connection code:', { code });
       return null;
@@ -224,6 +272,11 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
 
     // Check if public profile is enabled
     if (!profile.public_profile?.enabled) {
+      logQROperation('VALIDATE_PRIVATE_PROFILE', code, { 
+        userId: profile.id,
+        publicProfileEnabled: false,
+        publicProfile: profile.public_profile 
+      }, 'warning');
       console.warn('⚠️ [QR] Public profile not enabled for user:', {
         userId: profile.id,
         publicProfile: profile.public_profile
@@ -287,6 +340,22 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
       publicProfileUrl: `${baseUrl}/profile/${code}`
     };
 
+    const totalDuration = Date.now() - startTime;
+    
+    logQROperation('VALIDATE_SUCCESS', code, { 
+      userId: profile.id,
+      name: qrData.name,
+      publicProfileUrl: qrData.publicProfileUrl,
+      expiresAt: connectionData.expires_at,
+      duration: totalDuration
+    }, 'info');
+    
+    logPerformance('QR_VALIDATE_TOTAL', totalDuration, {
+      code: code.substring(0, 8) + '...' + code.substring(code.length - 4),
+      userId: profile.id,
+      success: true
+    });
+
     console.debug('✅ [QR] Connection code validated successfully:', { 
       code, 
       userId: profile.id,
@@ -303,6 +372,19 @@ export async function validateConnectionCode(code: string): Promise<QRConnection
     return qrData;
 
   } catch (error) {
+    const totalDuration = Date.now() - startTime;
+    
+    logQROperation('VALIDATE_EXCEPTION', code, { 
+      error: error instanceof Error ? error.message : 'Unknown error',
+      duration: totalDuration
+    }, 'error');
+    
+    logPerformance('QR_VALIDATE_TOTAL', totalDuration, {
+      code: code.substring(0, 8) + '...' + code.substring(code.length - 4),
+      success: false,
+      error: true
+    });
+    
     console.error('❌ [QR] Unexpected error validating connection code:', error);
     logger.error('Error validating connection code:', error);
     
